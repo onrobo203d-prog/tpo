@@ -420,7 +420,7 @@ function saveSettings(){
   });
   const blob=new Blob([JSON.stringify(settings, null, 2) ],{type:"text/plain"});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement("a"); a.href=url; a.download="gacha_settings.txt"; a.click();
+  const a=document.createElement("a"); a.href=url; a.download="闇ガチャ設定.txt"; a.click();
   URL.revokeObjectURL(url);
 }
 function loadSettings(files){
