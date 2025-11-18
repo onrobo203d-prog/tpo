@@ -2,13 +2,15 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>4カウンター</title>
     <style>
         body {
             margin: 0;
             font-family: sans-serif;
             background: #f5f5f5;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .container {
@@ -24,13 +26,37 @@
         .counter-box {
             background: #fff;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+            position: relative;
         }
 
+        /* 名前入力欄 */
+        .name-input {
+            width: 100%;
+            font-size: 20px;
+            padding: 6px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        /* 小さなリセットボタンを右上に配置 */
+        .reset-small {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+        }
+
+        /* カウント数字 */
         .counter-input {
             font-size: 48px;
             text-align: center;
@@ -38,78 +64,91 @@
             width: 100%;
             appearance: none;
             outline: none;
+            margin-top: 8px;
         }
 
+        /* ボタンエリア */
         .buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             margin-top: 10px;
         }
 
         button {
-            flex: 1;
             padding: 12px;
-            margin: 0 5px;
             font-size: 20px;
             border: none;
             border-radius: 8px;
-            background: #007bff;
+            width: 100%;
             color: white;
         }
 
-        .reset {
-            background: #ff4d4d;
-        }
+        /* 4色のプラスボタン */
+        .plus.blue { background: #007bff; }
+        .plus.green { background: #28a745; }
+        .plus.yellow { background: #f0c20c; color: #333; }
+        .plus.pink { background: #ff4da6; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
+
+    <!-- 1 -->
     <div class="counter-box">
+        <input type="text" class="name-input" placeholder="名前">
+        <button class="reset-small">リセット</button>
         <input type="number" class="counter-input" value="0" min="0" max="9999">
         <div class="buttons">
-            <button class="plus">＋</button>
-            <button class="reset">リセット</button>
+            <button class="plus blue">＋</button>
         </div>
     </div>
 
+    <!-- 2 -->
     <div class="counter-box">
+        <input type="text" class="name-input" placeholder="名前">
+        <button class="reset-small">リセット</button>
         <input type="number" class="counter-input" value="0" min="0" max="9999">
         <div class="buttons">
-            <button class="plus">＋</button>
-            <button class="reset">リセット</button>
+            <button class="plus green">＋</button>
         </div>
     </div>
 
+    <!-- 3 -->
     <div class="counter-box">
+        <input type="text" class="name-input" placeholder="名前">
+        <button class="reset-small">リセット</button>
         <input type="number" class="counter-input" value="0" min="0" max="9999">
         <div class="buttons">
-            <button class="plus">＋</button>
-            <button class="reset">リセット</button>
+            <button class="plus yellow">＋</button>
         </div>
     </div>
 
+    <!-- 4 -->
     <div class="counter-box">
+        <input type="text" class="name-input" placeholder="名前">
+        <button class="reset-small">リセット</button>
         <input type="number" class="counter-input" value="0" min="0" max="9999">
         <div class="buttons">
-            <button class="plus">＋</button>
-            <button class="reset">リセット</button>
+            <button class="plus pink">＋</button>
         </div>
     </div>
+
 </div>
 
 <script>
     document.querySelectorAll(".counter-box").forEach(box => {
         const input = box.querySelector(".counter-input");
         const plus = box.querySelector(".plus");
-        const reset = box.querySelector(".reset");
+        const resetSmall = box.querySelector(".reset-small");
 
         plus.addEventListener("click", () => {
             let value = parseInt(input.value) || 0;
             if (value < 9999) input.value = value + 1;
         });
 
-        reset.addEventListener("click", () => {
+        resetSmall.addEventListener("click", () => {
             input.value = 0;
         });
 
