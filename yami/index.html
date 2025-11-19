@@ -40,7 +40,34 @@ input[type=number],input[type=text],select{padding:8px;margin:5px 0;width:100%;b
 
 <!-- プリセット -->
 <div class="section">
-  <label>確率プリセット</label>
+  <label>確率プリセット
+    <button typey="button" onclick="togglePresetHelp()" style="margin-left:10px; padding:12px 20px; font-size:18px;">操作説明</button>
+  </label>
+
+  <div id="presetHelp" style="display:none; padding:10px; margin-top:8px; background:#eef; border-radius:6px;">
+  <p>
+<h1>ーーー使い方ーーー</h1>
+<br>
+▪ 確率プリセットで確率を切り替えられます。<br>
+  カスタム保存した内容は「カスタム」から呼び出せます。<br>
+<br>
+▪ 確率は自由に編集できます（小数OK / 合計100%でなくても可）<br>
+<br>
+▪ 天井機能を使うと「回数」「対象レアリティ」を設定できます。<br>
+  天井はプレイヤーごとに独立してカウントされます。<br>
+<br>
+▪ 例： 10回で天井・レアリティURとLR →  <br>
+  タカシ9連、ハナコ2連、タカシ1連でタカシが天井UR以上が排出される。  <br>
+  その後ハナコが8連したら8連目でハナコの天井が発動。<br>
+<br>
+▪ ログと集計はどちらもコピーできます。<br>
+  名前で絞ると、その人だけの集計になります。<br>
+<br>
+▪ 「設定保存」で確率・カスタム・天井・景品・名前を保存できます。<br>
+   保存したファイルを読み込めば再現できます。<br>
+
+    </p>
+     </div>
   <div class="preset-grid" id="presetGrid">
     <button onclick="setPreset('hope')">希望</button>
     <button onclick="setPreset('dark')">闇</button>
@@ -484,6 +511,12 @@ document.getElementById("playerName").addEventListener("keydown",e=>{
 addItem();
 updatePlayerUI();
 displayLog();
+  
+  function togglePresetHelp(){
+  const box = document.getElementById("presetHelp");
+  box.style.display = (box.style.display === "none") ? "block" : "none";
+}
+
 </script>
 </body>
 </html>
