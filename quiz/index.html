@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>マルバツクイズ</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#38bdf8; --muted:#9aa7b2; --good:#16a34a; --bad:#ef4444;
+    font-family: "Noto Sans JP", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#071227; color:#e6eef6; padding:12px;
+  }
+
+  .app{
+    max-width:900px; margin:0 auto;
+  }
+
+  header{
+    display:flex; flex-direction:column; gap:10px; margin-bottom:12px;
+  }
+  h1{ margin:0; font-size:1.4rem; color:var(--accent); }
+
+  .controls{
+    display:flex; flex-wrap:wrap; gap:8px; width:100%;
+  }
+
+  button, select{
+    padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.1); color:white; font-size:1rem;
+  }
+
+  .main{
+    display:flex; flex-direction:column; gap:12px;
+  }
+
+  .card{
+    background:rgba(255,255,255,0.05); border-radius:10px; padding:16px;
+  }
+
+  .question-area{
+    font-size:1.3rem; min-height:120px; text-align:center; padding:14px;
+  }
+
+  .answers{
+    display:flex; gap:10px; margin-top:12px;
+  }
+
+  .btn-big{
+    flex:1; padding:20px 0; border-radius:12px; font-size:1.5rem; font-weight:700;
+  }
+  .btn-o{ background:#0f3a4d; }
+  .btn-x{ background:#4a0e14; }
+
+  .result{ text-align:center; margin-top:10px; font-size:1.3rem; font-weight:700;}
+  .correct{color:var(--good);}
+  .wrong{color:var(--bad);}
+  .hint{ color:var(--muted); margin-top:6px; font-size:0.9rem; }
+
+  /* スマホ最適化 */
+  @media (max-width:600px){
+    .question-area{ font-size:1.2rem; min-height:80px;}
+    .btn-big{ padding:20px 0; font-size:1.4rem; }
+    .controls{ gap:6px; }
+  }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>マルバツクイズ</h1>
+    <div class="controls">
+      <select id="filterTag"><option value="all">すべてのカテゴリ</option></select>
+      <button id="nextBtn">次の問題 ▶</button>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <!-- 問題カード -->
+    <div class="card">
+      <div id="questionArea" class="question-area"></div>
+
+      <div class="answers">
+        <button class="btn-big btn-o" id="oBtn">○</button>
+        <button class="btn-big btn-x" id="xBtn">×</button>
+      </div>
+
+      <div id="resultArea" class="result"></div>
+      <div id="explainArea" class="hint"></div>
+    </div>
+
+    <!-- 統計 -->
+    <div class="card">
+      <div>出題数: <span id="statAsked">0</span></div>
+      <div>正解数: <span id="statCorrect">0</span></div>
+      <div>正答率: <span id="statRate">0%</span></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* GitHub の JSON を読み込む設定 */
+const GITHUB_JSON_URL =
+  "https://raw.githubusercontent.com/onrobo203d-prog/tpo/main/marubatsu_import.json";
+
+let questions = [];
+let current = null;
+let stats = {asked:0, correct:0};
+
+async function loadQuestionsFromGitHub(){
+  try{
+    const res = await fetch(GITHUB_JSON_URL);
+    if(!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    questions = data.questions || [];
+
+    stats = data.stats || {asked:0, correct:0};
+
+    setupTags();
+    nextQuestion();
+
+  }catch(e){
+    alert("問題データの読み込みに失敗しました");
+    console.error(e);
+  }
+}
+
+function setupTags(){
+  const tagSet = new Set();
+  questions.forEach(q=> (q.tags||[]).forEach(t=>tagSet.add(t)));
+
+  const sel = document.getElementById("filterTag");
+  sel.innerHTML = '<option value="all">すべて</option>';
+
+  [...tagSet].forEach(t=>{
+    const op = document.createElement("option");
+    op.value = t;
+    op.textContent = t;
+    sel.appendChild(op);
+  });
+}
+
+function nextQuestion(){
+  const tag = document.getElementById("filterTag").value;
+  let pool = questions;
+
+  if(tag !== "all"){
+    pool = questions.filter(q => (q.tags||[]).includes(tag));
+  }
+
+  if(pool.length===0){
+    document.getElementById("questionArea").textContent = "このカテゴリには問題がありません。";
+    return;
+  }
+
+  current = pool[Math.floor(Math.random()*pool.length)];
+
+  document.getElementById("questionArea").textContent = current.text;
+  document.getElementById("resultArea").textContent = "";
+  document.getElementById("explainArea").textContent = "";
+}
+
+function checkAnswer(userAnswer){
+  if(!current) return;
+
+  const result = (userAnswer === current.answer);
+
+  stats.asked++;
+  if(result) stats.correct++;
+
+  document.getElementById("resultArea").textContent = result ? "正解！" : "不正解";
+  document.getElementById("resultArea").className = result ? "result correct" : "result wrong";
+
+  if(current.explain){
+    document.getElementById("explainArea").textContent = current.explain;
+  }
+
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById("statAsked").textContent = stats.asked;
+  document.getElementById("statCorrect").textContent = stats.correct;
+  const rate = stats.asked ? Math.round(stats.correct / stats.asked * 100) : 0;
+  document.getElementById("statRate").textContent = rate + "%";
+}
+
+/* イベント */
+document.getElementById("oBtn").onclick = ()=>checkAnswer(true);
+document.getElementById("xBtn").onclick = ()=>checkAnswer(false);
+document.getElementById("nextBtn").onclick = nextQuestion;
+
+/* 起動時に GitHub を読み込み */
+loadQuestionsFromGitHub();
+</script>
+
+</body>
+</html>
