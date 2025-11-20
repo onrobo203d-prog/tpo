@@ -59,13 +59,11 @@
   .wrong{color:var(--bad);}
   .hint{ color:var(--muted); margin-top:6px; font-size:0.9rem; }
 
-  /* スマホ最適化 */
   @media (max-width:600px){
     .question-area{ font-size:1.2rem; min-height:80px;}
     .btn-big{ padding:20px 0; font-size:1.4rem; }
     .controls{ gap:6px; }
   }
-
 </style>
 </head>
 <body>
@@ -81,7 +79,6 @@
 
   <div class="main">
 
-    <!-- 問題カード -->
     <div class="card">
       <div id="questionArea" class="question-area"></div>
 
@@ -94,7 +91,6 @@
       <div id="explainArea" class="hint"></div>
     </div>
 
-    <!-- 統計 -->
     <div class="card">
       <div>出題数: <span id="statAsked">0</span></div>
       <div>正解数: <span id="statCorrect">0</span></div>
@@ -106,7 +102,7 @@
 </div>
 
 <script>
-/* GitHub の JSON を読み込む設定 */
+/* GitHub JSON の URL（必要なら変更可） */
 const GITHUB_JSON_URL =
   "https://raw.githubusercontent.com/onrobo203d-prog/tpo/main/marubatsu_import.json";
 
@@ -114,6 +110,22 @@ let questions = [];
 let current = null;
 let stats = {asked:0, correct:0};
 
+/* ---- 被りゼロ出題用 ---- */
+let shuffled = [];    // シャッフル済み配列
+let indexPos = 0;     // 次に出す位置
+let lastTag = "all";  // 前回のカテゴリ
+
+/* Fisher-Yates シャッフル */
+function resetShuffle(pool) {
+  shuffled = [...pool];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  indexPos = 0;
+}
+
+/* GitHubから問題取得 */
 async function loadQuestionsFromGitHub(){
   try{
     const res = await fetch(GITHUB_JSON_URL);
@@ -133,6 +145,7 @@ async function loadQuestionsFromGitHub(){
   }
 }
 
+/* タグセットアップ */
 function setupTags(){
   const tagSet = new Set();
   questions.forEach(q=> (q.tags||[]).forEach(t=>tagSet.add(t)));
@@ -148,26 +161,40 @@ function setupTags(){
   });
 }
 
+/* ---- 被りゼロ nextQuestion() ---- */
 function nextQuestion(){
   const tag = document.getElementById("filterTag").value;
-  let pool = questions;
 
-  if(tag !== "all"){
-    pool = questions.filter(q => (q.tags||[]).includes(tag));
-  }
+  // カテゴリフィルタ
+  let pool = (tag === "all")
+    ? questions
+    : questions.filter(q => (q.tags||[]).includes(tag));
 
-  if(pool.length===0){
+  if (pool.length === 0) {
     document.getElementById("questionArea").textContent = "このカテゴリには問題がありません。";
     return;
   }
 
-  current = pool[Math.floor(Math.random()*pool.length)];
+  // カテゴリ変更時 → 新しくシャッフル
+  if (tag !== lastTag) {
+    resetShuffle(pool);
+    lastTag = tag;
+  }
+
+  // 最後まで行った or 初回
+  if (shuffled.length === 0 || indexPos >= shuffled.length) {
+    resetShuffle(pool);
+  }
+
+  current = shuffled[indexPos];
+  indexPos++;
 
   document.getElementById("questionArea").textContent = current.text;
   document.getElementById("resultArea").textContent = "";
   document.getElementById("explainArea").textContent = "";
 }
 
+/* 判定 */
 function checkAnswer(userAnswer){
   if(!current) return;
 
@@ -186,6 +213,7 @@ function checkAnswer(userAnswer){
   updateStats();
 }
 
+/* 統計反映 */
 function updateStats(){
   document.getElementById("statAsked").textContent = stats.asked;
   document.getElementById("statCorrect").textContent = stats.correct;
@@ -193,12 +221,12 @@ function updateStats(){
   document.getElementById("statRate").textContent = rate + "%";
 }
 
-/* イベント */
+/* イベント関連 */
 document.getElementById("oBtn").onclick = ()=>checkAnswer(true);
 document.getElementById("xBtn").onclick = ()=>checkAnswer(false);
 document.getElementById("nextBtn").onclick = nextQuestion;
 
-/* 起動時に GitHub を読み込み */
+/* 起動時に読み込み */
 loadQuestionsFromGitHub();
 </script>
 
