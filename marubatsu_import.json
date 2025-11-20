@@ -1,2708 +1,441 @@
 {
   "questions": [
+
+    /* ===== 生活常識 10問 ===== */
     {
-      "id": 1,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 2,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 3,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 4,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 5,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 6,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 7,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 8,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 9,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 10,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 11,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 12,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 13,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 14,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 15,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 16,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 17,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 18,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 19,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 20,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 21,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 22,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 23,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 24,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 25,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 26,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 27,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 28,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 29,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 30,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 31,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 32,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 33,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 34,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 35,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 36,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 37,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 38,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 39,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 40,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 41,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 42,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 43,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 44,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 45,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 46,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 47,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 48,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 49,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 50,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 51,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 52,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 53,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 54,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 55,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 56,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 57,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 58,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 59,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 60,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 61,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 62,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 63,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 64,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 65,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 66,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 67,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 68,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 69,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 70,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 71,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 72,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 73,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 74,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 75,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 76,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 77,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 78,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 79,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 80,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 81,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 82,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 83,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 84,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 85,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 86,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 87,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 88,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 89,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 90,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 91,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 92,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 93,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 94,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 95,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 96,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 97,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 98,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 99,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 100,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 101,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 102,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 103,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 104,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 105,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 106,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 107,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 108,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 109,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 110,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 111,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 112,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 113,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 114,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 115,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 116,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 117,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 118,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 119,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 120,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 121,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 122,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 123,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 124,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 125,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 126,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 127,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 128,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 129,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 130,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 131,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 132,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 133,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 134,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 135,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 136,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 137,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 138,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 139,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 140,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 141,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 142,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 143,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 144,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 145,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 146,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 147,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 148,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 149,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 150,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 151,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 152,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 153,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 154,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 155,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 156,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 157,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 158,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 159,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 160,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 161,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 162,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 163,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 164,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 165,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 166,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 167,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 168,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 169,
-      "text": "日本の最高気温記録は45℃を超えている。",
+      "text": "ペットボトルのキャップと本体は、リサイクル工程が異なるため別々に分別することが推奨されている。",
       "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "history"
-      ]
+      "explain": "キャップはポリプロピレン、本体はPETと素材が異なるため、リサイクルの過程が違う。分離して排出することでリサイクル効率が向上する。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 170,
-      "text": "ビタミンCは熱に強い。",
+      "text": "冷蔵庫を頻繁に開け閉めすると庫内温度はほとんど変化しないため、電力消費への影響は軽微である。",
       "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
+      "explain": "開け閉めのたびに温度が上がり、冷却のためにコンプレッサーが余分に稼働する。特に夏場は消費電力が大きく増える。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 171,
-      "text": "イルカは哺乳類である。",
+      "text": "電子レンジで金属製のスプーンを加熱するとマイクロ波が反射して火花が発生する危険がある。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "history"
-      ]
+      "explain": "金属は電磁波を反射しやすく、局所的に電流が集中してスパークが起こる。火災につながるため金属の使用は避けるべきである。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 172,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "風邪をひいたときに抗生物質を服用すればウイルス感染でも治りが早くなる。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 173,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 174,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "抗生物質は細菌感染にのみ有効で、ウイルスには効かない。不要な服用は耐性菌の増加にもつながる。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 175,
-      "text": "アメリカの独立記念日は7月4日である。",
+      "text": "消費期限は安全性に関わる表示であり、賞味期限よりも厳しい基準で設定されている。",
       "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 176,
-      "text": "カフェインは眠気を促進する物質である。",
-      "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "science"
-      ]
+      "explain": "消費期限は“食べられるかどうか”の基準で、傷みやすい食品に付けられる。賞味期限は“品質が保たれるか”の目安である。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 177,
-      "text": "ビタミンCは熱に強い。",
+      "text": "IHクッキングヒーターはガスコンロよりも室内の二酸化炭素濃度を上昇させやすい。",
       "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "IHは電気で加熱するため燃焼が起こらず、CO₂は発生しない。ガス機器のほうが空気環境への影響は大きい。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 178,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 179,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 180,
-      "text": "イルカは哺乳類である。",
+      "text": "単三電池と単四電池は電圧は同じだが、容量の大きさが異なる。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 181,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "両方とも1.5Vの電池だが、単三のほうが内部に多くの電解質を含み、容量が大きい。駆動時間に影響する。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 182,
-      "text": "カフェインは眠気を促進する物質である。",
+      "text": "入浴時、熱い湯に長時間浸かるほうが血圧が安定しやすい。",
       "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 183,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "history"
-      ]
+      "explain": "高温の湯は交感神経が刺激され血圧が急上昇しやすい。40℃前後の湯に短時間入るほうが身体に負担が少ない。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 184,
-      "text": "光の速度は約30万km/sである。",
+      "text": "スーパーで売られている刺身は冷凍保存されてから解凍されたものが多い。",
       "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "寄生虫リスクを減らすため、流通過程で冷凍処理されることが一般的である。輸送効率も向上する。",
+      "tags": ["生活常識"]
     },
     {
-      "id": 185,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
+      "text": "衣類乾燥機はフィルター掃除をしなくても乾燥性能にほとんど影響はない。",
       "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 186,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 187,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 188,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "general"
-      ]
+      "explain": "フィルターが詰まると風量が低下し乾燥効率が大幅に落ちる。過熱や故障の原因にもなる。",
+      "tags": ["生活常識"]
     },
+
+
+    /* ===== 理科（物理・化学・生物） 10問 ===== */
+
     {
-      "id": 189,
-      "text": "アメリカの独立記念日は7月4日である。",
+      "text": "断熱圧縮では外部から熱を出し入れしないが、気体の温度は上昇する。",
       "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 190,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "外部仕事を受けて内部エネルギーが増えるため温度が上がる。断熱＝温度変化なしではない。",
+      "tags": ["理科"]
     },
     {
-      "id": 191,
-      "text": "水は0℃で必ず凍る。",
+      "text": "光の屈折率はすべての波長で同じであるため、プリズムで色が分かれる現象は起こらない。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "屈折率は波長依存で、短波長側ほど大きい。これが分散となり光が色ごとに分離する。",
+      "tags": ["理科"]
     },
     {
-      "id": 192,
-      "text": "カフェインは眠気を促進する物質である。",
+      "text": "化学平衡は触媒を加えると平衡の位置自体が変化する。",
       "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "触媒は反応速度を上げるが、正逆反応を同じ割合で促進するため平衡位置は変わらない。",
+      "tags": ["理科"]
     },
     {
-      "id": 193,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 194,
-      "text": "イルカは哺乳類である。",
+      "text": "水溶液のpHが1変わると、水素イオン濃度は10倍変化する。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "pHは対数尺度であり、1の差は10倍の濃度差に対応する。指数スケールの典型例。",
+      "tags": ["理科"]
     },
     {
-      "id": 195,
-      "text": "南極にはペンギンが生息する。",
+      "text": "光合成のカルビン回路は暗反応と呼ばれるが、必ずしも暗闇でしか進行しないわけではない。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "general"
-      ]
+      "explain": "“暗反応”は光を直接必要としないという意味で、光環境下でも進む。名称の誤解が多い。",
+      "tags": ["理科"]
     },
     {
-      "id": 196,
-      "text": "水は0℃で必ず凍る。",
+      "text": "酸化還元反応では酸化数が減ると酸化されたことを意味する。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 197,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 198,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "history"
-      ]
+      "explain": "酸化数が減るのは還元。酸化は電子を失い酸化数が上がる方向。",
+      "tags": ["理科"]
     },
     {
-      "id": 199,
-      "text": "富士山は日本で最も高い山である。",
+      "text": "DNAの複製は半保存的複製であり、1本の古い鎖と1本の新しい鎖からなる二重らせんができる。",
       "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
+      "explain": "メセルソンとスタールの実験によって実証された。片方の鎖は必ず親由来となる。",
+      "tags": ["理科"]
     },
     {
-      "id": 200,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "力学的エネルギー保存則は摩擦力が働いても常に成り立つ。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "摩擦力は非保存力でエネルギーを熱に変えるため、力学的エネルギーは保存しない。",
+      "tags": ["理科"]
     },
     {
-      "id": 201,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "電気分解では陰極に酸化反応が起こる。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "電気分解では陰極で還元、陽極で酸化が起こる。電池反応とは極性の扱いが逆になる。",
+      "tags": ["理科"]
     },
     {
-      "id": 202,
-      "text": "南極にはペンギンが生息する。",
+      "text": "進化の過程では突然変異が生じ、その中から生存に有利な変異が選択されて残っていく。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 203,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "history"
-      ]
+      "explain": "自然選択は有利な変異を増やし、不利なものを淘汰する。進化の中心概念である。",
+      "tags": ["理科"]
     },
+
+    /* ===== 数学基礎 10問 ===== */
     {
-      "id": 204,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 205,
-      "text": "地球は太陽の周りを公転している。",
+      "text": "ある実数列が単調増加かつ上に有界ならば、その数列は必ず収束する。",
       "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "単調収束定理により、上に有界な単調増加列は極限値を持つ。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 206,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "命題「AならばB」で、Aが偽の場合は常に命題全体も偽となる。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 207,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 208,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "general"
-      ]
+      "explain": "Aが偽のとき“ならば”命題は常に真。数学の論理で重要な基本事項。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 209,
-      "text": "水は0℃で必ず凍る。",
+      "text": "2次関数のグラフは必ずx軸と2点で交わる。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "general"
-      ]
+      "explain": "判別式が0なら1点、負なら交わらない。2点になるのは判別式が正のときのみ。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 210,
-      "text": "日本の最高気温記録は45℃を超えている。",
+      "text": "整数の集合は有理数の集合に含まれる。",
       "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 211,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "整数nはn/1として表せるため有理数の部分集合となる。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 212,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
+      "text": "三角形の内角の和は球面上でも180度である。",
       "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "history"
-      ]
+      "explain": "球面幾何では三角形の内角和は180度を超える。平面幾何とは性質が異なる。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 213,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 214,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 215,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 216,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 217,
-      "text": "アメリカの独立記念日は7月4日である。",
+      "text": "ある関数の導関数が常に0なら、その関数は必ず一定値である。",
       "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "history"
-      ]
+      "explain": "導関数が0は傾きゼロを意味し、定数関数のみが該当する。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 218,
-      "text": "カフェインは眠気を促進する物質である。",
+      "text": "複素数平面ではiの2乗は+1になる。",
       "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "i^2 = -1 が複素数の基本定義である。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 219,
-      "text": "地球は太陽の周りを公転している。",
-      "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 220,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "対数の底を変える公式は指数法則と無関係である。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 221,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 222,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 223,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "science"
-      ]
+      "explain": "底の変換公式は指数と対数の関係をもとに導かれ、指数法則と密接に関連している。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 224,
-      "text": "光の速度は約30万km/sである。",
+      "text": "サイコロを1回振るとき、奇数が出る確率は1/2である。",
       "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
+      "explain": "1,3,5 の3つが奇数で、全6通り中3通りのため1/2となる。",
+      "tags": ["数学基礎"]
     },
     {
-      "id": 225,
-      "text": "地球は太陽の周りを公転している。",
+      "text": "垂直二等分線は必ず三角形の外心を通る。",
       "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "三辺の垂直二等分線は一点で交わり、それが外心となる。",
+      "tags": ["数学基礎"]
     },
+
+    /* ===== 日本史 10問 ===== */
     {
-      "id": 226,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 227,
-      "text": "地球は太陽の周りを公転している。",
+      "text": "聖徳太子は冠位十二階を制定し、能力に基づく身分秩序を整えたとされる。",
       "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "history"
-      ]
+      "explain": "氏姓制度とは別に、才能を重視した序列を導入した革新的制度だった。",
+      "tags": ["日本史"]
     },
     {
-      "id": 228,
-      "text": "ビタミンCは熱に強い。",
+      "text": "遣唐使は平安時代末まで継続し、鎌倉幕府によって廃止された。",
       "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 229,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
+      "explain": "遣唐使は894年、菅原道真の献言により停止され、鎌倉期には存在しない。",
+      "tags": ["日本史"]
     },
     {
-      "id": 230,
-      "text": "南極にはペンギンが生息する。",
+      "text": "平将門の乱は関東地方で起こった反乱で、後に朝廷は将門を朝敵とした。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 231,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "将門は関東で自立的勢力を築き“新皇”を称したため、討伐対象となった。",
+      "tags": ["日本史"]
     },
     {
-      "id": 232,
-      "text": "水は0℃で必ず凍る。",
+      "text": "鎌倉幕府の執権北条氏は、院政を行う天皇の意向に従って政務を行った。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "history"
-      ]
+      "explain": "北条氏は幕府内部の実権を握り、朝廷より独立した支配体制を築いた。",
+      "tags": ["日本史"]
     },
     {
-      "id": 233,
-      "text": "イルカは哺乳類である。",
+      "text": "応仁の乱は将軍家の後継争いを契機として発生し、京都を荒廃させた。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "細川勝元と山名宗全の対立が全国的な戦乱に発展し、戦国時代の幕開けとなった。",
+      "tags": ["日本史"]
     },
     {
-      "id": 234,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
+      "text": "徳川家康は江戸幕府を開く前に大坂城を本拠としていた。",
       "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 235,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "家康は関東移封により江戸を本拠とし、大坂城は豊臣氏の拠点であった。",
+      "tags": ["日本史"]
     },
     {
-      "id": 236,
-      "text": "光の速度は約30万km/sである。",
+      "text": "鎖国体制下でも長崎を通じてオランダとの貿易は続けられた。",
       "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
+      "explain": "長崎の出島に限定されていたが、学問・医術など西洋文化の流入は続いた。",
+      "tags": ["日本史"]
     },
     {
-      "id": 237,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "尊王攘夷運動は明治政府成立後も公式政策として長期に続いた。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 238,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 239,
-      "text": "アメリカの独立記念日は7月4日である。",
-      "answer": true,
-      "explain": "1776年の独立宣言に基づきます。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 240,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 241,
-      "text": "人間の骨の数は約200本である。",
-      "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "維新後は急速に開国・近代化路線へ転換し、攘夷は放棄された。",
+      "tags": ["日本史"]
     },
     {
-      "id": 242,
-      "text": "イルカは哺乳類である。",
+      "text": "廃藩置県により藩は県に改められ、中央集権体制が大きく強化された。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "藩主による支配が廃止され、政府直轄の行政制度が整備された。",
+      "tags": ["日本史"]
     },
     {
-      "id": 243,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 244,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 245,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 246,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 247,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "日清戦争は日本が敗北し、多額の賠償金を中国（清）に支払うことで終結した。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "history"
-      ]
+      "explain": "日本が勝利し、下関条約で清から遼東半島・台湾・賠償金などを得た。",
+      "tags": ["日本史"]
     },
+
+    /* ===== 世界史 10問 ===== */
     {
-      "id": 248,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 249,
-      "text": "南極にはペンギンが生息する。",
+      "text": "古代エジプトではナイル川の氾濫を利用した豊かな農業が発達した。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "history"
-      ]
+      "explain": "定期的な氾濫により肥沃な土壌が形成され、小麦などの生産が安定した。",
+      "tags": ["世界史"]
     },
     {
-      "id": 250,
-      "text": "カフェインは眠気を促進する物質である。",
+      "text": "アテネの民主政ではすべての住民が投票権を持っていた。",
       "answer": false,
-      "explain": "カフェインは覚醒作用があります。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 251,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "science"
-      ]
+      "explain": "市民権を持つ男性のみが政治に参加でき、女性・奴隷・在住外国人は除外されていた。",
+      "tags": ["世界史"]
     },
     {
-      "id": 252,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "ローマ帝国は東西に分裂した後、西ローマ帝国のほうが長く生き残った。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "西ローマは476年に滅亡し、東ローマ（ビザンツ）は15世紀まで続いた。",
+      "tags": ["世界史"]
     },
     {
-      "id": 253,
-      "text": "日本の最高気温記録は45℃を超えている。",
+      "text": "イスラム帝国では紙の製法が伝わり、学問体系が大きく発展した。",
       "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "製紙技術は知識の蓄積を容易にし、天文学・数学などで独自の発展が見られた。",
+      "tags": ["世界史"]
     },
     {
-      "id": 254,
-      "text": "南極にはペンギンが生息する。",
+      "text": "十字軍遠征は西欧の経済と都市の発展に影響を与えた。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "science"
-      ]
+      "explain": "東方との交流が増え交易が活発化したことが都市の成長につながった。",
+      "tags": ["世界史"]
     },
     {
-      "id": 255,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "産業革命は最初にフランスで本格化し、その後イギリスへ広まった。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "産業革命はイギリスで18世紀に始まったのが通説である。",
+      "tags": ["世界史"]
     },
     {
-      "id": 256,
-      "text": "日本の最高気温記録は45℃を超えている。",
+      "text": "フランス革命後、ナポレオンは皇帝に即位しヨーロッパ全土へ勢力を拡大した。",
       "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "general"
-      ]
+      "explain": "軍事的才能を背景に広い範囲を支配したが、ロシア遠征の失敗などで失脚した。",
+      "tags": ["世界史"]
     },
     {
-      "id": 257,
-      "text": "日本の最高気温記録は45℃を超えている。",
+      "text": "ロシア革命ではロマノフ朝が打倒され、ソビエト政権が成立した。",
       "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 258,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
-      "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "帝政が崩壊し、ボリシェヴィキが権力を掌握して世界初の社会主義国家となった。",
+      "tags": ["世界史"]
     },
     {
-      "id": 259,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "第一次世界大戦はヨーロッパでの局地戦に留まり、世界全体への影響は小さかった。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "多くの国が参戦し、戦後の国際秩序や技術発展に大きな影響を残した。",
+      "tags": ["世界史"]
     },
     {
-      "id": 260,
-      "text": "イルカは哺乳類である。",
+      "text": "冷戦期には米ソを中心とする二極構造が形成され、軍拡競争が激化した。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "核兵器の開発競争や宇宙開発競争など、多方面で対立が続いた。",
+      "tags": ["世界史"]
     },
+
+    /* ===== 地理 10問 ===== */
     {
-      "id": 261,
-      "text": "イルカは哺乳類である。",
+      "text": "地中海性気候は夏に乾燥し冬に雨が多い。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "general"
-      ]
+      "explain": "亜熱帯高圧帯の影響で夏は晴天が多く、冬に偏西風で降雨が増える。",
+      "tags": ["地理"]
     },
     {
-      "id": 262,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "サバナ気候は年間を通して降水量が多く、熱帯雨林が発達する。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 263,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "サバナ気候は乾季と雨季が明確で、樹木がまばらな草原が広がる。",
+      "tags": ["地理"]
     },
     {
-      "id": 264,
-      "text": "イルカは哺乳類である。",
+      "text": "フィヨルドは氷河による侵食によって形成された谷が沈水してできる地形である。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "history"
-      ]
+      "explain": "氷食作用でU字谷が作られ、海水が入り込んだものがフィヨルドとなる。",
+      "tags": ["地理"]
     },
     {
-      "id": 265,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 266,
-      "text": "水は0℃で必ず凍る。",
+      "text": "砂漠はすべてが高温で形成されるが、降水量の多寡とは無関係である。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 267,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 268,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 269,
-      "text": "日本の最高気温記録は45℃を超えている。",
-      "answer": true,
-      "explain": "2020年代に入って記録更新が報告されています。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "砂漠化の主要因は極端な少雨であり、気温は直接の条件ではない。",
+      "tags": ["地理"]
     },
     {
-      "id": 270,
-      "text": "南極にはペンギンが生息する。",
+      "text": "プレート境界では地震や火山が発生しやすい。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "general"
-      ]
+      "explain": "プレート運動により地殻応力が集中し、活動が活発になる。",
+      "tags": ["地理"]
     },
     {
-      "id": 271,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 272,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
+      "text": "モンスーンは季節によって風向がほとんど変化しない。",
       "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "大陸と海洋の温度差によって季節風が大きく変化するのが特徴。",
+      "tags": ["地理"]
     },
     {
-      "id": 273,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "ステップ気候は乾燥して木が少ないが、農業に全く利用できない。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "灌漑を行えば小麦などの栽培が可能で、牧畜にも適している。",
+      "tags": ["地理"]
     },
     {
-      "id": 274,
-      "text": "ビタミンCは熱に強い。",
+      "text": "世界の人口は高緯度地域ほど密度が高くなる傾向がある。",
       "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "農業適地や温暖な気候の低緯度・中緯度に人口が集中しやすい。",
+      "tags": ["地理"]
     },
     {
-      "id": 275,
-      "text": "光の速度は約30万km/sである。",
+      "text": "オアシスは地下水や湧水を利用して農耕が行われる地域である。",
       "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 276,
-      "text": "オーストラリアの首都はシドニーである。",
-      "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "乾燥地帯の生活を支える重要な水源となっている。",
+      "tags": ["地理"]
     },
     {
-      "id": 277,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "海洋の暖流は一般に周辺地域の気温を下げる。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "暖流は気温を上げ、寒流が周辺地域を冷やす。気候に大きく影響する。",
+      "tags": ["地理"]
     },
+
+    /* ===== 社会常識 10問 ===== */
     {
-      "id": 278,
-      "text": "人間の骨の数は約200本である。",
+      "text": "GDPは国内で生み出された付加価値の総額を示す指標である。",
       "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 279,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "science"
-      ]
+      "explain": "国内で生産された財・サービスの価値を測り、経済規模を示す代表的指標である。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 280,
-      "text": "水は0℃で必ず凍る。",
+      "text": "インフレが進むと貨幣価値は上がり、同じ金額でより多くの商品が買えるようになる。",
       "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "インフレは物価上昇のことで、貨幣価値は下がり購入量は減る。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 281,
-      "text": "南極にはペンギンが生息する。",
+      "text": "失業率は労働力人口に対する失業者の割合を示す。",
       "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 282,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "science"
-      ]
+      "explain": "労働力人口は働く意思のある人の数で、その中で仕事がない人の割合が失業率となる。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 283,
-      "text": "血液型は全部で6種類存在する。",
+      "text": "為替レートが円安に進むと、日本から見て海外の商品は安く購入できるようになる。",
       "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "円安は円の価値が下がるため、輸入品は高くなりやすい。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 284,
-      "text": "血液型は全部で6種類存在する。",
-      "answer": false,
-      "explain": "一般的にはA,B,O,ABの4種類です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 285,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "general"
-      ]
-    },
-    {
-      "id": 286,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 287,
-      "text": "南極にはペンギンが生息する。",
-      "answer": true,
-      "explain": "野生のペンギンは南半球に住みます。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 288,
-      "text": "人間の骨の数は約200本である。",
+      "text": "国連安全保障理事会では常任理事国に拒否権が認められている。",
       "answer": true,
-      "explain": "成人は約206本です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 289,
-      "text": "富士山は日本で最も高い山である。",
-      "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "culture"
-      ]
-    },
-    {
-      "id": 290,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 291,
-      "text": "水は0℃で必ず凍る。",
-      "answer": false,
-      "explain": "気圧によって0℃以下でも凍らない場合があります。",
-      "tags": [
-        "culture"
-      ]
+      "explain": "米英仏中露の5か国は拒否権を持ち、決議の成立に大きな影響力を持つ。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 292,
-      "text": "サハラ砂漠は世界最大の砂漠である。",
+      "text": "景気後退期には一般に企業の投資意欲が高まり、設備投資が増える傾向がある。",
       "answer": false,
-      "explain": "世界最大は南極大陸の氷雪砂漠です。",
-      "tags": [
-        "geography"
-      ]
-    },
-    {
-      "id": 293,
-      "text": "イルカは哺乳類である。",
-      "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "geography"
-      ]
+      "explain": "不確実性が高まり投資は減るのが通常である。景気循環の基本的性質。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 294,
-      "text": "富士山は日本で最も高い山である。",
+      "text": "日本銀行は物価の安定を主要な目的とする中央銀行である。",
       "answer": true,
-      "explain": "標高3776mで日本一です。",
-      "tags": [
-        "science"
-      ]
-    },
-    {
-      "id": 295,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "sports"
-      ]
-    },
-    {
-      "id": 296,
-      "text": "光の速度は約30万km/sである。",
-      "answer": true,
-      "explain": "真空中の光速は約299,792km/sです。",
-      "tags": [
-        "history"
-      ]
-    },
-    {
-      "id": 297,
-      "text": "ビタミンCは熱に強い。",
-      "answer": false,
-      "explain": "ビタミンCは熱に弱い水溶性ビタミンです。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "インフレやデフレの過度な進行を防ぎ、経済の安定に寄与する。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 298,
-      "text": "オーストラリアの首都はシドニーである。",
+      "text": "株価が上昇すると、企業が調達できる資金量は一般に減少する。",
       "answer": false,
-      "explain": "首都はキャンベラです。",
-      "tags": [
-        "sports"
-      ]
+      "explain": "株価が上がると企業価値が高まり、新株発行などで資金調達しやすくなる。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 299,
-      "text": "イルカは哺乳類である。",
+      "text": "OPECは主に石油輸出国が加盟する国際組織で、価格調整の役割も担っている。",
       "answer": true,
-      "explain": "クジラと同じく哺乳類です。",
-      "tags": [
-        "history"
-      ]
+      "explain": "産油国が協調して生産量を調整し、原油価格に影響を及ぼしている。",
+      "tags": ["社会常識"]
     },
     {
-      "id": 300,
-      "text": "地球は太陽の周りを公転している。",
+      "text": "国際貿易では自国が最も得意な財だけを輸出し、それ以外は輸入するのが比較優位の原則である。",
       "answer": true,
-      "explain": "一年かけて太陽の周りを公転します。",
-      "tags": [
-        "science"
-      ]
+      "explain": "比較優位は機会費用が低い財に特化することで全体の利益が増えるという理論である。",
+      "tags": ["社会常識"]
     }
-  ],
-  "stats": {
-    "asked": 0,
-    "correct": 0
-  }
+
+  ]
 }
