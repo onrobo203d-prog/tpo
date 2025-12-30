@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイマー&サイコロ</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f5f5;
+}
+.notice {
+  text-align: center;
+  font-weight: bold;
+  color: #c00;
+  padding: 8px;
+}
+.container {
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+.timer-area {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+.timer-box {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+}
+.timer-title {
+  font-weight: bold;
+}
+.timer-input {
+  width: 70px;
+  font-size: 16px;
+  text-align: center;
+}
+.time-display {
+  font-size: 28px;
+  margin: 6px 0;
+}
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+button {
+  padding: 6px 12px;
+  font-size: 15px;
+}
+.dice-area {
+  flex: 1;
+  background: #fff;
+  margin: 10px;
+  border-radius: 12px;
+  text-align: center;
+  padding: 20px;
+}
+.dice-box {
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+  border-radius: 16px;
+  border: 4px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: bold;
+  background: #fff;
+}
+.rolling {
+  animation: shake 0.15s infinite;
+}
+@keyframes shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="notice">※ 音が出ます ※</div>
+
+<div class="container">
+
+  <!-- タイマー -->
+  <div class="timer-area">
+    <div class="timer-box">
+      <div class="timer-title">⏱ タイマー①</div>
+      <input type="number" id="input1" class="timer-input" placeholder="秒"> 秒
+      <div id="display1" class="time-display">0</div>
+      <div class="button-row">
+        <button onclick="startTimer(1)">▶</button>
+        <button onclick="resetTimer(1)">⟲</button>
+      </div>
+    </div>
+
+    <div class="timer-box">
+      <div class="timer-title">⏱ タイマー②</div>
+      <input type="number" id="input2" class="timer-input" placeholder="秒"> 秒
+      <div id="display2" class="time-display">0</div>
+      <div class="button-row">
+        <button onclick="startTimer(2)">▶</button>
+        <button onclick="resetTimer(2)">⟲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- サイコロ -->
+  <div class="dice-area">
+    <div class="timer-title">🎲 サイコロ</div>
+    <div id="dice" class="dice-box">?</div>
+    <button onclick="rollDice()">回す！</button>
+  </div>
+
+</div>
+
+<script>
+let timers = { 1: null, 2: null };
+let audioCtx = null;
+
+/* iOS対策：AudioContext初期化 */
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+/* タイマー終了音：ピピピピッ */
+function playTimerSound() {
+  if (!audioCtx) return;
+  let time = audioCtx.currentTime;
+
+  for (let i = 0; i < 8; i++) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1000, time);
+
+    gain.gain.setValueAtTime(0.001, time);
+    gain.gain.linearRampToValueAtTime(0.25, time + 0.02);
+    gain.gain.linearRampToValueAtTime(0.001, time + 0.15);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.15);
+    time += 0.18;
+  }
+}
+
+/* サイコロ音：ジャン！ */
+function playDiceSound() {
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
+
+  gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.6);
+}
+
+/* タイマー制御 */
+function startTimer(num) {
+  initAudio();
+
+  const input = document.getElementById('input' + num);
+  const display = document.getElementById('display' + num);
+  let time = parseInt(input.value);
+  if (isNaN(time) || time <= 0) return;
+
+  clearInterval(timers[num]);
+  display.textContent = time;
+
+  timers[num] = setInterval(() => {
+    time--;
+    display.textContent = time;
+    if (time <= 0) {
+      clearInterval(timers[num]);
+      playTimerSound();
+    }
+  }, 1000);
+}
+
+function resetTimer(num) {
+  clearInterval(timers[num]);
+  document.getElementById('display' + num).textContent = 0;
+}
+
+/* サイコロ */
+function rollDice() {
+  initAudio();
+
+  const dice = document.getElementById('dice');
+  dice.classList.add('rolling');
+
+  const rolling = setInterval(() => {
+    dice.textContent = Math.floor(Math.random() * 6) + 1;
+  }, 100);
+
+  setTimeout(() => {
+    clearInterval(rolling);
+    const result = Math.floor(Math.random() * 6) + 1;
+    dice.textContent = result;
+    dice.classList.remove('rolling');
+    playDiceSound();
+  }, 3000);
+}
+</script>
+
+</body>
+</html>
