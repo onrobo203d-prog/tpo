@@ -17,8 +17,12 @@ body {
   color: #c00;
   padding: 8px;
 }
+.sound-init {
+  text-align: center;
+  margin-bottom: 4px;
+}
 .container {
-  height: calc(100vh - 40px);
+  height: calc(100vh - 90px);
   display: flex;
   flex-direction: column;
 }
@@ -38,7 +42,7 @@ body {
   font-weight: bold;
 }
 .timer-input {
-  width: 70px;
+  width: 80px;
   font-size: 16px;
   text-align: center;
 }
@@ -74,7 +78,6 @@ button {
   justify-content: center;
   font-size: 48px;
   font-weight: bold;
-  background: #fff;
 }
 .rolling {
   animation: shake 0.15s infinite;
@@ -91,16 +94,19 @@ button {
 
 <body>
 
-<div class="notice">※ 音が出ます ※</div>
+<div class="notice">※ 配信前に「音を有効化」を必ず押してください ※</div>
+
+<div class="sound-init">
+  <button id="soundBtn" onclick="enableSound()">🔊 音を有効化</button>
+</div>
 
 <div class="container">
 
-  <!-- タイマー -->
   <div class="timer-area">
     <div class="timer-box">
       <div class="timer-title">⏱ タイマー①</div>
       <input type="number" id="input1" class="timer-input" placeholder="秒"> 秒
-      <div id="display1" class="time-display">0</div>
+      <div id="display1" class="time-display">0:00</div>
       <div class="button-row">
         <button onclick="startTimer(1)">▶</button>
         <button onclick="resetTimer(1)">⟲</button>
@@ -110,7 +116,7 @@ button {
     <div class="timer-box">
       <div class="timer-title">⏱ タイマー②</div>
       <input type="number" id="input2" class="timer-input" placeholder="秒"> 秒
-      <div id="display2" class="time-display">0</div>
+      <div id="display2" class="time-display">0:00</div>
       <div class="button-row">
         <button onclick="startTimer(2)">▶</button>
         <button onclick="resetTimer(2)">⟲</button>
@@ -118,7 +124,6 @@ button {
     </div>
   </div>
 
-  <!-- サイコロ -->
   <div class="dice-area">
     <div class="timer-title">🎲 サイコロ</div>
     <div id="dice" class="dice-box">?</div>
@@ -128,108 +133,141 @@ button {
 </div>
 
 <script>
-let timers = { 1: null, 2: null };
-let audioCtx = null;
+let audioCtx;
+let silentOsc;
+let timers = {};
+let soundEnabled = false;
 
-/* iOS対策：AudioContext初期化 */
-function initAudio() {
+/* ---------- 音有効化（最重要） ---------- */
+async function enableSound() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
+  if (audioCtx.state !== 'running') {
+    await audioCtx.resume();
+  }
+
+  // 🔑 ユーザー操作中に「聞こえる音」を1回鳴らす
+  const clickOsc = audioCtx.createOscillator();
+  const clickGain = audioCtx.createGain();
+  clickOsc.frequency.value = 800;
+  clickGain.gain.value = 0.2;
+  clickOsc.connect(clickGain).connect(audioCtx.destination);
+  clickOsc.start();
+  clickOsc.stop(audioCtx.currentTime + 0.05);
+
+  // 無音ループで Context を維持
+  if (!silentOsc) {
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0.0001;
+    silentOsc = audioCtx.createOscillator();
+    silentOsc.frequency.value = 440;
+    silentOsc.connect(gain).connect(audioCtx.destination);
+    silentOsc.start();
+  }
+
+  soundEnabled = true;
+  document.querySelector('.notice').textContent =
+    '🔊 音は有効です（このまま配信開始OK）';
+  document.getElementById('soundBtn').style.display = 'none';
+}
+
+/* ---------- iOS復帰対策 ---------- */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && audioCtx?.state !== 'running') {
     audioCtx.resume();
   }
-}
+});
 
-/* タイマー終了音：ピピピピッ */
+/* ---------- 効果音 ---------- */
 function playTimerSound() {
-  if (!audioCtx) return;
-  let time = audioCtx.currentTime;
-
+  let t = audioCtx.currentTime;
   for (let i = 0; i < 8; i++) {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1000, time);
-
-    gain.gain.setValueAtTime(0.001, time);
-    gain.gain.linearRampToValueAtTime(0.25, time + 0.02);
-    gain.gain.linearRampToValueAtTime(0.001, time + 0.15);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start(time);
-    osc.stop(time + 0.15);
-    time += 0.18;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'square';
+    o.frequency.value = 1000;
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.25, t + 0.02);
+    g.gain.linearRampToValueAtTime(0.001, t + 0.15);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t);
+    o.stop(t + 0.15);
+    t += 0.18;
   }
 }
 
-/* サイコロ音：ジャン！ */
 function playDiceSound() {
-  if (!audioCtx) return;
-
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
-
-  gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.6);
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(300, audioCtx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
+  g.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + 0.6);
 }
 
-/* タイマー制御 */
-function startTimer(num) {
-  initAudio();
+/* ---------- 時間表示 ---------- */
+function format(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
-  const input = document.getElementById('input' + num);
-  const display = document.getElementById('display' + num);
-  let time = parseInt(input.value);
-  if (isNaN(time) || time <= 0) return;
+/* ---------- タイマー ---------- */
+function startTimer(n) {
+  if (!soundEnabled) {
+    document.querySelector('.notice').textContent =
+      '⚠ 先に「音を有効化」を押してください';
+    return;
+  }
 
-  clearInterval(timers[num]);
-  display.textContent = time;
+  const input = document.getElementById('input' + n);
+  const display = document.getElementById('display' + n);
+  const total = Number(input.value);
+  if (!total) return;
 
-  timers[num] = setInterval(() => {
-    time--;
-    display.textContent = time;
-    if (time <= 0) {
-      clearInterval(timers[num]);
+  const start = performance.now();
+  clearInterval(timers[n]);
+
+  timers[n] = setInterval(() => {
+    const elapsed = Math.floor((performance.now() - start) / 1000);
+    const remain = Math.max(0, total - elapsed);
+    display.textContent = format(remain);
+    if (remain <= 0) {
+      clearInterval(timers[n]);
       playTimerSound();
     }
-  }, 1000);
+  }, 250);
 }
 
-function resetTimer(num) {
-  clearInterval(timers[num]);
-  document.getElementById('display' + num).textContent = 0;
+function resetTimer(n) {
+  clearInterval(timers[n]);
+  document.getElementById('display' + n).textContent = '0:00';
 }
 
-/* サイコロ */
+/* ---------- サイコロ ---------- */
 function rollDice() {
-  initAudio();
+  if (!soundEnabled) {
+    document.querySelector('.notice').textContent =
+      '⚠ 先に「音を有効化」を押してください';
+    return;
+  }
 
   const dice = document.getElementById('dice');
   dice.classList.add('rolling');
 
-  const rolling = setInterval(() => {
+  const r = setInterval(() => {
     dice.textContent = Math.floor(Math.random() * 6) + 1;
   }, 100);
 
   setTimeout(() => {
-    clearInterval(rolling);
-    const result = Math.floor(Math.random() * 6) + 1;
-    dice.textContent = result;
+    clearInterval(r);
+    dice.textContent = Math.floor(Math.random() * 6) + 1;
     dice.classList.remove('rolling');
     playDiceSound();
   }, 3000);
