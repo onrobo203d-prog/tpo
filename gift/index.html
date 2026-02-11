@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ギフト耐久管理及び作成ツール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root { --card-size: clamp(90px, 10vw, 140px); }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f6f6f6; }
+header {
+  padding: 10px;
+}
+
+#message {
+  font-size: 13px;
+  color: #555;
+  font-weight: bold;
+
+  white-space: pre-line;
+
+  line-height: 1.0;     
+  margin-bottom: 18px;  
+}
+
+
+.searchRow {
+  display: flex;
+  gap: 8px;
+}
+
+#search {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+}
+
+#search { flex:1; padding:8px; font-size:14px; }
+#exportBtn { padding:8px 12px; }
+
+#tabs { display:flex; gap:6px; padding:0 10px; overflow-x:auto; }
+#tabs button {
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  background:#ddd;
+  font-size:13px;
+  white-space:nowrap;
+}
+#tabs button.active { background:#222; color:#fff; }
+
+#grid {
+  padding:10px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(var(--card-size),1fr));
+  gap:10px;
+}
+
+.card {
+  background:#fff;
+  border-radius:8px;
+  padding:6px;
+  text-align:center;
+  position:relative;
+  cursor:pointer;
+}
+
+.thumb {
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:contain;
+  border-radius:6px;
+}
+
+.name { font-size:12px; }
+.point { font-size:11px; color:#666; }
+
+.card.disabled { opacity:0.5; }
+.card.disabled::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(200,0,0,.8) 45%,
+    rgba(200,0,0,.8) 55%,
+    transparent 55%
+  );
+  pointer-events:none;
+}
+
+/* preview */
+#preview {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+#previewInner {
+  position:relative;
+  background:#fff;
+  padding:10px;
+  max-width:95vw;
+  max-height:95vh;
+  text-align:center;
+}
+#previewImg {
+  max-width:100%;
+  max-height:80vh;
+  display:block;
+  margin:auto;
+}
+#closePreview {
+  position:absolute;
+  top:4px;
+  right:8px;
+  font-size:24px;
+  background:none;
+  border:none;
+}
+#prevImg,#nextImg {
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:32px;
+  background:none;
+  border:none;
+}
+#prevImg { left:-8px; }
+#nextImg { right:-8px; }
+#pageInfo { font-size:12px; margin-bottom:6px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div id="message">
+    画像をタップすると斜線が入ります<br>
+    画像出力は表示されるまで少し時間がかかります
+  </div>
+
+  <div class="searchRow">
+    <input id="search" placeholder="検索">
+    <button id="exportBtn">画像出力</button>
+  </div>
+</header>
+
+
+<nav id="tabs">
+  <button class="active" data-tab="全て">全て</button>
+  <button data-tab="ネタ">ネタ</button>
+  <button data-tab="笑">笑</button>
+  <button data-tab="定番">定番</button>
+  <button data-tab="えらい">えらい</button>
+  <button data-tab="挨拶">挨拶</button>
+  <button data-tab="ステージ">ステージ</button>
+  <button data-tab="LOVE">LOVE</button>
+</nav>
+
+<main id="grid"></main>
+
+<div id="preview">
+  <div id="previewInner">
+    <button id="closePreview">×</button>
+    <button id="prevImg">‹</button>
+    <button id="nextImg">›</button>
+    <div id="pageInfo"></div>
+    <img id="previewImg">
+  </div>
+</div>
+
+<script>
+const DATA_URL = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/data.json";
+const IMG_BASE = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/images/";
+
+let items = [];
+let activeTab = "全て";
+
+const grid = document.getElementById("grid");
+const search = document.getElementById("search");
+
+fetch(DATA_URL)
+  .then(r => r.json())
+  .then(data => {
+    items = data;
+    render();
+  });
+
+function normalize(str){
+  return str
+    .normalize("NFKC")
+    .replace(/[\u30A1-\u30F6]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0x60)
+    )
+    .toLowerCase();
+}
+
+function getFiltered(ignoreSearch=false) {
+  return items
+    .filter(i => {
+      if (!ignoreSearch) {
+        const keyword = normalize(search.value);
+        const target = normalize(i.name);
+        if (!target.includes(keyword)) return false;
+      }
+      if (activeTab === "全て") return true;
+      return i.categories.includes(activeTab);
+    })
+    .sort((a, b) => {
+      const pa = Number(a.points) || 0;
+      const pb = Number(b.points) || 0;
+      return pa - pb; // ← 昇順（小さい順）
+    });
+}
+
+
+/* ===== 拡張子自動対応（表示側） ===== */
+function createImageElement(id) {
+  const img = document.createElement("img");
+  img.className = "thumb";
+  img.loading = "lazy";
+
+  img.src = IMG_BASE + id + ".PNG";
+
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = IMG_BASE + id + ".png";
+  };
+
+  return img;
+}
+
+function render() {
+  grid.innerHTML = "";
+
+  getFiltered().forEach(item => {
+    const c = document.createElement("div");
+    c.className = "card";
+    if (item.disabled) c.classList.add("disabled");
+
+    const img = createImageElement(item.id);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = item.name;
+
+    const point = document.createElement("div");
+    point.className = "point";
+    point.textContent = item.points + "pt";
+
+    c.appendChild(img);
+    c.appendChild(name);
+    c.appendChild(point);
+
+    c.onclick = () => {
+      item.disabled = !item.disabled;
+      c.classList.toggle("disabled");
+    };
+
+    grid.appendChild(c);
+  });
+}
+
+document.querySelectorAll("#tabs button").forEach(b=>{
+  b.onclick = () => {
+    document.querySelector("#tabs .active").classList.remove("active");
+    b.classList.add("active");
+    activeTab = b.dataset.tab;
+    render();
+  };
+});
+
+search.oninput = render;
+
+/* ===== 出力用拡張子自動対応 ===== */
+
+function loadImageSmart(id){
+  return new Promise((resolve) => {
+
+    const tryLoad = (ext) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = () => {
+        if (ext === ".PNG") {
+          tryLoad(".png");
+        } else {
+          resolve(null);
+        }
+      };
+      img.src = IMG_BASE + id + ext;
+    };
+
+    tryLoad(".PNG");
+  });
+}
+
+/* ===== 出力（並列高速） ===== */
+
+let previewImages = [];
+let currentPreviewIndex = 0;
+
+document.getElementById("exportBtn").onclick = async () => {
+  const list = getFiltered(true);
+  if (!list.length) return;
+
+  previewImages = [];
+  currentPreviewIndex = 0;
+
+  const MAX_PER_IMAGE = 100;
+
+  for (let i = 0; i < list.length; i += MAX_PER_IMAGE) {
+    const slice = list.slice(i, i + MAX_PER_IMAGE);
+    const img = await generateCanvasImage(slice);
+    previewImages.push(img);
+  }
+
+  showPreview();
+};
+
+async function generateCanvasImage(list) {
+
+  const W = 1920;
+  const H = 1080;
+  const padding = 20;
+  const count = Math.min(list.length, 100);
+
+  let cols = Math.ceil(Math.sqrt(count * (W / H)));
+  cols = Math.min(cols, 12);
+  let rows = Math.ceil(count / cols);
+
+  const thumbSizeW = (W / cols) - padding * 2;
+  const thumbSizeH = (H / rows) - padding * 2;
+  const thumbSize = Math.floor(Math.min(thumbSizeW, thumbSizeH));
+
+  const cardW = thumbSize + padding * 2;
+  const cardH = thumbSize + padding * 2;
+
+  cols = Math.floor(W / cardW);
+  rows = Math.ceil(count / cols);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+
+  const imagePromises = list.slice(0, count).map(item =>
+    loadImageSmart(item.id)
+      .then(img => ({ img, item }))
+  );
+
+  const loadedImages = await Promise.all(imagePromises);
+
+  loadedImages.forEach((data, i) => {
+    const { img, item } = data;
+
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+
+    const x = col * cardW + padding;
+    const y = row * cardH + padding;
+
+    if (img) {
+      ctx.drawImage(img, x, y, thumbSize, thumbSize);
+    } else {
+      ctx.fillStyle = "#ccc";
+      ctx.fillRect(x, y, thumbSize, thumbSize);
+    }
+
+    if (item.disabled) {
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + thumbSize, y + thumbSize);
+      ctx.stroke();
+    }
+  });
+
+  return canvas.toDataURL("image/jpeg", 0.95);
+}
+
+/* preview */
+
+function showPreview(){
+  document.getElementById("previewImg").src = previewImages[currentPreviewIndex];
+  document.getElementById("pageInfo").textContent =
+    `${currentPreviewIndex+1} / ${previewImages.length}`;
+  document.getElementById("preview").style.display="flex";
+}
+
+document.getElementById("prevImg").onclick=()=>{
+  if(currentPreviewIndex>0){
+    currentPreviewIndex--;
+    showPreview();
+  }
+};
+
+document.getElementById("nextImg").onclick=()=>{
+  if(currentPreviewIndex<previewImages.length-1){
+    currentPreviewIndex++;
+    showPreview();
+  }
+};
+
+document.getElementById("closePreview").onclick=()=>{
+  document.getElementById("preview").style.display="none";
+};
+</script>
+
+</body>
+</html>
