@@ -8,36 +8,42 @@
 <style>
 :root { --card-size: clamp(90px, 10vw, 140px); }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f6f6f6; }
-header {
-  padding: 10px;
+
+header { padding: 10px; }
+
+/* ===== メッセージ行 ===== */
+#messageRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
-#message {
+#messageText {
   font-size: 13px;
   color: #555;
   font-weight: bold;
-
   white-space: pre-line;
-
-  line-height: 1.0;     
-  margin-bottom: 18px;  
+  line-height: 1.0;
 }
 
-
-.searchRow {
-  display: flex;
-  gap: 8px;
+#noticeBtn {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #444;
+  color: #fff;
+  white-space: nowrap;
 }
 
-#search {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-}
-
+/* ===== 検索 ===== */
+.searchRow { display: flex; gap: 8px; }
 #search { flex:1; padding:8px; font-size:14px; }
 #exportBtn { padding:8px 12px; }
 
+/* ===== タブ ===== */
 #tabs { display:flex; gap:6px; padding:0 10px; overflow-x:auto; }
 #tabs button {
   border:none;
@@ -49,6 +55,7 @@ header {
 }
 #tabs button.active { background:#222; color:#fff; }
 
+/* ===== グリッド ===== */
 #grid {
   padding:10px;
   display:grid;
@@ -90,7 +97,7 @@ header {
   pointer-events:none;
 }
 
-/* preview */
+/* ===== プレビュー ===== */
 #preview {
   position:fixed;
   inset:0;
@@ -133,23 +140,58 @@ header {
 #prevImg { left:-8px; }
 #nextImg { right:-8px; }
 #pageInfo { font-size:12px; margin-bottom:6px; }
+
+/* ===== 注意モーダル ===== */
+#noticeModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+#noticeInner {
+  background: #fff;
+  padding: 20px;
+  max-width: 90vw;
+  width: 320px;
+  border-radius: 10px;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#closeNotice {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 20px;
+  border: none;
+  background: none;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div id="message">
-    画像をタップすると斜線が入ります<br>
-    画像出力は表示されるまで少し時間がかかります
+
+  <div id="messageRow">
+    <div id="messageText">
+      画像をタップすると斜線が入ります<br>
+      画像出力は表示されるまで少し時間がかかります
+    </div>
+    <button id="noticeBtn">使用前にお読み下さい</button>
   </div>
 
   <div class="searchRow">
     <input id="search" placeholder="検索">
     <button id="exportBtn">画像出力</button>
   </div>
-</header>
 
+</header>
 
 <nav id="tabs">
   <button class="active" data-tab="全て">全て</button>
@@ -164,6 +206,7 @@ header {
 
 <main id="grid"></main>
 
+<!-- プレビュー -->
 <div id="preview">
   <div id="previewInner">
     <button id="closePreview">×</button>
@@ -171,6 +214,24 @@ header {
     <button id="nextImg">›</button>
     <div id="pageInfo"></div>
     <img id="previewImg">
+  </div>
+</div>
+
+<!-- 注意事項 -->
+<div id="noticeModal">
+  <div id="noticeInner">
+    <button id="closeNotice">×</button>
+    <h3>ご利用前の注意事項</h3>
+    <p>
+      本ツールはイリアム内で配信を行うライバーの支援を目的として制作された非営利のツールです。<br>
+     株式会社イリアムとは無関係のファンツールとなります。<br>
+      本ツール内で表示されるギフト画像は株式会社イリアムが著作権を保有しており<br>
+      画像出力された一覧画像及び表示されているギフト画像の利用に関する規約は<br>
+      株式会社イリアムの掲げる規約及びガイドラインに則って扱われます。<br>
+      イリアムのガイドラインでの禁止事項に則り、ツール内の画像を用いてのグッズ販売等は禁止となります。<br>
+      配信支援ツールとしてSNS等で画像を利用する行為にのみ活用して下さい。<br>
+      その他、利用範囲、権利等に関するご質問にはお答え致しかねますのでご了承下さい。
+    </p>
   </div>
 </div>
 
@@ -186,14 +247,10 @@ const search = document.getElementById("search");
 
 fetch(DATA_URL)
   .then(r => r.json())
-  .then(data => {
-    items = data;
-    render();
-  });
+  .then(data => { items = data; render(); });
 
 function normalize(str){
-  return str
-    .normalize("NFKC")
+  return str.normalize("NFKC")
     .replace(/[\u30A1-\u30F6]/g, ch =>
       String.fromCharCode(ch.charCodeAt(0) - 0x60)
     )
@@ -211,33 +268,25 @@ function getFiltered(ignoreSearch=false) {
       if (activeTab === "全て") return true;
       return i.categories.includes(activeTab);
     })
-    .sort((a, b) => {
-      const pa = Number(a.points) || 0;
-      const pb = Number(b.points) || 0;
-      return pa - pb; // ← 昇順（小さい順）
-    });
+    .sort((a,b)=>(Number(a.points)||0)-(Number(b.points)||0));
 }
 
+/* ===== 表示 ===== */
 
-/* ===== 拡張子自動対応（表示側） ===== */
 function createImageElement(id) {
   const img = document.createElement("img");
   img.className = "thumb";
   img.loading = "lazy";
-
   img.src = IMG_BASE + id + ".PNG";
-
   img.onerror = () => {
     img.onerror = null;
     img.src = IMG_BASE + id + ".png";
   };
-
   return img;
 }
 
 function render() {
   grid.innerHTML = "";
-
   getFiltered().forEach(item => {
     const c = document.createElement("div");
     c.className = "card";
@@ -253,9 +302,7 @@ function render() {
     point.className = "point";
     point.textContent = item.points + "pt";
 
-    c.appendChild(img);
-    c.appendChild(name);
-    c.appendChild(point);
+    c.append(img,name,point);
 
     c.onclick = () => {
       item.disabled = !item.disabled;
@@ -267,17 +314,17 @@ function render() {
 }
 
 document.querySelectorAll("#tabs button").forEach(b=>{
-  b.onclick = () => {
+  b.onclick=()=>{
     document.querySelector("#tabs .active").classList.remove("active");
     b.classList.add("active");
-    activeTab = b.dataset.tab;
+    activeTab=b.dataset.tab;
     render();
   };
 });
 
-search.oninput = render;
+search.oninput=render;
 
-/* ===== 出力用拡張子自動対応 ===== */
+/* ===== 出力処理 ===== */
 
 function loadImageSmart(id){
   return new Promise((resolve) => {
@@ -299,8 +346,6 @@ function loadImageSmart(id){
     tryLoad(".PNG");
   });
 }
-
-/* ===== 出力（並列高速） ===== */
 
 let previewImages = [];
 let currentPreviewIndex = 0;
@@ -388,7 +433,7 @@ async function generateCanvasImage(list) {
   return canvas.toDataURL("image/jpeg", 0.95);
 }
 
-/* preview */
+/* ===== プレビュー制御 ===== */
 
 function showPreview(){
   document.getElementById("previewImg").src = previewImages[currentPreviewIndex];
@@ -414,7 +459,22 @@ document.getElementById("nextImg").onclick=()=>{
 document.getElementById("closePreview").onclick=()=>{
   document.getElementById("preview").style.display="none";
 };
+
+/* ===== 注意モーダル ===== */
+
+document.getElementById("noticeBtn").onclick = () => {
+  document.getElementById("noticeModal").style.display="flex";
+};
+document.getElementById("closeNotice").onclick = () => {
+  document.getElementById("noticeModal").style.display="none";
+};
+document.getElementById("noticeModal").onclick = (e)=>{
+  if(e.target.id==="noticeModal"){
+    document.getElementById("noticeModal").style.display="none";
+  }
+};
 </script>
+
 
 </body>
 </html>
