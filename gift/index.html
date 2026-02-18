@@ -6,6 +6,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+
+/* ===== 上部アクションボタン ===== */
+.actionRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+#exportBtn {
+  background: #6ec8ff;
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+#resetBtn {
+  background: #ff4d4d;
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+  
 :root { --card-size: clamp(90px, 10vw, 140px); }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f6f6f6; }
 
@@ -185,10 +212,12 @@ header { padding: 10px; }
     </div>
     <button id="noticeBtn">使用前にお読み下さい</button>
   </div>
-
+<div class="actionRow">
+  <button id="exportBtn">画像出力</button>
+  <button id="resetBtn" onclick="resetState()">状態をリセット</button>
+</div>
   <div class="searchRow">
     <input id="search" placeholder="検索">
-    <button id="exportBtn">画像出力</button>
   </div>
 
 </header>
@@ -236,6 +265,12 @@ header { padding: 10px; }
 </div>
 
 <script>
+
+/* ===== 状態保存設定 ===== */
+const STORAGE_KEY = "gift_state_v4";
+const AUTO_LIMIT = 60 * 60 * 1000; // 1時間
+
+
 const DATA_URL = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/data.json";
 const IMG_BASE = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/images/";
 
@@ -247,7 +282,7 @@ const search = document.getElementById("search");
 
 fetch(DATA_URL)
   .then(r => r.json())
-  .then(data => { items = data; render(); });
+  .then(data => { items = data; restoreState(); render(); });
 
 function normalize(str){
   return str.normalize("NFKC")
@@ -307,6 +342,9 @@ function render() {
     c.onclick = () => {
       item.disabled = !item.disabled;
       c.classList.toggle("disabled");
+
+saveState();
+
     };
 
     grid.appendChild(c);
@@ -473,6 +511,57 @@ document.getElementById("noticeModal").onclick = (e)=>{
     document.getElementById("noticeModal").style.display="none";
   }
 };
+
+function saveState() {
+  const state = items.map(i => ({
+    id: i.id,
+    disabled: !!i.disabled
+  }));
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    updated: Date.now(),
+    state
+  }));
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  try {
+    const data = JSON.parse(raw);
+    const diff = Date.now() - data.updated;
+
+    if (diff > AUTO_LIMIT) {
+      const ok = confirm("前回の状態を復元しますか？");
+      if (!ok) return;
+    }
+
+    const map = new Map(data.state.map(s => [s.id, s.disabled]));
+    items.forEach(i => {
+      if (map.has(i.id)) {
+        i.disabled = map.get(i.id);
+      }
+    });
+
+  } catch (e) {
+    console.warn("復元失敗", e);
+  }
+}
+
+function resetState() {
+  if (!confirm("本当に状態をリセットしますか？")) return;
+
+  localStorage.removeItem(STORAGE_KEY);
+
+  items.forEach(i => i.disabled = false);
+
+  if (typeof render === "function") {
+    render();
+  }
+}
+
+
 </script>
 
 
