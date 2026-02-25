@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>擬似コラボボイス</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 20px;
+  background: #111;
+  color: white;
+}
+
+select, button, input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  background: #4da6ff;
+  color: white;
+}
+
+button.stop {
+  background: #ff5c5c;
+}
+
+input[type="range"] {
+  padding: 0;
+}
+</style>
+</head>
+<body>
+
+<h2>キャラクター選択</h2>
+<select id="characterSelect"></select>
+
+<h2>BGM選択</h2>
+<select id="bgmSelect">
+  <option value="bgm1.mp3">BGM 1</option>
+  <option value="bgm2.mp3">BGM 2</option>
+  <option value="bgm3.mp3">BGM 3</option>
+</select>
+
+<button id="bgmToggle">BGM 再生</button>
+
+<h3>BGM音量</h3>
+<input type="range" id="bgmVolume" min="0" max="1" step="0.01" value="0.4">
+
+<hr>
+
+<button id="playVoice">セリフ再生</button>
+
+<h3>ボイス音量</h3>
+<input type="range" id="voiceVolume" min="0" max="1" step="0.01" value="0.8">
+
+<audio id="bgmPlayer" loop></audio>
+<audio id="voicePlayer"></audio>
+
+<script>
+let characters = {};
+let currentCharacter = null;
+let recentHistory = [];
+
+const bgmPlayer = document.getElementById("bgmPlayer");
+const voicePlayer = document.getElementById("voicePlayer");
+
+fetch("data/characters.json")
+  .then(res => res.json())
+  .then(data => {
+    characters = data;
+    const select = document.getElementById("characterSelect");
+    Object.keys(characters).forEach(char => {
+      const option = document.createElement("option");
+      option.value = char;
+      option.textContent = char;
+      select.appendChild(option);
+    });
+    currentCharacter = select.value;
+  });
+
+document.getElementById("characterSelect").addEventListener("change", e => {
+  currentCharacter = e.target.value;
+  recentHistory = [];
+});
+
+document.getElementById("bgmToggle").addEventListener("click", () => {
+  if (bgmPlayer.paused) {
+    bgmPlayer.src = "bgm/" + document.getElementById("bgmSelect").value;
+    bgmPlayer.play();
+    document.getElementById("bgmToggle").textContent = "BGM 停止";
+  } else {
+    bgmPlayer.pause();
+    document.getElementById("bgmToggle").textContent = "BGM 再生";
+  }
+});
+
+document.getElementById("bgmSelect").addEventListener("change", () => {
+  if (!bgmPlayer.paused) {
+    bgmPlayer.pause();
+    bgmPlayer.src = "bgm/" + document.getElementById("bgmSelect").value;
+    bgmPlayer.play();
+  }
+});
+
+document.getElementById("bgmVolume").addEventListener("input", e => {
+  bgmPlayer.volume = e.target.value;
+});
+
+document.getElementById("voiceVolume").addEventListener("input", e => {
+  voicePlayer.volume = e.target.value;
+});
+
+document.getElementById("playVoice").addEventListener("click", () => {
+  if (!currentCharacter) return;
+
+  const tierRand = Math.random();
+  let tier = "N";
+  if (tierRand >= 0.95) tier = "SR";
+  else if (tierRand >= 0.7) tier = "R";
+
+  let pool = characters[currentCharacter][tier];
+
+  if (!pool || pool.length === 0) return;
+
+  let candidates = pool.filter(id => !recentHistory.includes(id));
+  if (candidates.length === 0) candidates = pool;
+
+  const id = candidates[Math.floor(Math.random() * candidates.length)];
+
+  voicePlayer.pause();
+  voicePlayer.currentTime = 0;
+  voicePlayer.src = `voices/${currentCharacter}/${tier}/${id}.wav`;
+  voicePlayer.play();
+
+  recentHistory.push(id);
+  if (recentHistory.length > 3) recentHistory.shift();
+});
+</script>
+
+</body>
+</html>
