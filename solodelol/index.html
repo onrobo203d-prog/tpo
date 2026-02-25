@@ -79,7 +79,7 @@ voicePlayer.volume = 0.8;
 bgmPlayer.volume = 0.4;
 
 // JSON読み込み
-fetch("voices.json")
+fetch("data/voices.json")
   .then(res => res.json())
   .then(data => {
     voiceData = data;
