@@ -13,8 +13,9 @@ body{
   font-family:sans-serif;
 }
 #clock{
-  font-size:48px;
-  margin:20px;
+  font-size:56px;
+  margin:30px;
+  transition:0.3s;
 }
 .red{
   color:red;
@@ -23,6 +24,10 @@ button{
   padding:10px 20px;
   margin:5px;
   font-size:16px;
+}
+input{
+  padding:8px;
+  width:250px;
 }
 iframe{
   margin-top:10px;
@@ -33,10 +38,10 @@ iframe{
 
 <h1>配信用BGMツール</h1>
 
-<div id="clock">--:--</div>
+<div id="clock">--:--:--</div>
 
-<button onclick="toggleNormal()">通常BGM 再生</button>
-<button onclick="playZui()">ズイズイBGM 再生</button>
+<button onclick="toggleNormal()">通常BGM</button>
+<button onclick="playZui()">ズイズイBGM</button>
 
 <br><br>
 
@@ -52,10 +57,8 @@ iframe{
 let state = "IDLE"; 
 // IDLE / NORMAL / ZUI / SE
 
-let normalMode = "local"; 
-// local or youtube
-
-let lastTriggeredMinute = null;
+let normalMode = "local";
+let redTimeout = null;
 
 // =====================
 // Audio定義
@@ -66,7 +69,7 @@ normalAudio.loop = true;
 const zuiAudio = new Audio("zui.mp3");
 const seAudio = new Audio("se.mp3");
 
-// iPhone対策
+// iPhone対策（最初のクリックで有効化）
 document.addEventListener("click", () => {
   normalAudio.load();
   zuiAudio.load();
@@ -132,28 +135,37 @@ seAudio.addEventListener("ended",()=>{
 });
 
 // =====================
-// 時計表示＆赤判定
+// 時計＆赤6秒ロジック
 // =====================
 function updateClock(){
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2,"0");
-  const minutes = String(now.getMinutes()).padStart(2,"0");
 
-  const clock = document.getElementById("clock");
-  clock.textContent = `${hours}:${minutes}`;
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,"0");
+  const m = String(now.getMinutes()).padStart(2,"0");
+  const s = String(now.getSeconds()).padStart(2,"0");
 
   const minuteNum = now.getMinutes();
+  const secondNum = now.getSeconds();
 
-  if(minuteNum % 3 === 0){
+  const clock = document.getElementById("clock");
+  clock.textContent = `${h}:${m}:${s}`;
+
+  // 3分ごとの00秒に発火
+  if(minuteNum % 3 === 0 && secondNum === 0){
+
+    // 赤表示
     clock.classList.add("red");
 
-    if(state === "ZUI" && lastTriggeredMinute !== minuteNum){
-      lastTriggeredMinute = minuteNum;
+    // 6秒後に戻す
+    if(redTimeout) clearTimeout(redTimeout);
+    redTimeout = setTimeout(()=>{
+      clock.classList.remove("red");
+    },6000);
+
+    // ズイズイ中なら停止してSE再生
+    if(state === "ZUI"){
       playSE();
     }
-
-  }else{
-    clock.classList.remove("red");
   }
 }
 
@@ -163,8 +175,6 @@ updateClock();
 // =====================
 // YouTube対応（簡易版）
 // =====================
-let ytIframe = null;
-
 function loadYouTube(){
   const url = document.getElementById("ytUrl").value;
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
@@ -181,7 +191,6 @@ function loadYouTube(){
 }
 
 function playYouTube(){
-  // 簡易再生（自動再生は端末依存）
   const iframe = document.querySelector("#ytPlayer iframe");
   if(!iframe) return;
   iframe.src += "&autoplay=1";
