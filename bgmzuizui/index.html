@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配信用BGMツール</title>
+
+<style>
+body{
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:sans-serif;
+}
+#clock{
+  font-size:48px;
+  margin:20px;
+}
+.red{
+  color:red;
+}
+button{
+  padding:10px 20px;
+  margin:5px;
+  font-size:16px;
+}
+iframe{
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>配信用BGMツール</h1>
+
+<div id="clock">--:--</div>
+
+<button onclick="toggleNormal()">通常BGM 再生</button>
+<button onclick="playZui()">ズイズイBGM 再生</button>
+
+<br><br>
+
+<input type="text" id="ytUrl" placeholder="YouTube URL（任意）">
+<button onclick="loadYouTube()">YouTube読込</button>
+
+<div id="ytPlayer"></div>
+
+<script>
+// =====================
+// 状態管理
+// =====================
+let state = "IDLE"; 
+// IDLE / NORMAL / ZUI / SE
+
+let normalMode = "local"; 
+// local or youtube
+
+let lastTriggeredMinute = null;
+
+// =====================
+// Audio定義
+// =====================
+const normalAudio = new Audio("normal.mp3");
+normalAudio.loop = true;
+
+const zuiAudio = new Audio("zui.mp3");
+const seAudio = new Audio("se.mp3");
+
+// iPhone対策
+document.addEventListener("click", () => {
+  normalAudio.load();
+  zuiAudio.load();
+  seAudio.load();
+}, { once:true });
+
+// =====================
+// 通常BGM
+// =====================
+function toggleNormal(){
+
+  if(state === "NORMAL"){
+    stopNormal();
+    state = "IDLE";
+    return;
+  }
+
+  if(state !== "IDLE") return;
+
+  state = "NORMAL";
+
+  if(normalMode === "local"){
+    normalAudio.currentTime = 0;
+    normalAudio.play();
+  }else{
+    playYouTube();
+  }
+}
+
+function stopNormal(){
+  normalAudio.pause();
+  stopYouTube();
+}
+
+// =====================
+// ズイズイBGM
+// =====================
+function playZui(){
+  if(state !== "IDLE" && state !== "NORMAL") return;
+
+  stopNormal();
+
+  state = "ZUI";
+  zuiAudio.currentTime = 0;
+  zuiAudio.play();
+}
+
+// =====================
+// SE
+// =====================
+function playSE(){
+  state = "SE";
+
+  zuiAudio.pause();
+  zuiAudio.currentTime = 0;
+
+  seAudio.currentTime = 0;
+  seAudio.play();
+}
+
+seAudio.addEventListener("ended",()=>{
+  state = "IDLE";
+});
+
+// =====================
+// 時計表示＆赤判定
+// =====================
+function updateClock(){
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2,"0");
+  const minutes = String(now.getMinutes()).padStart(2,"0");
+
+  const clock = document.getElementById("clock");
+  clock.textContent = `${hours}:${minutes}`;
+
+  const minuteNum = now.getMinutes();
+
+  if(minuteNum % 3 === 0){
+    clock.classList.add("red");
+
+    if(state === "ZUI" && lastTriggeredMinute !== minuteNum){
+      lastTriggeredMinute = minuteNum;
+      playSE();
+    }
+
+  }else{
+    clock.classList.remove("red");
+  }
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+// =====================
+// YouTube対応（簡易版）
+// =====================
+let ytIframe = null;
+
+function loadYouTube(){
+  const url = document.getElementById("ytUrl").value;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+  if(!match) return alert("URL不正");
+
+  const videoId = match[1];
+
+  document.getElementById("ytPlayer").innerHTML =
+    `<iframe width="300" height="170"
+    src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}"
+    frameborder="0" allow="autoplay"></iframe>`;
+
+  normalMode = "youtube";
+}
+
+function playYouTube(){
+  // 簡易再生（自動再生は端末依存）
+  const iframe = document.querySelector("#ytPlayer iframe");
+  if(!iframe) return;
+  iframe.src += "&autoplay=1";
+}
+
+function stopYouTube(){
+  const iframe = document.querySelector("#ytPlayer iframe");
+  if(!iframe) return;
+  iframe.src = iframe.src.replace("&autoplay=1","");
+}
+
+</script>
+</body>
+</html>
