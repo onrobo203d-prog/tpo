@@ -119,8 +119,10 @@ function populateSelect(selectId, list, folder){
 
   list.forEach(file=>{
     const option = document.createElement("option");
-    option.value = folder + "/" + file;
+
+    option.value = folder + "/" + encodeURIComponent(file);
     option.textContent = file;
+
     select.appendChild(option);
   });
 }
