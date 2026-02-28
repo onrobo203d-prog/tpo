@@ -3,267 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>配信用BGMツール</title>
+<title>配信用BGMサイト</title>
 
 <style>
 body{
   margin:0;
+  font-family:sans-serif;
   background:#111;
   color:white;
   text-align:center;
-  font-family:sans-serif;
 }
 
 #clock{
-  font-size:clamp(40px,8vw,72px);
-  margin:30px 0;
-  transition:0.3s;
+  font-size:48px;
+  margin:20px 0;
 }
 
 .red{
   color:red;
 }
 
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:10px;
-}
-
 button{
-  padding:10px 20px;
+  padding:12px 20px;
+  margin:10px;
   font-size:16px;
-  cursor:pointer;
 }
 
-.volumeBox{
-  margin:15px 0;
-}
-
-input[type="range"]{
-  width:200px;
-}
-
-iframe{
-  width:90%;
-  max-width:400px;
-  aspect-ratio:16/9;
-  margin-top:10px;
+.slider{
+  width:80%;
+  max-width:300px;
 }
 </style>
 </head>
 <body>
 
-<h1>配信用BGMツール</h1>
+<h1>配信用BGM</h1>
 
-<div id="clock">--:--:--</div>
+<div id="clock">00:00:00</div>
 
-<div class="controls">
-  <button id="normalBtn" onclick="toggleNormal()">通常BGM 再生</button>
-  <button id="zuiBtn" onclick="toggleZui()">ズイズイBGM 再生</button>
-</div>
-
-<div class="volumeBox">
-  通常BGM音量
-  <input type="range" min="0" max="1" step="0.01" value="1"
-    oninput="normalAudio.volume=this.value">
-</div>
-
-<div class="volumeBox">
-  ズイズイ音量
-  <input type="range" min="0" max="1" step="0.01" value="1"
-    oninput="setZuiVolume(this.value)">
-</div>
-
+<h2>通常BGM</h2>
+<input type="text" id="normalInput" placeholder="mp3/wavパス または YouTube URL">
 <br>
+<button id="normalBtn">再生</button>
 
-<input type="text" id="ytUrl" placeholder="YouTube URL（任意）">
-<button onclick="loadYouTube()">YouTube読込</button>
+<h2>ズイズイBGM</h2>
+<input type="text" id="zuiInput" placeholder="mp3/wavパス または YouTube URL">
+<br>
+<button id="zuiBtn">再生</button>
 
-<div id="ytPlayer"></div>
+<h3>音量</h3>
+<input type="range" id="volume" class="slider" min="0" max="1" step="0.01" value="0.5">
+
+<!-- Audio -->
+<audio id="normalAudio" loop></audio>
+<audio id="zuiAudio"></audio>
+
+<!-- YouTube -->
+<div id="ytNormal" style="display:none;"></div>
+<div id="ytZui" style="display:none;"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
+let normalAudio = document.getElementById("normalAudio");
+let zuiAudio = document.getElementById("zuiAudio");
 
-// =====================
-// 状態管理
-// =====================
-let state = "IDLE";
-let normalMode = "local";
+let normalBtn = document.getElementById("normalBtn");
+let zuiBtn = document.getElementById("zuiBtn");
+
+let volumeSlider = document.getElementById("volume");
+
+let normalPlayer;
+let zuiPlayer;
+
+let isNormalPlaying = false;
+let isZuiPlaying = false;
+
+let redMode = false;
 let redTimeout = null;
-let autoStop = false; // 自動停止判定
 
-// =====================
-// Audio定義
-// =====================
-const normalAudio = new Audio("normal.mp3");
-normalAudio.loop = true;
-
-const zuiAudio = new Audio("zui.mp3");
-const seAudio = new Audio("se.mp3");
-
-// iOS対策
-document.addEventListener("click", () => {
-  normalAudio.load();
-  zuiAudio.load();
-  seAudio.load();
-}, { once:true });
-
-// =====================
-// 音量連動
-// =====================
-function setZuiVolume(val){
-  zuiAudio.volume = val;
-  seAudio.volume = val; // SE連動
-}
-
-// =====================
-// 通常BGM
-// =====================
-function toggleNormal(){
-
-  const btn = document.getElementById("normalBtn");
-
-  if(state === "NORMAL"){
-    stopNormal();
-    state = "IDLE";
-    btn.textContent = "通常BGM 再生";
-    return;
-  }
-
-  if(state !== "IDLE") return;
-
-  state = "NORMAL";
-  btn.textContent = "通常BGM 停止";
-
-  if(normalMode === "local"){
-    normalAudio.currentTime = 0;
-    normalAudio.play();
-  }else{
-    playYouTube();
-  }
-}
-
-function stopNormal(){
-  normalAudio.pause();
-  stopYouTube();
-  document.getElementById("normalBtn").textContent = "通常BGM 再生";
-}
-
-// =====================
-// ズイズイBGM
-// =====================
-function toggleZui(){
-
-  const btn = document.getElementById("zuiBtn");
-
-  if(state === "ZUI"){
-    // 手動停止
-    autoStop = false;
-    stopZui();
-    state = "IDLE";
-    btn.textContent = "ズイズイBGM 再生";
-    return;
-  }
-
-  if(state !== "IDLE" && state !== "NORMAL") return;
-
-  stopNormal();
-
-  state = "ZUI";
-  btn.textContent = "ズイズイBGM 停止";
-
-  zuiAudio.currentTime = 0;
-  zuiAudio.play();
-}
-
-function stopZui(){
-  zuiAudio.pause();
-  zuiAudio.currentTime = 0;
-  document.getElementById("zuiBtn").textContent = "ズイズイBGM 再生";
-}
-
-// =====================
-// SE
-// =====================
-function playSE(){
-  state = "SE";
-
-  stopZui();
-
-  seAudio.currentTime = 0;
-  seAudio.play();
-}
-
-seAudio.addEventListener("ended",()=>{
-  state = "IDLE";
-});
-
-// =====================
-// 時計＆6秒赤表示
-// =====================
+// =======================
+// 時計処理
+// =======================
 function updateClock(){
-
   const now = new Date();
-  const h = String(now.getHours()).padStart(2,"0");
-  const m = String(now.getMinutes()).padStart(2,"0");
-  const s = String(now.getSeconds()).padStart(2,"0");
-
-  const minuteNum = now.getMinutes();
-  const secondNum = now.getSeconds();
+  let h = String(now.getHours()).padStart(2,"0");
+  let m = String(now.getMinutes()).padStart(2,"0");
+  let s = String(now.getSeconds()).padStart(2,"0");
 
   const clock = document.getElementById("clock");
   clock.textContent = `${h}:${m}:${s}`;
 
-  if(minuteNum % 3 === 0 && secondNum === 0){
+  const triggerMinutes = [0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57];
 
-    clock.classList.add("red");
-
-    if(redTimeout) clearTimeout(redTimeout);
-    redTimeout = setTimeout(()=>{
-      clock.classList.remove("red");
-    },6000);
-
-    // ズイズイ自動停止
-    if(state === "ZUI"){
-      autoStop = true;
-      playSE();
-    }
+  if(triggerMinutes.includes(now.getMinutes()) && now.getSeconds() === 0){
+    activateRed();
   }
+}
+
+function activateRed(){
+  if(redMode) return;
+
+  redMode = true;
+  document.getElementById("clock").classList.add("red");
+
+  // ズイズイ自動停止（SEなし）
+  if(isZuiPlaying){
+    stopZui(false); // false = ユーザー停止ではない
+  }
+
+  redTimeout = setTimeout(()=>{
+    document.getElementById("clock").classList.remove("red");
+    redMode = false;
+  },6000);
 }
 
 setInterval(updateClock,1000);
 updateClock();
 
-// =====================
-// YouTube対応
-// =====================
-function loadYouTube(){
-  const url = document.getElementById("ytUrl").value;
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
-  if(!match) return alert("URL不正");
+// =======================
+// 音量
+// =======================
+volumeSlider.addEventListener("input",()=>{
+  normalAudio.volume = volumeSlider.value;
+  zuiAudio.volume = volumeSlider.value;
 
-  const videoId = match[1];
+  if(normalPlayer) normalPlayer.setVolume(volumeSlider.value*100);
+  if(zuiPlayer) zuiPlayer.setVolume(volumeSlider.value*100);
+});
 
-  document.getElementById("ytPlayer").innerHTML =
-    `<iframe src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}"
-    frameborder="0" allow="autoplay"></iframe>`;
-
-  normalMode = "youtube";
+// =======================
+// YouTube API
+// =======================
+function onYouTubeIframeAPIReady(){
+  normalPlayer = new YT.Player("ytNormal",{height:"0",width:"0"});
+  zuiPlayer = new YT.Player("ytZui",{height:"0",width:"0"});
 }
 
-function playYouTube(){
-  const iframe = document.querySelector("#ytPlayer iframe");
-  if(!iframe) return;
-  iframe.src += "&autoplay=1";
+function getYouTubeID(url){
+  const reg = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
+  const match = url.match(reg);
+  return match ? match[1] : null;
 }
 
-function stopYouTube(){
-  const iframe = document.querySelector("#ytPlayer iframe");
-  if(!iframe) return;
-  iframe.src = iframe.src.replace("&autoplay=1","");
+// =======================
+// 通常BGM
+// =======================
+normalBtn.onclick = function(){
+  if(!isNormalPlaying){
+    startNormal();
+  }else{
+    stopNormal();
+  }
+};
+
+function startNormal(){
+  stopZui(true);
+
+  let input = document.getElementById("normalInput").value.trim();
+  let ytID = getYouTubeID(input);
+
+  if(ytID){
+    normalPlayer.loadVideoById(ytID);
+    normalPlayer.setLoop(true);
+    normalPlayer.playVideo();
+  }else{
+    normalAudio.src = input;
+    normalAudio.play();
+  }
+
+  isNormalPlaying = true;
+  normalBtn.textContent = "停止";
 }
 
+function stopNormal(){
+  normalAudio.pause();
+  normalAudio.currentTime = 0;
+  if(normalPlayer) normalPlayer.stopVideo();
+
+  isNormalPlaying = false;
+  normalBtn.textContent = "再生";
+}
+
+// =======================
+// ズイズイBGM
+// =======================
+zuiBtn.onclick = function(){
+  if(!isZuiPlaying){
+    startZui();
+  }else{
+    stopZui(true);
+  }
+};
+
+function startZui(){
+  stopNormal();
+
+  let input = document.getElementById("zuiInput").value.trim();
+  let ytID = getYouTubeID(input);
+
+  if(ytID){
+    zuiPlayer.loadVideoById(ytID);
+    zuiPlayer.playVideo();
+  }else{
+    zuiAudio.src = input;
+    zuiAudio.play();
+  }
+
+  isZuiPlaying = true;
+  zuiBtn.textContent = "停止";
+}
+
+function stopZui(userStop){
+  zuiAudio.pause();
+  zuiAudio.currentTime = 0;
+  if(zuiPlayer) zuiPlayer.stopVideo();
+
+  isZuiPlaying = false;
+  zuiBtn.textContent = "再生";
+}
 </script>
+
 </body>
 </html>
