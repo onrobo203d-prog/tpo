@@ -77,24 +77,6 @@ input[type="range"]{
 
 <script>
 
-// =====================
-// BGMリスト（ここに追加するだけ）
-// =====================
-const normalList = [
-  "a.mp3",
-  "b.mp3",
-  "c.mp3"
-];
-
-const zuiList = [
-  "x.mp3",
-  "y.mp3",
-  "z.mp3"
-];
-
-// =====================
-// Audio
-// =====================
 const normalAudio = new Audio();
 normalAudio.loop = true;
 
@@ -110,10 +92,24 @@ document.addEventListener("click", () => {
 }, { once:true });
 
 // =====================
-// ドロップダウン生成
+// JSON読み込み
 // =====================
+fetch("bgm.json")
+  .then(res => res.json())
+  .then(data => {
+
+    populateSelect("normalSelect", data.normal, "BGM");
+    populateSelect("zuiSelect", data.zui, "zuizui");
+
+  })
+  .catch(err=>{
+    alert("bgm.json読み込み失敗");
+    console.error(err);
+  });
+
 function populateSelect(selectId, list, folder){
   const select = document.getElementById(selectId);
+
   list.forEach(file=>{
     const option = document.createElement("option");
     option.value = folder + "/" + file;
@@ -121,9 +117,6 @@ function populateSelect(selectId, list, folder){
     select.appendChild(option);
   });
 }
-
-populateSelect("normalSelect", normalList, "BGM");
-populateSelect("zuiSelect", zuiList, "zuizui");
 
 // =====================
 // 通常BGM
@@ -190,7 +183,7 @@ function stopZui(){
 }
 
 // =====================
-// 時計
+// 時計（3分ごと赤表示6秒）
 // =====================
 function updateClock(){
 
