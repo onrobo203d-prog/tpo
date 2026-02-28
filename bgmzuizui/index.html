@@ -32,11 +32,8 @@ body{
 select,button{
   padding:10px;
   font-size:16px;
+  min-width:220px;
 }
-
-.volumeBox{ margin:15px 0; }
-
-input[type="range"]{ width:200px; }
 </style>
 </head>
 <body>
@@ -50,15 +47,9 @@ input[type="range"]{ width:200px; }
   <select id="normalSelect"></select>
   <button id="normalBtn" disabled>再生</button>
 
-   
-  </div>
-
   <h3>ズイズイBGM</h3>
   <select id="zuiSelect"></select>
   <button id="zuiBtn" disabled>再生</button>
-
-  
-    </div>
 
 </div>
 
@@ -75,7 +66,6 @@ const zuiAudio = new Audio();
 let state = "IDLE";
 let redTimeout = null;
 
-// 初期音量
 normalAudio.volume = 1;
 zuiAudio.volume = 1;
 
@@ -105,8 +95,12 @@ function populateSelect(selectId, list, folder){
   list.forEach(file=>{
     const option = document.createElement("option");
 
+    // パス（日本語対応）
     option.value = folder + "/" + encodeURIComponent(file);
-    option.textContent = file;
+
+    // 🔥 拡張子を除去して表示
+    const displayName = file.replace(/\.[^/.]+$/, "");
+    option.textContent = displayName;
 
     select.appendChild(option);
   });
