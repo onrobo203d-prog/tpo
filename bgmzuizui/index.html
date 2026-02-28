@@ -26,15 +26,14 @@ body{
 
 .controls{
   display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
+  flex-direction:column;
+  align-items:center;
   gap:10px;
 }
 
-button{
-  padding:10px 20px;
+select,button{
+  padding:10px;
   font-size:16px;
-  cursor:pointer;
 }
 
 .volumeBox{
@@ -53,43 +52,78 @@ input[type="range"]{
 <div id="clock">--:--:--</div>
 
 <div class="controls">
-  <button id="normalBtn" onclick="toggleNormal()">通常BGM 再生</button>
-  <button id="zuiBtn" onclick="toggleZui()">ズイズイBGM 再生</button>
-</div>
 
-<div class="volumeBox">
-  通常BGM音量
-  <input type="range" min="0" max="1" step="0.01" value="1"
-    oninput="normalAudio.volume=this.value">
-</div>
+  <h3>通常BGM</h3>
+  <select id="normalSelect"></select>
+  <button id="normalBtn" onclick="toggleNormal()">再生</button>
 
-<div class="volumeBox">
-  ズイズイ音量
-  <input type="range" min="0" max="1" step="0.01" value="1"
-    oninput="zuiAudio.volume=this.value">
+  <div class="volumeBox">
+    音量
+    <input type="range" min="0" max="1" step="0.01" value="1"
+      oninput="normalAudio.volume=this.value">
+  </div>
+
+  <h3>ズイズイBGM</h3>
+  <select id="zuiSelect"></select>
+  <button id="zuiBtn" onclick="toggleZui()">再生</button>
+
+  <div class="volumeBox">
+    音量
+    <input type="range" min="0" max="1" step="0.01" value="1"
+      oninput="zuiAudio.volume=this.value">
+  </div>
+
 </div>
 
 <script>
 
 // =====================
-// 状態管理
+// BGMリスト（ここに追加するだけ）
 // =====================
-let state = "IDLE";
-let redTimeout = null;
+const normalList = [
+  "a.mp3",
+  "b.mp3",
+  "c.mp3"
+];
+
+const zuiList = [
+  "x.mp3",
+  "y.mp3",
+  "z.mp3"
+];
 
 // =====================
-// Audio定義
+// Audio
 // =====================
-const normalAudio = new Audio("normal.mp3");
+const normalAudio = new Audio();
 normalAudio.loop = true;
 
-const zuiAudio = new Audio("zui.mp3");
+const zuiAudio = new Audio();
+
+let state = "IDLE";
+let redTimeout = null;
 
 // iOS対策
 document.addEventListener("click", () => {
   normalAudio.load();
   zuiAudio.load();
 }, { once:true });
+
+// =====================
+// ドロップダウン生成
+// =====================
+function populateSelect(selectId, list, folder){
+  const select = document.getElementById(selectId);
+  list.forEach(file=>{
+    const option = document.createElement("option");
+    option.value = folder + "/" + file;
+    option.textContent = file;
+    select.appendChild(option);
+  });
+}
+
+populateSelect("normalSelect", normalList, "BGM");
+populateSelect("zuiSelect", zuiList, "zuizui");
 
 // =====================
 // 通常BGM
@@ -101,23 +135,26 @@ function toggleNormal(){
   if(state === "NORMAL"){
     stopNormal();
     state = "IDLE";
-    btn.textContent = "通常BGM 再生";
+    btn.textContent = "再生";
     return;
   }
 
   if(state !== "IDLE") return;
 
-  state = "NORMAL";
-  btn.textContent = "通常BGM 停止";
+  stopZui();
 
+  normalAudio.src = document.getElementById("normalSelect").value;
   normalAudio.currentTime = 0;
   normalAudio.play();
+
+  state = "NORMAL";
+  btn.textContent = "停止";
 }
 
 function stopNormal(){
   normalAudio.pause();
   normalAudio.currentTime = 0;
-  document.getElementById("normalBtn").textContent = "通常BGM 再生";
+  document.getElementById("normalBtn").textContent = "再生";
 }
 
 // =====================
@@ -130,7 +167,7 @@ function toggleZui(){
   if(state === "ZUI"){
     stopZui();
     state = "IDLE";
-    btn.textContent = "ズイズイBGM 再生";
+    btn.textContent = "再生";
     return;
   }
 
@@ -138,21 +175,22 @@ function toggleZui(){
 
   stopNormal();
 
-  state = "ZUI";
-  btn.textContent = "ズイズイBGM 停止";
-
+  zuiAudio.src = document.getElementById("zuiSelect").value;
   zuiAudio.currentTime = 0;
   zuiAudio.play();
+
+  state = "ZUI";
+  btn.textContent = "停止";
 }
 
 function stopZui(){
   zuiAudio.pause();
   zuiAudio.currentTime = 0;
-  document.getElementById("zuiBtn").textContent = "ズイズイBGM 再生";
+  document.getElementById("zuiBtn").textContent = "再生";
 }
 
 // =====================
-// 時計＆6秒赤表示
+// 時計
 // =====================
 function updateClock(){
 
@@ -161,13 +199,10 @@ function updateClock(){
   const m = String(now.getMinutes()).padStart(2,"0");
   const s = String(now.getSeconds()).padStart(2,"0");
 
-  const minuteNum = now.getMinutes();
-  const secondNum = now.getSeconds();
-
   const clock = document.getElementById("clock");
   clock.textContent = `${h}:${m}:${s}`;
 
-  if(minuteNum % 3 === 0 && secondNum === 0){
+  if(now.getMinutes() % 3 === 0 && now.getSeconds() === 0){
 
     clock.classList.add("red");
 
