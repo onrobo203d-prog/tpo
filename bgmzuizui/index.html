@@ -20,9 +20,7 @@ body{
   transition:0.3s;
 }
 
-.red{
-  color:red;
-}
+.red{ color:red; }
 
 .controls{
   display:flex;
@@ -36,47 +34,43 @@ select,button{
   font-size:16px;
 }
 
-.volumeBox{
-  margin:15px 0;
-}
+.volumeBox{ margin:15px 0; }
 
-input[type="range"]{
-  width:200px;
-}
+input[type="range"]{ width:200px; }
 </style>
 </head>
 <body>
 
 <h1>配信用BGMツール</h1>
-
 <div id="clock">--:--:--</div>
 
 <div class="controls">
 
   <h3>通常BGM</h3>
   <select id="normalSelect"></select>
-  <button id="normalBtn" onclick="toggleNormal()">再生</button>
+  <button id="normalBtn" disabled>再生</button>
 
   <div class="volumeBox">
     音量
-    <input type="range" min="0" max="1" step="0.01" value="1"
-      oninput="normalAudio.volume=this.value">
+    <input type="range" id="normalVolume" min="0" max="1" step="0.01" value="1">
   </div>
 
   <h3>ズイズイBGM</h3>
   <select id="zuiSelect"></select>
-  <button id="zuiBtn" onclick="toggleZui()">再生</button>
+  <button id="zuiBtn" disabled>再生</button>
 
   <div class="volumeBox">
     音量
-    <input type="range" min="0" max="1" step="0.01" value="1"
-      oninput="zuiAudio.volume=this.value">
+    <input type="range" id="zuiVolume" min="0" max="1" step="0.01" value="1">
   </div>
 
 </div>
 
 <script>
 
+// =====================
+// Audio
+// =====================
 const normalAudio = new Audio();
 normalAudio.loop = true;
 
@@ -85,30 +79,43 @@ const zuiAudio = new Audio();
 let state = "IDLE";
 let redTimeout = null;
 
-// iOS対策
-document.addEventListener("click", () => {
-  normalAudio.load();
-  zuiAudio.load();
-}, { once:true });
+// 初期音量
+normalAudio.volume = 1;
+zuiAudio.volume = 1;
+
+// =====================
+// スライダー連動（確実化）
+// =====================
+document.getElementById("normalVolume").addEventListener("input", e=>{
+  normalAudio.volume = parseFloat(e.target.value);
+});
+
+document.getElementById("zuiVolume").addEventListener("input", e=>{
+  zuiAudio.volume = parseFloat(e.target.value);
+});
 
 // =====================
 // JSON読み込み
 // =====================
 fetch("bgm.json")
-  .then(res => res.json())
-  .then(data => {
+.then(res => res.json())
+.then(data => {
 
-    populateSelect("normalSelect", data.normal, "BGM");
-    populateSelect("zuiSelect", data.zui, "zuizui");
+  populateSelect("normalSelect", data.normal, "BGM");
+  populateSelect("zuiSelect", data.zui, "zuizui");
 
-  })
-  .catch(err=>{
-    alert("bgm.json読み込み失敗");
-    console.error(err);
-  });
+  document.getElementById("normalBtn").disabled = false;
+  document.getElementById("zuiBtn").disabled = false;
+
+})
+.catch(err=>{
+  alert("bgm.json読み込み失敗");
+  console.error(err);
+});
 
 function populateSelect(selectId, list, folder){
   const select = document.getElementById(selectId);
+  select.innerHTML = "";
 
   list.forEach(file=>{
     const option = document.createElement("option");
@@ -121,7 +128,7 @@ function populateSelect(selectId, list, folder){
 // =====================
 // 通常BGM
 // =====================
-function toggleNormal(){
+document.getElementById("normalBtn").addEventListener("click",()=>{
 
   const btn = document.getElementById("normalBtn");
 
@@ -136,13 +143,16 @@ function toggleNormal(){
 
   stopZui();
 
-  normalAudio.src = document.getElementById("normalSelect").value;
+  const src = document.getElementById("normalSelect").value;
+  if(!src) return;
+
+  normalAudio.src = src;
   normalAudio.currentTime = 0;
   normalAudio.play();
 
   state = "NORMAL";
   btn.textContent = "停止";
-}
+});
 
 function stopNormal(){
   normalAudio.pause();
@@ -153,7 +163,7 @@ function stopNormal(){
 // =====================
 // ズイズイBGM
 // =====================
-function toggleZui(){
+document.getElementById("zuiBtn").addEventListener("click",()=>{
 
   const btn = document.getElementById("zuiBtn");
 
@@ -168,13 +178,16 @@ function toggleZui(){
 
   stopNormal();
 
-  zuiAudio.src = document.getElementById("zuiSelect").value;
+  const src = document.getElementById("zuiSelect").value;
+  if(!src) return;
+
+  zuiAudio.src = src;
   zuiAudio.currentTime = 0;
   zuiAudio.play();
 
   state = "ZUI";
   btn.textContent = "停止";
-}
+});
 
 function stopZui(){
   zuiAudio.pause();
@@ -183,7 +196,7 @@ function stopZui(){
 }
 
 // =====================
-// 時計（3分ごと赤表示6秒）
+// 時計
 // =====================
 function updateClock(){
 
