@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BGM & 跳ねタイマー</title>
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:sans-serif;
+  text-align:center;
+}
+#clock{
+  font-size:clamp(40px,8vw,72px);
+  margin:20px 0;
+  transition:0.3s;
+}
+.red{ color:red; }
+
+.bgm-container{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:5vw;
+  margin-bottom:30px;
+}
+
+.bgm-block{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  width: clamp(200px,40%,300px);
+}
+
+input[type=file], button{
+  padding:8px 12px;
+  font-size:clamp(12px,1.5vw,16px);
+  width:100%;
+  box-sizing:border-box;
+}
+
+.audio-player{
+  width:100%;
+}
+.file-name{
+  font-size:clamp(10px,1vw,12px);
+  color:#ccc;
+  text-align:center;
+  word-break: break-word;
+}
+</style>
+</head>
+<body>
+
+<h1>BGM & 跳ねタイマー</h1>
+<div id="clock">--:--:--</div>
+
+<div class="bgm-container">
+
+  <div class="bgm-block" id="normalBGM">
+    <h3>通常BGM</h3>
+    <button id="normalBtn">再生</button>
+    <div class="file-name" id="normalFileName">未登録</div>
+    <input type="file" id="normalUpload" accept=".mp3,.ogg">
+    <audio id="normalPlayer" class="audio-player" controls></audio>
+  </div>
+
+  <div class="bgm-block" id="zuiBGM">
+    <h3>ズイズイBGM</h3>
+    <button id="zuiBtn">再生</button>
+    <div class="file-name" id="zuiFileName">未登録</div>
+    <input type="file" id="zuiUpload" accept=".mp3,.ogg">
+    <audio id="zuiPlayer" class="audio-player" controls></audio>
+  </div>
+
+</div>
+<h5>跳ねるタイミングでタイマーが赤くなります。</h5>
+<h5>好きな曲をMP3形式で登録して使って下さい。それぞれ1曲ずつ登録可能です。</h5>
+
+<script>
+// ===== IndexedDBセットアップ =====
+let db;
+const request = indexedDB.open("bgmDB",1);
+
+request.onupgradeneeded = function(e){
+  db = e.target.result;
+  if(!db.objectStoreNames.contains("bgmStore")){
+    db.createObjectStore("bgmStore");
+  }
+};
+
+request.onsuccess = function(e){
+  db = e.target.result;
+  loadSavedBGM();
+};
+
+request.onerror = function(e){
+  alert("IndexedDBが利用できません");
+  console.error(e);
+};
+
+// ===== DOM取得 =====
+const normalPlayer = document.getElementById("normalPlayer");
+const zuiPlayer = document.getElementById("zuiPlayer");
+const normalBtn = document.getElementById("normalBtn");
+const zuiBtn = document.getElementById("zuiBtn");
+const normalFileName = document.getElementById("normalFileName");
+const zuiFileName = document.getElementById("zuiFileName");
+const normalUpload = document.getElementById("normalUpload");
+const zuiUpload = document.getElementById("zuiUpload");
+
+let state="IDLE";
+
+// ===== IndexedDB操作 =====
+function saveBGM(key,file){
+  const txn = db.transaction("bgmStore","readwrite");
+  const store = txn.objectStore("bgmStore");
+  store.put(file,key);
+}
+
+function loadBGM(key,playerElem,fileNameElem){
+  const txn = db.transaction("bgmStore","readonly");
+  const store = txn.objectStore("bgmStore");
+  const req = store.get(key);
+  req.onsuccess = function(){
+    if(req.result){
+      const blob = req.result;
+      const url = URL.createObjectURL(blob);
+      playerElem.src = url;
+      fileNameElem.textContent = blob.name;
+    }
+  };
+}
+
+// ===== 初期ロード =====
+function loadSavedBGM(){
+  loadBGM("normalBGM", normalPlayer, normalFileName);
+  loadBGM("zuiBGM", zuiPlayer, zuiFileName);
+}
+
+// ===== ファイル選択イベント =====
+normalUpload.addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  saveBGM("normalBGM",file);
+  loadBGM("normalBGM", normalPlayer, normalFileName);
+});
+
+zuiUpload.addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  saveBGM("zuiBGM",file);
+  loadBGM("zuiBGM", zuiPlayer, zuiFileName);
+});
+
+// ===== 再生/停止ボタン =====
+normalBtn.addEventListener("click", ()=>{
+  if(state==="normalBtn"){
+    normalPlayer.pause();
+    state="IDLE";
+    normalBtn.textContent="再生";
+    return;
+  }
+  zuiPlayer.pause();
+  zuiBtn.textContent="再生";
+
+  normalPlayer.currentTime=0;
+  normalPlayer.play();
+  state="normalBtn";
+  normalBtn.textContent="停止";
+});
+
+zuiBtn.addEventListener("click", ()=>{
+  if(state==="zuiBtn"){
+    zuiPlayer.pause();
+    state="IDLE";
+    zuiBtn.textContent="再生";
+    return;
+  }
+  normalPlayer.pause();
+  normalBtn.textContent="再生";
+
+  zuiPlayer.currentTime=0;
+  zuiPlayer.play();
+  state="zuiBtn";
+  zuiBtn.textContent="停止";
+});
+
+// ===== 時計 =====
+function updateClock(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,"0");
+  const m = String(now.getMinutes()).padStart(2,"0");
+  const s = String(now.getSeconds()).padStart(2,"0");
+
+  const clock = document.getElementById("clock");
+  clock.textContent=`${h}:${m}:${s}`;
+
+  if(now.getMinutes()%3===0 && now.getSeconds()===0){
+    clock.classList.add("red");
+    setTimeout(()=>clock.classList.remove("red"),6000);
+  }
+}
+setInterval(updateClock,1000);
+updateClock();
+</script>
+</body>
+</html>
