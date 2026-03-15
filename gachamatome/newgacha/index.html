@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>配信用ガチャツール</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+margin:0;
+padding:12px;
+background:#f4f4f4;
+}
+
+.section{
+background:white;
+padding:14px;
+border-radius:10px;
+margin-bottom:12px;
+}
+
+button{
+padding:16px;
+font-size:20px;
+margin:4px;
+border-radius:8px;
+border:none;
+background:#3498db;
+color:white;
+}
+
+button.small{
+font-size:14px;
+padding:8px;
+}
+
+button.red{
+background:#e74c3c;
+}
+
+select,input{
+font-size:18px;
+padding:8px;
+}
+
+textarea{
+width:100%;
+height:90px;
+}
+
+.log{
+background:#111;
+color:#0f0;
+padding:10px;
+white-space:pre-wrap;
+font-family:monospace;
+}
+
+.stats{
+white-space:pre-wrap;
+}
+
+.collapsible{
+font-weight:bold;
+cursor:pointer;
+margin-bottom:6px;
+}
+
+.hidden{
+display:none;
+}
+
+.mainGrid{
+display:block;
+}
+
+@media(min-width:900px){
+.mainGrid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+}
+
+/* レアリティ名背景 */
+
+.rarityName{
+background:#e8f4ff;
+border:1px solid #bcdcff;
+border-radius:6px;
+padding:6px;
+}
+
+/* プレイヤーUI */
+
+.playerRow{
+display:flex;
+gap:6px;
+}
+
+.playerSelect{
+font-size:28px;
+padding:16px 18px;
+height:70px;
+width:75%;
+border-radius:12px;
+}
+
+.playerAdd{
+font-size:18px;
+height:70px;
+padding:10px 16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="mainGrid">
+
+<div class="section">
+
+<div class="collapsible" onclick="toggle('gachaSettings')">
+▼ガチャ設定（タップで折りたたみ）
+</div>
+
+<div id="gachaSettings">
+
+最大確率
+<input id="maxProb" type="number" value="60">
+
+最小確率
+<input id="minProb" type="number" value="0.1">
+
+レア数
+<input id="rarityCount" type="number" value="5">
+
+<button onclick="generateRarities()">ガチャ生成</button>
+
+<div id="rarityEditor"></div>
+
+<hr>
+
+<label>
+<input type="checkbox" id="pityEnabled">
+天井機能
+</label>
+
+天井回数
+<input id="pityCount" type="number" value="30">
+
+保証レア
+<select id="pityRarity"></select>
+
+<br>
+
+<button class="red small" onclick="resetRarities()">ガチャ設定リセット</button>
+
+</div>
+</div>
+
+<div class="section">
+
+<div class="collapsible" onclick="toggle('itemSettings')">
+▼景品設定（タップで折りたたみ）
+</div>
+
+<div id="itemSettings">
+
+<div id="itemEditors"></div>
+
+<button class="red small" onclick="resetItems()">景品リセット</button>
+
+</div>
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>ガチャ操作</h2>
+
+<div class="playerRow">
+
+<select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()"></select>
+
+<button class="playerAdd" onclick="addPlayer()">
+＋追加
+</button>
+
+</div>
+
+<button class="red small" onclick="resetPlayers()">プレイヤーリセット</button>
+
+<div id="pityDisplay"></div>
+
+<br>
+
+<button onclick="setRoll(1)">1回</button>
+<button onclick="setRoll(5)">5回</button>
+<button onclick="setRoll(10)">10回</button>
+
+任意
+<input id="customRoll" type="number" value="1">
+
+<br><br>
+
+<button style="width:100%;font-size:24px;" onclick="rollGacha()">
+ガチャを回す
+</button>
+
+</div>
+
+<div class="section">
+
+<h2>今回の結果</h2>
+
+<div id="logOutput" class="log"></div>
+
+<button onclick="copyLog()">ログコピー</button>
+
+</div>
+
+<div class="section">
+
+<h2>排出統計</h2>
+
+<div id="statsOutput" class="stats"></div>
+
+<button onclick="copyStats()">統計コピー</button>
+
+</div>
+
+<div class="section">
+
+<h2>プレイヤー統計</h2>
+
+<div id="playerStatsOutput"></div>
+
+<button class="red small" onclick="resetStats()">統計リセット</button>
+
+</div>
+
+<div class="section">
+
+<button onclick="exportJSON()">設定保存(JSON)</button>
+
+<input type="file" id="importFile" onchange="importJSON()">
+
+</div>
+
+<script>
+
+let rarities=[]
+let items=[]
+let players=[]
+let stats={}
+let playerStats={}
+let playerCounts={}
+
+function toggle(id){
+document.getElementById(id).classList.toggle("hidden")
+}
+
+function generateRarities(){
+
+rarities=[]
+
+let max=parseFloat(maxProb.value)
+let min=parseFloat(minProb.value)
+let count=parseInt(rarityCount.value)
+
+for(let i=0;i<count;i++){
+
+let w=max*Math.pow(min/max,i/(count-1))
+
+rarities.push({
+name:"レア"+(i+1),
+weight:parseFloat(w.toFixed(2))
+})
+
+}
+
+renderRarityEditor()
+save()
+
+}
+
+function renderRarityEditor(){
+
+let div=rarityEditor
+div.innerHTML=""
+
+rarities.forEach((r,i)=>{
+
+div.innerHTML+=`
+<div>
+<input class="rarityName"
+value="${r.name}"
+onchange="rarities[${i}].name=this.value;renderItems();renderPitySelect();save()">
+
+weight
+<input type="number"
+value="${r.weight}"
+onchange="rarities[${i}].weight=parseFloat(this.value);save()">
+</div>
+`
+
+})
+
+renderItems()
+renderPitySelect()
+
+}
+
+function renderItems(){
+
+let div=itemEditors
+div.innerHTML=""
+
+rarities.forEach(r=>{
+
+let list=items.filter(x=>x.rarity==r.name).map(x=>x.name)
+
+div.innerHTML+=`
+<h3>${r.name}</h3>
+<textarea onchange="updateItems('${r.name}',this.value)">
+${list.join("\n")}
+</textarea>
+`
+
+})
+
+}
+
+function updateItems(rarity,text){
+
+items=items.filter(x=>x.rarity!=rarity)
+
+text.split("\n").forEach(t=>{
+t=t.trim()
+if(t)items.push({rarity:rarity,name:t})
+})
+
+save()
+
+}
+
+function renderPitySelect(){
+
+pityRarity.innerHTML=""
+
+rarities.forEach(r=>{
+
+let o=document.createElement("option")
+o.value=r.name
+o.textContent=r.name
+pityRarity.appendChild(o)
+
+})
+
+}
+
+function addPlayer(){
+
+let name=prompt("プレイヤー名（リスナー名）")
+
+if(!name)return
+
+players.push(name)
+playerCounts[name]=0
+playerStats[name]={}
+
+updatePlayerUI()
+save()
+
+}
+
+function updatePlayerUI(){
+
+playerSelect.innerHTML=""
+
+players.forEach(p=>{
+playerSelect.innerHTML+=`<option>${p}</option>`
+})
+
+updatePityDisplay()
+
+}
+
+function updatePityDisplay(){
+
+let p=playerSelect.value
+
+if(!p||!pityEnabled.checked){
+pityDisplay.innerText=""
+return
+}
+
+pityDisplay.innerText=`天井カウント ${playerCounts[p]||0}/${pityCount.value}`
+
+}
+
+function setRoll(n){
+customRoll.value=n
+}
+
+function weightedRandom(list){
+
+let sum=list.reduce((a,b)=>a+b.weight,0)
+
+let r=Math.random()*sum
+
+for(let x of list){
+if(r<x.weight)return x
+r-=x.weight
+}
+
+}
+
+function rollGacha(){
+
+let player=playerSelect.value
+if(!player)return
+
+let times=parseInt(customRoll.value)
+
+let resultMap={}
+let pityResults=[]
+
+for(let i=0;i<times;i++){
+
+playerCounts[player]++
+
+let pity=false
+let rarity
+
+if(pityEnabled.checked && playerCounts[player]>=pityCount.value){
+
+let idx=rarities.findIndex(r=>r.name==pityRarity.value)
+let pool=rarities.slice(idx)
+
+rarity=weightedRandom(pool)
+
+playerCounts[player]=0
+pity=true
+
+}else{
+
+rarity=weightedRandom(rarities)
+
+}
+
+let pool=items.filter(x=>x.rarity==rarity.name)
+if(pool.length==0)continue
+
+let item=pool[Math.floor(Math.random()*pool.length)]
+
+let key=rarity.name+" "+item.name
+
+if(pity){
+pityResults.push(`${key} (天井)`)
+}else{
+resultMap[key]=(resultMap[key]||0)+1
+}
+
+stats[item.name]=(stats[item.name]||0)+1
+
+if(!playerStats[player])playerStats[player]={}
+playerStats[player][item.name]=(playerStats[player][item.name]||0)+1
+
+}
+
+let text=player+"\n\n"
+
+Object.keys(resultMap).forEach(k=>{
+text+=`${k} ×${resultMap[k]}\n`
+})
+
+pityResults.forEach(x=>{
+text+=x+"\n"
+})
+
+logOutput.textContent=text
+
+renderStats()
+renderPlayerStats()
+updatePityDisplay()
+save()
+
+}
+
+function renderStats(){
+
+let text=""
+
+Object.keys(stats).forEach(i=>{
+text+=`${i} ×${stats[i]}\n`
+})
+
+statsOutput.textContent=text
+
+}
+
+function renderPlayerStats(){
+
+let div=playerStatsOutput
+div.innerHTML=""
+
+Object.keys(playerStats).forEach(p=>{
+
+let text=""
+
+Object.keys(playerStats[p]).forEach(i=>{
+text+=`${i} ×${playerStats[p][i]}\n`
+})
+
+div.innerHTML+=`
+<div class="section">
+<b>${p}</b>
+<pre>${text}</pre>
+<button class="small" onclick="copyPlayerStats('${p}')">コピー</button>
+</div>
+`
+
+})
+
+}
+
+function copyLog(){
+navigator.clipboard.writeText(logOutput.textContent)
+}
+
+function copyStats(){
+navigator.clipboard.writeText(statsOutput.textContent)
+}
+
+function copyPlayerStats(player){
+
+let text=player+"\n\n"
+
+Object.keys(playerStats[player]).forEach(i=>{
+text+=`${i} ×${playerStats[player][i]}\n`
+})
+
+navigator.clipboard.writeText(text)
+
+}
+
+function resetStats(){
+
+if(confirm("統計リセット？")){
+
+stats={}
+playerStats={}
+
+renderStats()
+renderPlayerStats()
+
+save()
+
+}
+
+}
+
+function resetPlayers(){
+
+if(confirm("プレイヤーリセット？")){
+
+players=[]
+playerCounts={}
+playerStats={}
+
+updatePlayerUI()
+
+save()
+
+}
+
+}
+
+function resetItems(){
+
+if(confirm("景品リセット？")){
+
+items=[]
+renderItems()
+save()
+
+}
+
+}
+
+function resetRarities(){
+
+if(confirm("ガチャ設定リセット？")){
+
+rarities=[]
+renderRarityEditor()
+save()
+
+}
+
+}
+
+function exportJSON(){
+
+let data={rarities,items,players}
+
+let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
+
+let url=URL.createObjectURL(blob)
+
+let a=document.createElement("a")
+a.href=url
+a.download="gacha_setting.json"
+a.click()
+
+}
+
+function importJSON(){
+
+let file=importFile.files[0]
+
+let reader=new FileReader()
+
+reader.onload=e=>{
+
+let data=JSON.parse(e.target.result)
+
+rarities=data.rarities||[]
+items=data.items||[]
+players=data.players||[]
+
+renderRarityEditor()
+renderItems()
+updatePlayerUI()
+
+save()
+
+}
+
+reader.readAsText(file)
+
+}
+
+function save(){
+
+localStorage.setItem("gachaData",JSON.stringify({
+rarities,
+items,
+players,
+stats,
+playerStats,
+playerCounts
+}))
+
+}
+
+function load(){
+
+let data=localStorage.getItem("gachaData")
+if(!data)return
+
+data=JSON.parse(data)
+
+rarities=data.rarities||[]
+items=data.items||[]
+players=data.players||[]
+stats=data.stats||{}
+playerStats=data.playerStats||{}
+playerCounts=data.playerCounts||{}
+
+renderRarityEditor()
+renderItems()
+updatePlayerUI()
+renderStats()
+renderPlayerStats()
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>
