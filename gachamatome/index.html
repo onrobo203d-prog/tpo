@@ -73,15 +73,38 @@ a.button:hover{
     opacity:0.85;
 }
 
-/* 説明ボックス */
+/* モーダル背景 */
 
-.helpBox{
-    background:#fff8d9;
-    border:1px solid #f0d76a;
-    border-radius:8px;
-    padding:15px;
-    margin-top:10px;
+.modal{
     display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+}
+
+/* モーダル本体 */
+
+.modalContent{
+    background:white;
+    max-width:500px;
+    margin:15% auto;
+    padding:20px;
+    border-radius:10px;
+    position:relative;
+}
+
+/* 閉じるボタン */
+
+.close{
+    position:absolute;
+    right:12px;
+    top:8px;
+    font-size:24px;
+    cursor:pointer;
 }
 
 </style>
@@ -97,49 +120,69 @@ a.button:hover{
 <a class="button" href="newgacha/">ガチャ</a>
 <a class="helpButton" id="helpNew">操作説明</a>
 
-<div id="helpNewBox" class="helpBox"></div>
-
-
 <h4>↓確率プリセット付きガチャ↓</h4>
 <a class="button" href="gacha/">ガチャツール</a>
 <a class="button" href="yami/">闇ガチャ8192</a>
 <a class="helpButton" id="helpGacha">操作説明</a>
 
-<div id="helpGachaBox" class="helpBox"></div>
+</div>
+
+
+<!-- モーダル -->
+
+<div id="helpModal" class="modal">
+
+<div class="modalContent">
+
+<span class="close" id="closeModal">&times;</span>
+
+<h3>操作説明</h3>
+
+<div id="modalText"></div>
 
 </div>
 
+</div>
+
+
 <script>
 
-async function loadHelp(type, boxId){
+const modal = document.getElementById("helpModal");
+const modalText = document.getElementById("modalText");
+const closeBtn = document.getElementById("closeModal");
 
-    const box = document.getElementById(boxId);
-
-    if(box.style.display === "block"){
-        box.style.display = "none";
-        return;
-    }
+async function openHelp(type){
 
     const res = await fetch("help.json");
     const data = await res.json();
 
-    box.innerHTML="";
+    modalText.innerHTML="";
 
     data[type].forEach(text=>{
         const p=document.createElement("p");
         p.textContent=text;
-        box.appendChild(p);
+        modalText.appendChild(p);
     });
 
-    box.style.display="block";
+    modal.style.display="block";
 }
 
 document.getElementById("helpNew").onclick=()=>{
-    loadHelp("newgacha","helpNewBox");
+    openHelp("newgacha");
 }
 
 document.getElementById("helpGacha").onclick=()=>{
-    loadHelp("gacha","helpGachaBox");
+    openHelp("gacha");
+}
+
+closeBtn.onclick=()=>{
+    modal.style.display="none";
+}
+
+window.onclick=(e)=>{
+    if(e.target==modal){
+        modal.style.display="none";
+    }
 }
 
 </script>
