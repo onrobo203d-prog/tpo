@@ -5,9 +5,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>おんろぼの物置き｜IRIAM / イリアム配信用ガチャツール集（ガチャ・闇ガチャ）</title>
+<title>おんろぼの物置き｜IRIAM / イリアム配信用ガチャツール集</title>
 
-<meta name="description" content="IRIAM（イリアム）配信者向けのスマホ対応ガチャツール集。配信を便利にする無料ブラウザツールを公開しています。">
+<meta name="description" content="IRIAM（イリアム）配信者向けのスマホ対応ガチャツール集。">
 
 <style>
 
@@ -31,15 +31,10 @@ h1{
     text-align:center;
     margin-bottom:8px;
 }
+
 h4{
     text-align:center;
     margin-bottom:8px;
-}
-
-.subtext{
-    text-align:center;
-    color:#555;
-    margin-bottom:25px;
 }
 
 a.button{
@@ -58,31 +53,35 @@ a.button:hover{
     opacity:0.85;
 }
 
-.rules{
+/* 操作説明ボタン */
+
+.helpButton{
+    display:block;
+    text-align:center;
+    margin:6px auto 12px auto;
+    padding:6px;
+    width:50%;
+    background:#6c757d;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    font-weight:600;
+    font-size:14px;
+}
+
+.helpButton:hover{
+    opacity:0.85;
+}
+
+/* 説明ボックス */
+
+.helpBox{
     background:#fff8d9;
     border:1px solid #f0d76a;
     border-radius:8px;
-    padding:18px;
-    margin-top:30px;
-}
-
-.rules h2{
-    margin-top:0;
-}
-
-.rules ul{
-    padding-left:20px;
-    margin:10px 0;
-}
-
-.rules li{
-    margin:6px 0;
-}
-
-.signature{
-    text-align:right;
+    padding:15px;
     margin-top:10px;
-    color:#555;
+    display:none;
 }
 
 </style>
@@ -93,18 +92,57 @@ a.button:hover{
 <div class="container">
 
 <h1>ガチャツール集</h1>
-</p>
- <h4>↓確率自動生成ガチャ↓</h4>
-<a class="button" href="newgacha/">ガチャ</a>
 
-  <h4>↓確率プリセット付きガチャ↓</h4>
+<h4>↓確率自動生成ガチャ↓</h4>
+<a class="button" href="newgacha/">ガチャ</a>
+<a class="helpButton" id="helpNew">操作説明</a>
+
+<div id="helpNewBox" class="helpBox"></div>
+
+
+<h4>↓確率プリセット付きガチャ↓</h4>
 <a class="button" href="gacha/">ガチャツール</a>
 <a class="button" href="yami/">闇ガチャ8192</a>
-</div>
+<a class="helpButton" id="helpGacha">操作説明</a>
+
+<div id="helpGachaBox" class="helpBox"></div>
 
 </div>
 
-</div>
+<script>
+
+async function loadHelp(type, boxId){
+
+    const box = document.getElementById(boxId);
+
+    if(box.style.display === "block"){
+        box.style.display = "none";
+        return;
+    }
+
+    const res = await fetch("help.json");
+    const data = await res.json();
+
+    box.innerHTML="";
+
+    data[type].forEach(text=>{
+        const p=document.createElement("p");
+        p.textContent=text;
+        box.appendChild(p);
+    });
+
+    box.style.display="block";
+}
+
+document.getElementById("helpNew").onclick=()=>{
+    loadHelp("newgacha","helpNewBox");
+}
+
+document.getElementById("helpGacha").onclick=()=>{
+    loadHelp("gacha","helpGachaBox");
+}
+
+</script>
 
 </body>
 </html>
