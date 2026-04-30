@@ -40,6 +40,24 @@ body { margin:0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 header { padding: 10px; }
 
+/* style に追加 */
+#minPoint, #maxPoint {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* #pageCount のCSSを置き換え */
+#pageCount {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
 /* ===== メッセージ行 ===== */
 #messageRow {
   display: flex;
@@ -214,13 +232,28 @@ header { padding: 10px; }
     </div>
     <button id="noticeBtn">使用前にお読み下さい</button>
   </div>
+
+<!-- 今の actionRow を置き換え -->
 <div class="actionRow">
+  <select id="pageCount">
+<option value="2" selected>2枚</option>
+    <option value="3">3枚</option>
+    <option value="4">4枚</option>
+  </select>
+
   <button id="exportBtn">画像出力</button>
   <button id="resetBtn" onclick="resetState()">状態をリセット</button>
 </div>
+
   <div class="searchRow">
     <input id="search" placeholder="検索">
   </div>
+
+<!-- 検索欄の下に追加 -->
+<div class="searchRow" style="margin-top:8px; display:flex; gap:8px;">
+  <input id="minPoint" type="number" min="1" max="30000" placeholder="最低pt">
+  <input id="maxPoint" type="number" min="1" max="30000" placeholder="最高pt">
+</div>
 
 </header>
 
@@ -283,6 +316,13 @@ let activeTab = "全て";
 const grid = document.getElementById("grid");
 const search = document.getElementById("search");
 
+/* search取得の下に追加 */
+const minPoint = document.getElementById("minPoint");
+const maxPoint = document.getElementById("maxPoint");
+
+/* minPoint / maxPoint の下に追加 */
+const pageCount = document.getElementById("pageCount");
+
 fetch(DATA_URL)
   .then(r => r.json())
   .then(data => { items = data; restoreState(); render(); });
@@ -295,7 +335,11 @@ function normalize(str){
     .toLowerCase();
 }
 
+/* getFiltered() を以下に置き換え */
 function getFiltered(ignoreSearch=false) {
+  const min = Number(minPoint.value) || 1;
+  const max = Number(maxPoint.value) || 30000;
+
   return items
     .filter(i => {
       if (!ignoreSearch) {
@@ -303,8 +347,18 @@ function getFiltered(ignoreSearch=false) {
         const target = normalize(i.name);
         if (!target.includes(keyword)) return false;
       }
-      if (activeTab === "全て") return true;
-      return i.categories.includes(activeTab);
+
+      if (activeTab !== "全て" && !i.categories.includes(activeTab)) {
+        return false;
+      }
+
+      const points = Number(i.points) || 0;
+
+      if (points < min || points > max) {
+        return false;
+      }
+
+      return true;
     })
     .sort((a,b)=>(Number(a.points)||0)-(Number(b.points)||0));
 }
@@ -365,6 +419,10 @@ document.querySelectorAll("#tabs button").forEach(b=>{
 
 search.oninput=render;
 
+/* search.oninput=render; の下に追加 */
+minPoint.oninput = render;
+maxPoint.oninput = render;
+
 /* ===== 出力処理 ===== */
 
 function loadImageSmart(id){
@@ -391,17 +449,22 @@ function loadImageSmart(id){
 let previewImages = [];
 let currentPreviewIndex = 0;
 
+/* exportBtn.onclick 全体をこれに置き換え */
 document.getElementById("exportBtn").onclick = async () => {
-  const list = getFiltered(true);
+  const list = getFiltered();
   if (!list.length) return;
 
   previewImages = [];
   currentPreviewIndex = 0;
 
-  const MAX_PER_IMAGE = 100;
+/* exportBtn.onclick 内の requestedPages を置き換え */
+const requestedPages = Number(pageCount.value) || 2;
 
-  for (let i = 0; i < list.length; i += MAX_PER_IMAGE) {
-    const slice = list.slice(i, i + MAX_PER_IMAGE);
+  /* 1ページあたり何件載せるか計算 */
+  const perPage = Math.ceil(list.length / requestedPages);
+
+  for (let i = 0; i < list.length; i += perPage) {
+    const slice = list.slice(i, i + perPage);
     const img = await generateCanvasImage(slice);
     previewImages.push(img);
   }
@@ -414,11 +477,12 @@ async function generateCanvasImage(list) {
   const W = 1920;
   const H = 1080;
   const padding = 20;
-  const count = Math.min(list.length, 100);
 
-  let cols = Math.ceil(Math.sqrt(count * (W / H)));
-  cols = Math.min(cols, 12);
-  let rows = Math.ceil(count / cols);
+const count = list.length;
+
+let cols = Math.ceil(Math.sqrt(count * (W / H)));
+cols = Math.min(cols, 20);
+let rows = Math.ceil(count / cols);
 
   const thumbSizeW = (W / cols) - padding * 2;
   const thumbSizeH = (H / rows) - padding * 2;
@@ -427,8 +491,8 @@ async function generateCanvasImage(list) {
   const cardW = thumbSize + padding * 2;
   const cardH = thumbSize + padding * 2;
 
-  cols = Math.floor(W / cardW);
-  rows = Math.ceil(count / cols);
+cols = Math.max(1, Math.floor(W / cardW));
+rows = Math.ceil(count / cols);
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
