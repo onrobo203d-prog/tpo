@@ -176,16 +176,45 @@ header { padding: 10px; }
   background:none;
   border:none;
 }
-#prevImg,#nextImg {
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:32px;
-  background:none;
-  border:none;
+
+#prevImg, #nextImg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 26px;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 20;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-#prevImg { left:-8px; }
-#nextImg { right:-8px; }
+
+#prevImg {
+  left: 10px;
+}
+
+#nextImg {
+  right: 10px;
+}
+
+#prevImg:active,
+#nextImg:active {
+  background: rgba(0,0,0,0.85);
+  transform: translateY(-50%) scale(0.95);
+}
 #pageInfo { font-size:12px; margin-bottom:6px; }
 
 /* ===== 注意モーダル ===== */
@@ -275,8 +304,8 @@ header { padding: 10px; }
 <div id="preview">
   <div id="previewInner">
     <button id="closePreview">×</button>
-    <button id="prevImg">‹</button>
-    <button id="nextImg">›</button>
+  <button id="prevImg">◀</button>
+<button id="nextImg">▶</button>
     <div id="pageInfo"></div>
     <img id="previewImg">
   </div>
