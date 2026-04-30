@@ -456,9 +456,9 @@ document.getElementById("exportBtn").onclick = async () => {
 
   previewImages = [];
   currentPreviewIndex = 0;
-
-/* exportBtn.onclick 内の requestedPages を置き換え */
-const requestedPages = Number(pageCount.value) || 2;
+const requestedPages = list.length <= 20
+  ? 1
+  : (Number(pageCount.value) || 2);
 
   /* 1ページあたり何件載せるか計算 */
   const perPage = Math.ceil(list.length / requestedPages);
