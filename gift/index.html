@@ -265,7 +265,8 @@ header { padding: 10px; }
 <!-- 今の actionRow を置き換え -->
 <div class="actionRow">
   <select id="pageCount">
-<option value="2" selected>2枚</option>
+<option value="1" selected>1枚</option>
+    <option value="2">2枚</option>
     <option value="3">3枚</option>
     <option value="4">4枚</option>
   </select>
@@ -478,92 +479,227 @@ function loadImageSmart(id){
 let previewImages = [];
 let currentPreviewIndex = 0;
 
-/* exportBtn.onclick 全体をこれに置き換え */
+/* ===== exportBtn.onclick 全体をこれに置き換え ===== */
 document.getElementById("exportBtn").onclick = async () => {
   const list = getFiltered();
   if (!list.length) return;
 
   previewImages = [];
   currentPreviewIndex = 0;
-const requestedPages = list.length <= 20
-  ? 1
-  : (Number(pageCount.value) || 2);
 
-  /* 1ページあたり何件載せるか計算 */
+  /* =========================
+     ページ数取得
+     ・1枚出力対応
+     ・不正値対策
+  ========================= */
+  let requestedPages = Number(pageCount.value) || 1;
+
+  /* 最低1枚保証 */
+  requestedPages = Math.max(1, requestedPages);
+
+  /* 対象数よりページ数が多すぎる場合補正 */
+  requestedPages = Math.min(requestedPages, list.length);
+
+  /* =========================
+     1ページあたり件数
+  ========================= */
   const perPage = Math.ceil(list.length / requestedPages);
 
+  /* =========================
+     ページごと生成
+  ========================= */
   for (let i = 0; i < list.length; i += perPage) {
     const slice = list.slice(i, i + perPage);
+
+    /* 各ページ単位で最適化 */
     const img = await generateCanvasImage(slice);
+
     previewImages.push(img);
   }
 
+  /* =========================
+     プレビュー表示
+  ========================= */
   showPreview();
 };
 
+/* ===== generateCanvasImage(list) を丸ごと置き換え ===== */
 async function generateCanvasImage(list) {
 
-  const W = 1920;
-  const H = 1080;
-  const padding = 20;
+  const count = list.length;
 
-const count = list.length;
+  /* =========================
+     180枚ごとにキャンバス段階拡張
+     1〜180   = 1倍
+     181〜360 = 2倍
+     361〜540 = 3倍
+     最大4倍
+  ========================= */
+  const scale = Math.max(1, Math.ceil(count / 180));
 
-let cols = Math.ceil(Math.sqrt(count * (W / H)));
-cols = Math.min(cols, 20);
-let rows = Math.ceil(count / cols);
+  const W = 1920 * scale;
+  const H = 1080 * scale;
 
-  const thumbSizeW = (W / cols) - padding * 2;
-  const thumbSizeH = (H / rows) - padding * 2;
-  const thumbSize = Math.floor(Math.min(thumbSizeW, thumbSizeH));
+  /* =========================
+     余白設定
+     scaleに応じて少しだけ広げる
+  ========================= */
+  const outerPadding = Math.floor(24 * Math.sqrt(scale));
+  const gap = Math.floor(16 * Math.sqrt(scale));
 
-  const cardW = thumbSize + padding * 2;
-  const cardH = thumbSize + padding * 2;
+  /* =========================
+     最適レイアウト探索
+     ・画像サイズ最大化
+     ・下余白削減
+     ・余白維持
+  ========================= */
+  let best = {
+    cols: 1,
+    rows: count,
+    thumbSize: 0,
+    score: 0
+  };
 
-cols = Math.max(1, Math.floor(W / cardW));
-rows = Math.ceil(count / cols);
+  for (let cols = 1; cols <= count; cols++) {
 
+    const rows = Math.ceil(count / cols);
+
+    const usableW = W - outerPadding * 2 - gap * (cols - 1);
+    const usableH = H - outerPadding * 2 - gap * (rows - 1);
+
+    if (usableW <= 0 || usableH <= 0) continue;
+
+    const thumbSize = Math.floor(
+      Math.min(
+        usableW / cols,
+        usableH / rows
+      )
+    );
+
+    if (thumbSize <= 0) continue;
+
+    /* 使用効率（空白削減） */
+    const usageRate = count / (cols * rows);
+
+    /* サイズ重視 + 空白率補助 */
+    const score = (thumbSize * 0.85) + (usageRate * 100 * 0.15);
+
+    if (score > best.score) {
+      best = {
+        cols,
+        rows,
+        thumbSize,
+        score
+      };
+    }
+  }
+
+  const cols = best.cols;
+  const rows = best.rows;
+  const thumbSize = best.thumbSize;
+
+  /* =========================
+     グリッド全体サイズ
+  ========================= */
+  const gridW = cols * thumbSize + gap * (cols - 1);
+  const gridH = rows * thumbSize + gap * (rows - 1);
+
+  /* 左上基準 + 外枠余白 */
+  const startX = outerPadding;
+  const startY = outerPadding;
+
+  /* =========================
+     Canvas生成
+  ========================= */
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
+
   const ctx = canvas.getContext("2d");
 
+  /* 背景 */
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, W, H);
 
-  const imagePromises = list.slice(0, count).map(item =>
-    loadImageSmart(item.id)
-      .then(img => ({ img, item }))
+  /* 高品質描画 */
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  /* =========================
+     画像読み込み
+  ========================= */
+  const imagePromises = list.map(item =>
+    loadImageSmart(item.id).then(img => ({ img, item }))
   );
 
   const loadedImages = await Promise.all(imagePromises);
 
+  /* =========================
+     描画
+  ========================= */
   loadedImages.forEach((data, i) => {
+
     const { img, item } = data;
 
     const col = i % cols;
     const row = Math.floor(i / cols);
 
-    const x = col * cardW + padding;
-    const y = row * cardH + padding;
+    const cellX = startX + col * (thumbSize + gap);
+    const cellY = startY + row * (thumbSize + gap);
 
     if (img) {
-      ctx.drawImage(img, x, y, thumbSize, thumbSize);
+
+      /* 比率維持してセル内最大化 */
+      const scaleRatio = Math.min(
+        thumbSize / img.width,
+        thumbSize / img.height
+      );
+
+      const drawW = img.width * scaleRatio;
+      const drawH = img.height * scaleRatio;
+
+      const drawX = cellX + (thumbSize - drawW) / 2;
+      const drawY = cellY + (thumbSize - drawH) / 2;
+
+      ctx.drawImage(
+        img,
+        drawX,
+        drawY,
+        drawW,
+        drawH
+      );
+
     } else {
-      ctx.fillStyle = "#ccc";
-      ctx.fillRect(x, y, thumbSize, thumbSize);
+
+      /* 読み込み失敗時 */
+      ctx.fillStyle = "#dddddd";
+      ctx.fillRect(
+        cellX,
+        cellY,
+        thumbSize,
+        thumbSize
+      );
     }
 
+    /* =========================
+       disabled斜線
+    ========================= */
     if (item.disabled) {
+
       ctx.strokeStyle = "red";
-      ctx.lineWidth = 5;
+      ctx.lineWidth = Math.max(4, Math.floor(thumbSize * 0.04));
+
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + thumbSize, y + thumbSize);
+      ctx.moveTo(cellX, cellY);
+      ctx.lineTo(cellX + thumbSize, cellY + thumbSize);
       ctx.stroke();
     }
+
   });
 
+  /* =========================
+     出力
+  ========================= */
   return canvas.toDataURL("image/jpeg", 0.95);
 }
 
