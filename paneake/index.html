@@ -87,7 +87,10 @@ canvas{
 <button id="downloadBtn">
 ダウンロード
 </button>
-
+    
+<button id="helpBtn">
+使い方
+</button>
 </div>
 
 <canvas id="canvas"></canvas>
@@ -95,7 +98,53 @@ canvas{
 <div class="info" id="info">
 No image loaded
 </div>
+<div id="helpModal" class="modal">
 
+    <div class="modalContent">
+
+        <h2>使い方</h2>
+
+        <p>
+①元画像と同じサイズのキャンバスにパネル用の線を引いて下さい
+        </p>
+
+        <p>
+②背景を透過したものをサイトにアップロードして下さい
+        </p>
+
+        <p>
+③パネル生成を押すとパネル毎にレイヤー化したものがダウンロードできます
+        </p>
+
+        <p>
+④画像編集ソフトで元画像にレイヤーを重ねる
+        </p>
+
+        <p>
+⑤解放条件をレイヤー毎に文字入れして完成
+        </p>
+
+        <hr>
+
+        <p>
+⚠️注意⚠️
+        </p>
+
+        <p>
+線が途切れているとパネルが繋がってしまいます
+        </p>
+
+        <p>
+狭すぎる隙間はパネル化されません
+        </p>
+
+        <button id="closeModalBtn">
+閉じる
+        </button>
+
+    </div>
+
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <script>
