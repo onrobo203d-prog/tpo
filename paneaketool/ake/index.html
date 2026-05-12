@@ -266,6 +266,10 @@ accept=".zip">
 保存
 </button>
 
+<button id="clearBtn">
+データ削除
+</button>
+
 </div>
 
 <div id="canvasWrap">
@@ -385,6 +389,33 @@ async function loadFromDB(){
     });
 }
 
+async function clearSavedData(){
+
+    return new Promise((resolve,reject)=>{
+
+        const tx =
+        db.transaction(
+            STORE_NAME,
+            "readwrite"
+        );
+
+        const store =
+        tx.objectStore(
+            STORE_NAME
+        );
+
+        store.delete(
+            SAVE_KEY
+        );
+
+        tx.oncomplete =
+        resolve;
+
+        tx.onerror =
+        reject;
+    });
+}
+
 const canvas =
 document.getElementById("canvas");
 
@@ -402,6 +433,9 @@ document.getElementById("layersPanel");
 
 const saveBtn =
 document.getElementById("saveBtn");
+
+const clearBtn =
+document.getElementById("clearBtn");
 
 const canvasWrap =
 document.getElementById("canvasWrap");
@@ -454,6 +488,20 @@ function blobToURL(blob){
     return URL.createObjectURL(blob);
 }
 
+async function blobToDataURL(blob){
+
+    return new Promise(resolve=>{
+
+        const reader =
+        new FileReader();
+
+        reader.onload =
+        ()=>resolve(reader.result);
+
+        reader.readAsDataURL(blob);
+    });
+}
+
 function imageFromSrc(src){
 
     return new Promise(resolve=>{
@@ -466,6 +514,11 @@ function imageFromSrc(src){
 
         img.src = src;
     });
+}
+
+async function dataURLToImage(dataURL){
+
+    return await imageFromSrc(dataURL);
 }
 
 function cleanupLayers(){
@@ -510,12 +563,72 @@ async function autoSave(){
 
     const saveData = {
 
-        layers:
+        bgImage:null,
 
-        layers.map(layer=>({
+        layers:[]
+    };
+
+    if(bgImage){
+
+        const bgCanvas =
+        document.createElement("canvas");
+
+        bgCanvas.width =
+        bgImage.width;
+
+        bgCanvas.height =
+        bgImage.height;
+
+        bgCanvas
+        .getContext("2d")
+        .drawImage(
+            bgImage,
+            0,
+            0
+        );
+
+        const bgBlob =
+        await new Promise(r=>
+            bgCanvas.toBlob(r)
+        );
+
+        saveData.bgImage =
+        await blobToDataURL(bgBlob);
+    }
+
+    for(const layer of layers){
+
+        const layerCanvas =
+        document.createElement("canvas");
+
+        layerCanvas.width =
+        layer.image.width;
+
+        layerCanvas.height =
+        layer.image.height;
+
+        layerCanvas
+        .getContext("2d")
+        .drawImage(
+            layer.image,
+            0,
+            0
+        );
+
+        const layerBlob =
+        await new Promise(r=>
+            layerCanvas.toBlob(r)
+        );
+
+        saveData.layers.push({
 
             name:
             layer.name,
+
+            image:
+            await blobToDataURL(
+                layerBlob
+            ),
 
             visible:
             layer.visible,
@@ -543,12 +656,10 @@ async function autoSave(){
 
             baseSize:
             layer.baseSize
-        }))
-    };
+        });
+    }
 
-    await saveToDB(
-        saveData
-    );
+    await saveToDB(saveData);
 }
 
 async function restoreAutoSave(){
@@ -559,19 +670,96 @@ async function restoreAutoSave(){
     if(!data)
         return;
 
-    for(
-        let i = 0;
-        i < data.layers.length;
-        i++
-    ){
+    const ok =
+    confirm(
+        "前回の作業データを復元しますか？"
+    );
 
-        if(layers[i]){
+    if(!ok)
+        return;
 
-            Object.assign(
-                layers[i],
-                data.layers[i]
-            );
-        }
+    cleanupLayers();
+
+    if(data.bgImage){
+
+        bgImage =
+        await dataURLToImage(
+            data.bgImage
+        );
+
+        adjustCanvasArea();
+
+        resizeCanvas();
+    }
+
+    for(const saved of data.layers){
+
+        const img =
+        await dataURLToImage(
+            saved.image
+        );
+
+        const thumbCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+        thumbCanvas.width = 64;
+        thumbCanvas.height = 64;
+
+        const tctx =
+        thumbCanvas.getContext(
+            "2d"
+        );
+
+        const scale =
+        Math.min(
+            64 / img.width,
+            64 / img.height
+        );
+
+        const w =
+        img.width * scale;
+
+        const h =
+        img.height * scale;
+
+        const x =
+        (64 - w) / 2;
+
+        const y =
+        (64 - h) / 2;
+
+        tctx.drawImage(
+            img,
+            x,
+            y,
+            w,
+            h
+        );
+
+        const thumbBlob =
+        await new Promise(r=>
+            thumbCanvas.toBlob(r)
+        );
+
+        const thumbURL =
+        blobToURL(
+            thumbBlob
+        );
+
+        const layer = {
+
+            ...saved,
+
+            image:img,
+
+            thumbnail:thumbURL
+        };
+
+        layers.push(layer);
+
+        createLayerUI(layer);
     }
 
     requestRender();
@@ -690,10 +878,6 @@ zipUpload.addEventListener(
 
     cleanupLayers();
 
-    await new Promise(r=>
-        setTimeout(r,100)
-    );
-
     const zip =
     await JSZip.loadAsync(
         file
@@ -805,13 +989,7 @@ zipUpload.addEventListener(
         layers.push(layer);
 
         createLayerUI(layer);
-
-        await new Promise(r=>
-            setTimeout(r)
-        );
     }
-
-    await restoreAutoSave();
 
     requestRender();
 
@@ -1458,6 +1636,24 @@ canvas.addEventListener(
 saveBtn.onclick =
 saveImage;
 
+clearBtn.onclick =
+async ()=>{
+
+    const ok =
+    confirm(
+        "保存データを削除しますか？"
+    );
+
+    if(!ok)
+        return;
+
+    await clearSavedData();
+
+    alert(
+        "削除しました"
+    );
+};
+
 function saveImage(){
 
     const exportCanvas =
@@ -1479,17 +1675,6 @@ function saveImage(){
     bgImage
     ? bgImage.height
     : 1200;
-
-    const MAX = 2048;
-
-    if(exportW > MAX){
-
-        const ratio =
-        MAX / exportW;
-
-        exportW *= ratio;
-        exportH *= ratio;
-    }
 
     exportCanvas.width =
     exportW;
@@ -1631,6 +1816,8 @@ function saveImage(){
 (async()=>{
 
     await initDB();
+
+    await restoreAutoSave();
 
 })();
 
