@@ -135,22 +135,35 @@ a.button:hover{
 
 <div class="container">
 
-<h1>パネル開けツール</h1>
+<h1>パネル開けツール集</h1>
 
-<h4>↓ここからパネル素材のZIPファイルを作る↓</h4>
-<a class="button" href="pane/">パネル生成</a
+<h4>↓パネル画像生成ツール↓</h4>
+<a class="button" href="pane/">パネル生成</a>
+<a class="helpButton" id="hpane">操作説明</a>
 
-<h4>↓一枚絵とZIPファイルをこっちで読み込み↓</h4>
-<a class="button" href="ak/">メンテ中</a>
+<h4>↓パネル開けツール↓</h4>
+<a class="button" href="ake/">パネル開け</a>
+<a class="helpButton" id="hake">操作説明</a>
 
 </div>
 
 
+<!-- モーダル -->
+
+<div id="helpModal" class="modal">
+
+<div class="modalContent">
+
+<div class="modalHeader">
+<span class="close" id="closeModal">&times;</span>
+<h3>操作説明</h3>
+</div>
 
 <div class="modalBody" id="modalText"></div>
 
 </div>
 
+</div>
 
 
 <script>
