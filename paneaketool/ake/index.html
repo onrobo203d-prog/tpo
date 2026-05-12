@@ -234,80 +234,6 @@ textarea{
     3px solid #4da3ff;
 }
 
-#helpBtn{
-
-    min-width:90px;
-
-    height:48px;
-
-    border-radius:12px;
-
-    background:#ff5252;
-
-    font-size:16px;
-
-    margin-left:auto;
-
-    padding:0 16px;
-
-    white-space:nowrap;
-}
-
-#clearStorageBtn{
-    background:#7a2f2f;
-}
-
-#helpPopup{
-
-    position:fixed;
-
-    inset:0;
-
-    z-index:100;
-
-    display:none;
-
-    align-items:center;
-    justify-content:center;
-
-    background:
-    rgba(0,0,0,0.85);
-
-    padding:20px;
-
-    overflow-y:auto; /* 追加 */
-}
-
-#helpContent{
-
-    width:100%;
-    max-width:500px;
-
-    background:#222;
-
-    border-radius:20px;
-
-    padding:20px;
-
-    line-height:1.8;
-
-    max-height:90vh; /* 追加 */
-    overflow-y:auto; /* 追加 */
-
-    -webkit-overflow-scrolling:touch; /* iPhone用 */
-}
-
-#helpContent h2{
-    margin-top:0;
-}
-
-.small{
-
-    font-size:13px;
-
-    opacity:0.8;
-}
-
 </style>
 </head>
 <body>
@@ -340,71 +266,13 @@ accept=".zip">
 保存
 </button>
 
-<button id="clearStorageBtn">
-データ消去
-</button>
-
-<button id="helpBtn">使い方</button>
-
 </div>
 
 <div id="canvasWrap">
-
 <canvas id="canvas"></canvas>
-
 </div>
 
 <div id="layersPanel"></div>
-
-<div id="helpPopup">
-
-<div id="helpContent">
-
-<h2>操作説明</h2>
-
-<h3>各種ボタン</h3>
-
-<p>
-①「背景」ボタンから一枚絵をアップロード<br>
-②「ZIP」ボタンからパネル開け画像生成ツールで生成したZIPファイルをアップロード<br>
-③「保存」ボタンで進捗画像をダウンロード(画質が下がったものがダウンロードされます)<br>
-④企画が終了したら「データ消去」ボタンを押すようにして下さい(スマホの容量が少し軽くなります) <br>
-</p>
-
-<h3>文字入れ</h3>
-<p>
-ZIPファイルをアップロードするとパネル毎に文字が入れられます<br>
-パネル名の横をタップするとレイヤー選択状態になるので、文字を入力して下さい<br>
-カラー選択は左が文字、右が文字枠に対応しています<br>
-</p>
-
-<h4>スマホ操作</h4>
-
-<p>
-1本指ドラッグ → 移動<br>
-2本指ピンチ → サイズ変更<br>
-2本指回転 → 回転
-</p>
-
-<h4>PC操作</h4>
-
-<p>
-ドラッグ → 移動<br>
-ホイール → サイズ変更<br>
-Alt + ホイール → 回転
-</p>
-
-<p class="small">
-文字が表示されない時はレイヤーを変更してみてください
-</p>
-
-<button id="closeHelp">
-閉じる
-</button>
-
-</div>
-
-</div>
 
 <script>
 
@@ -510,39 +378,9 @@ async function loadFromDB(){
         );
 
         req.onsuccess =
-        () => {
-
-            resolve(
-                req.result
-            );
-        };
+        ()=>resolve(req.result);
 
         req.onerror =
-        reject;
-    });
-}
-
-async function clearDB(){
-
-    return new Promise((resolve,reject)=>{
-
-        const tx =
-        db.transaction(
-            STORE_NAME,
-            "readwrite"
-        );
-
-        const store =
-        tx.objectStore(
-            STORE_NAME
-        );
-
-        store.clear();
-
-        tx.oncomplete =
-        resolve;
-
-        tx.onerror =
         reject;
     });
 }
@@ -565,25 +403,14 @@ document.getElementById("layersPanel");
 const saveBtn =
 document.getElementById("saveBtn");
 
-const helpBtn =
-document.getElementById("helpBtn");
-
-const helpPopup =
-document.getElementById("helpPopup");
-
-const closeHelp =
-document.getElementById("closeHelp");
-
 const canvasWrap =
 document.getElementById("canvasWrap");
 
-const clearStorageBtn =
-document.getElementById(
-    "clearStorageBtn"
-);
-
 const DPR =
-window.devicePixelRatio || 1;
+Math.min(
+    window.devicePixelRatio || 1,
+    2
+);
 
 let bgImage = null;
 
@@ -593,9 +420,9 @@ let layers = [];
 
 let activeLayer = null;
 
-let dragging = false;
-
 let pointers = new Map();
+
+let dragging = false;
 
 let pinchStartDistance = 0;
 
@@ -605,18 +432,150 @@ let rotateStartAngle = 0;
 
 let rotateStartRotation = 0;
 
-adjustCanvasArea();
-resizeCanvas();
+let renderPending = false;
 
-window.addEventListener(
-    "resize",
-    () => {
+function requestRender(){
 
-        adjustCanvasArea();
+    if(renderPending)
+        return;
 
-        resizeCanvas();
+    renderPending = true;
+
+    requestAnimationFrame(()=>{
+
+        renderPending = false;
+
+        render();
+    });
+}
+
+function blobToURL(blob){
+
+    return URL.createObjectURL(blob);
+}
+
+function imageFromSrc(src){
+
+    return new Promise(resolve=>{
+
+        const img =
+        new Image();
+
+        img.onload =
+        ()=>resolve(img);
+
+        img.src = src;
+    });
+}
+
+function cleanupLayers(){
+
+    for(
+        const layer of layers
+    ){
+
+        if(
+            layer.image &&
+            layer.image.src.startsWith(
+                "blob:"
+            )
+        ){
+
+            URL.revokeObjectURL(
+                layer.image.src
+            );
+        }
+
+        if(
+            layer.thumbnail &&
+            layer.thumbnail.startsWith(
+                "blob:"
+            )
+        ){
+
+            URL.revokeObjectURL(
+                layer.thumbnail
+            );
+        }
     }
-);
+
+    layers = [];
+
+    layersPanel.innerHTML = "";
+
+    activeLayer = null;
+}
+
+async function autoSave(){
+
+    const saveData = {
+
+        layers:
+
+        layers.map(layer=>({
+
+            name:
+            layer.name,
+
+            visible:
+            layer.visible,
+
+            text:
+            layer.text,
+
+            color:
+            layer.color,
+
+            stroke:
+            layer.stroke,
+
+            x:
+            layer.x,
+
+            y:
+            layer.y,
+
+            scale:
+            layer.scale,
+
+            rotation:
+            layer.rotation,
+
+            baseSize:
+            layer.baseSize
+        }))
+    };
+
+    await saveToDB(
+        saveData
+    );
+}
+
+async function restoreAutoSave(){
+
+    const data =
+    await loadFromDB();
+
+    if(!data)
+        return;
+
+    for(
+        let i = 0;
+        i < data.layers.length;
+        i++
+    ){
+
+        if(layers[i]){
+
+            Object.assign(
+                layers[i],
+                data.layers[i]
+            );
+        }
+    }
+
+    requestRender();
+}
 
 function adjustCanvasArea(){
 
@@ -635,7 +594,9 @@ function adjustCanvasArea(){
     260;
 
     const usableH =
-    screenH - topbarH - layersMin;
+    screenH -
+    topbarH -
+    layersMin;
 
     let canvasH =
     usableH;
@@ -678,181 +639,25 @@ function resizeCanvas(){
         0
     );
 
-    render();
+    requestRender();
 }
 
-function fileToDataURL(file){
+window.addEventListener(
+    "resize",
+    ()=>{
 
-    return new Promise(resolve=>{
+        adjustCanvasArea();
 
-        const reader =
-        new FileReader();
-
-        reader.onload =
-        () => resolve(
-            reader.result
-        );
-
-        reader.readAsDataURL(
-            file
-        );
-    });
-}
-
-function imageFromSrc(src){
-
-    return new Promise(resolve=>{
-
-        const img =
-        new Image();
-
-        img.onload =
-        () => resolve(img);
-
-        img.src = src;
-    });
-}
-
-async function autoSave(){
-
-    const saveData = {
-
-        bgImageSrc:
-        bgImage
-        ? bgImage.src
-        : null,
-
-        layers:
-        layers.map(layer=>({
-
-            name:layer.name,
-
-            imageSrc:
-            layer.image.src,
-
-            thumbnail:
-            layer.thumbnail,
-
-            visible:
-            layer.visible,
-
-            text:
-            layer.text,
-
-            color:
-            layer.color,
-
-            stroke:
-            layer.stroke,
-
-            x:layer.x,
-            y:layer.y,
-
-            scale:
-            layer.scale,
-
-            rotation:
-            layer.rotation,
-
-            baseSize:
-            layer.baseSize
-        }))
-    };
-
-    await saveToDB(
-        saveData
-    );
-}
-
-async function restoreAutoSave(){
-
-    const data =
-    await loadFromDB();
-
-    if(!data)
-        return;
-
-    const restore =
-    confirm(
-        "保存データを復元しますか？"
-    );
-
-    if(!restore)
-        return;
-
-    if(data.bgImageSrc){
-
-        bgImage =
-        await imageFromSrc(
-            data.bgImageSrc
-        );
+        resizeCanvas();
     }
+);
 
-    layers = [];
-
-    layersPanel.innerHTML =
-    "";
-
-    for(
-        const saved of
-        data.layers
-    ){
-
-        const img =
-        await imageFromSrc(
-            saved.imageSrc
-        );
-
-        const layer = {
-
-            name:
-            saved.name,
-
-            image:img,
-
-            thumbnail:
-            saved.thumbnail,
-
-            visible:
-            saved.visible,
-
-            text:
-            saved.text,
-
-            color:
-            saved.color,
-
-            stroke:
-            saved.stroke,
-
-            x:saved.x,
-            y:saved.y,
-
-            scale:
-            saved.scale,
-
-            rotation:
-            saved.rotation,
-
-            baseSize:
-            saved.baseSize
-        };
-
-        layers.push(layer);
-
-        createLayerUI(layer);
-    }
-
-    adjustCanvasArea();
-
-    resizeCanvas();
-
-    render();
-}
+adjustCanvasArea();
+resizeCanvas();
 
 bgUpload.addEventListener(
     "change",
-    async e => {
+    async e=>{
 
     const file =
     e.target.files[0];
@@ -861,9 +666,7 @@ bgUpload.addEventListener(
         return;
 
     const src =
-    await fileToDataURL(
-        file
-    );
+    blobToURL(file);
 
     bgImage =
     await imageFromSrc(src);
@@ -872,12 +675,12 @@ bgUpload.addEventListener(
 
     resizeCanvas();
 
-    autoSave();
+    await autoSave();
 });
 
 zipUpload.addEventListener(
     "change",
-    async e => {
+    async e=>{
 
     const file =
     e.target.files[0];
@@ -885,10 +688,11 @@ zipUpload.addEventListener(
     if(!file)
         return;
 
-    layers = [];
+    cleanupLayers();
 
-    layersPanel.innerHTML =
-    "";
+    await new Promise(r=>
+        setTimeout(r,100)
+    );
 
     const zip =
     await JSZip.loadAsync(
@@ -913,14 +717,10 @@ zipUpload.addEventListener(
         );
 
         const src =
-        await fileToDataURL(
-            blob
-        );
+        blobToURL(blob);
 
         const img =
-        await imageFromSrc(
-            src
-        );
+        await imageFromSrc(src);
 
         const thumbCanvas =
         document.createElement(
@@ -961,14 +761,28 @@ zipUpload.addEventListener(
             h
         );
 
+        const thumbBlob =
+        await new Promise(resolve=>
+            thumbCanvas.toBlob(
+                resolve
+            )
+        );
+
+        const thumbURL =
+        blobToURL(
+            thumbBlob
+        );
+
         const layer = {
 
-            name:entry.name,
+            name:
+            entry.name,
 
-            image:img,
+            image:
+            img,
 
             thumbnail:
-            thumbCanvas.toDataURL(),
+            thumbURL,
 
             visible:true,
 
@@ -979,7 +793,6 @@ zipUpload.addEventListener(
             stroke:"#000000",
 
             x:100,
-
             y:100,
 
             scale:1,
@@ -992,11 +805,17 @@ zipUpload.addEventListener(
         layers.push(layer);
 
         createLayerUI(layer);
+
+        await new Promise(r=>
+            setTimeout(r)
+        );
     }
 
-    render();
+    await restoreAutoSave();
 
-    autoSave();
+    requestRender();
+
+    await autoSave();
 });
 
 function createLayerUI(layer){
@@ -1023,7 +842,8 @@ function createLayerUI(layer){
     ? "表示"
     : "非表示";
 
-    visibleBtn.onclick = () => {
+    visibleBtn.onclick =
+    async ()=>{
 
         layer.visible =
         !layer.visible;
@@ -1033,9 +853,9 @@ function createLayerUI(layer){
         ? "表示"
         : "非表示";
 
-        render();
+        requestRender();
 
-        autoSave();
+        await autoSave();
     };
 
     const thumb =
@@ -1091,14 +911,13 @@ function createLayerUI(layer){
     textarea.placeholder =
     "文字入力";
 
-    textarea.oninput = () => {
+    textarea.oninput =
+    ()=>{
 
         layer.text =
         textarea.value;
 
-        render();
-
-        autoSave();
+        requestRender();
     };
 
     const row =
@@ -1123,14 +942,13 @@ function createLayerUI(layer){
     color.value =
     layer.color;
 
-    color.oninput = () => {
+    color.oninput =
+    ()=>{
 
         layer.color =
         color.value;
 
-        render();
-
-        autoSave();
+        requestRender();
     };
 
     const stroke =
@@ -1147,14 +965,13 @@ function createLayerUI(layer){
     stroke.value =
     layer.stroke;
 
-    stroke.oninput = () => {
+    stroke.oninput =
+    ()=>{
 
         layer.stroke =
         stroke.value;
 
-        render();
-
-        autoSave();
+        requestRender();
     };
 
     row.appendChild(color);
@@ -1179,7 +996,14 @@ function createLayerUI(layer){
 
     header.addEventListener(
         "click",
-        () => {
+        async ()=>{
+
+        if(
+            activeLayer !== layer
+        ){
+
+            await autoSave();
+        }
 
         document
         .querySelectorAll(
@@ -1199,7 +1023,7 @@ function createLayerUI(layer){
         activeLayer =
         layer;
 
-        render();
+        requestRender();
     });
 
     layersPanel.appendChild(
@@ -1397,7 +1221,7 @@ function drawLayerText(layer){
         const width =
         Math.max(
             ...lines.map(
-                l =>
+                l=>
                 ctx.measureText(l)
                 .width
             )
@@ -1424,9 +1248,29 @@ function drawLayerText(layer){
     ctx.restore();
 }
 
+function distance(a,b){
+
+    return Math.hypot(
+
+        b.x - a.x,
+
+        b.y - a.y
+    );
+}
+
+function angle(a,b){
+
+    return Math.atan2(
+
+        b.y - a.y,
+
+        b.x - a.x
+    );
+}
+
 canvas.addEventListener(
     "pointerdown",
-    e => {
+    e=>{
 
     if(!activeLayer)
         return;
@@ -1472,7 +1316,7 @@ canvas.addEventListener(
 
 canvas.addEventListener(
     "pointermove",
-    e => {
+    e=>{
 
     if(
         !activeLayer
@@ -1512,9 +1356,7 @@ canvas.addEventListener(
 
         activeLayer.y += dy;
 
-        render();
-
-        autoSave();
+        requestRender();
     }
 
     if(
@@ -1563,15 +1405,13 @@ canvas.addEventListener(
             rotateStartAngle
         );
 
-        render();
-
-        autoSave();
+        requestRender();
     }
 });
 
 canvas.addEventListener(
     "pointerup",
-    e => {
+    e=>{
 
     pointers.delete(
         e.pointerId
@@ -1582,7 +1422,7 @@ canvas.addEventListener(
 
 canvas.addEventListener(
     "wheel",
-    e => {
+    e=>{
 
     e.preventDefault();
 
@@ -1609,38 +1449,14 @@ canvas.addEventListener(
         );
     }
 
-    render();
-
-    autoSave();
+    requestRender();
 
 },{
     passive:false
 });
 
-function distance(a,b){
-
-    return Math.hypot(
-
-        b.x - a.x,
-
-        b.y - a.y
-    );
-}
-
-function angle(a,b){
-
-    return Math.atan2(
-
-        b.y - a.y,
-
-        b.x - a.x
-    );
-}
-
-saveBtn.addEventListener(
-    "click",
-    saveImage
-);
+saveBtn.onclick =
+saveImage;
 
 function saveImage(){
 
@@ -1654,24 +1470,25 @@ function saveImage(){
         "2d"
     );
 
-    let exportW;
-    let exportH;
+    let exportW =
+    bgImage
+    ? bgImage.width
+    : 1200;
 
-    if(bgImage){
+    let exportH =
+    bgImage
+    ? bgImage.height
+    : 1200;
 
-        exportW =
-        bgImage.width;
+    const MAX = 2048;
 
-        exportH =
-        bgImage.height;
+    if(exportW > MAX){
 
-    }else{
+        const ratio =
+        MAX / exportW;
 
-        exportW =
-        canvas.width / DPR;
-
-        exportH =
-        canvas.height / DPR;
+        exportW *= ratio;
+        exportH *= ratio;
     }
 
     exportCanvas.width =
@@ -1698,12 +1515,6 @@ function saveImage(){
         if(!layer.visible)
             continue;
 
-        const scaleX =
-        exportW / bgFit.w;
-
-        const scaleY =
-        exportH / bgFit.h;
-
         exportCtx.drawImage(
 
             layer.image,
@@ -1718,6 +1529,12 @@ function saveImage(){
         if(layer.text){
 
             exportCtx.save();
+
+            const scaleX =
+            exportW / bgFit.w;
+
+            const scaleY =
+            exportH / bgFit.h;
 
             exportCtx.translate(
 
@@ -1811,50 +1628,9 @@ function saveImage(){
     },"image/png");
 }
 
-clearStorageBtn.onclick =
-async () => {
-
-    const ok =
-    confirm(
-        "保存データを完全に削除しますか？"
-    );
-
-    if(!ok)
-        return;
-
-    await clearDB();
-
-    location.reload();
-};
-
-helpBtn.onclick = () => {
-
-    helpPopup.style.display =
-    "flex";
-};
-
-closeHelp.onclick = () => {
-
-    helpPopup.style.display =
-    "none";
-};
-
-helpPopup.onclick = e => {
-
-    if(
-        e.target === helpPopup
-    ){
-
-        helpPopup.style.display =
-        "none";
-    }
-};
-
 (async()=>{
 
     await initDB();
-
-    await restoreAutoSave();
 
 })();
 
