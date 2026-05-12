@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+<title>パネル開けツール</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#111;
+    color:white;
+    font-family:
+    "Noto Sans JP",
+    sans-serif;
+}
+
+body{
+    display:flex;
+    flex-direction:column;
+}
+
+button,
+input,
+textarea{
+    font:inherit;
+}
+
+#topbar{
+
+    min-height:64px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    padding:10px;
+
+    background:#1a1a1a;
+
+    border-bottom:
+    1px solid #333;
+
+    flex-shrink:0;
+
+    flex-wrap:wrap;
+}
+
+.fileBtn,
+button{
+
+    border:none;
+
+    background:#333;
+
+    color:white;
+
+    padding:12px 16px;
+
+    border-radius:14px;
+
+    font-size:15px;
+
+    cursor:pointer;
+}
+
+button:active,
+.fileBtn:active{
+    transform:scale(0.98);
+}
+
+input[type=file]{
+    display:none;
+}
+
+#canvasWrap{
+
+    position:relative;
+
+    width:100%;
+
+    background:#000;
+
+    overflow:hidden;
+
+    touch-action:none;
+
+    flex-shrink:0;
+}
+
+canvas{
+
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    touch-action:none;
+
+    background:#000;
+}
+
+#layersPanel{
+
+    flex:1;
+
+    overflow:auto;
+
+    background:#181818;
+
+    border-top:
+    1px solid #333;
+
+    padding:10px;
+
+    min-height:0;
+}
+
+.layerCard{
+
+    background:#242424;
+
+    border-radius:18px;
+
+    padding:10px;
+
+    margin-bottom:12px;
+}
+
+.layerHeader{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+}
+
+.layerHeader button{
+    flex-shrink:0;
+}
+
+.thumb{
+
+    width:64px;
+    height:64px;
+
+    object-fit:contain;
+
+    background:white;
+
+    border-radius:10px;
+
+    flex-shrink:0;
+}
+
+.layerTitle{
+
+    font-size:14px;
+
+    word-break:break-all;
+}
+
+.layerControls{
+
+    margin-top:10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+}
+
+textarea{
+
+    width:100%;
+
+    min-height:80px;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px;
+
+    resize:none;
+
+    background:#333;
+
+    color:white;
+}
+
+.row{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+}
+
+.color{
+
+    width:50px;
+    height:40px;
+
+    padding:0;
+
+    border:none;
+
+    background:none;
+}
+
+.activeLayer{
+
+    outline:
+    3px solid #4da3ff;
+}
+
+#helpBtn{
+
+    min-width:90px;
+
+    height:48px;
+
+    border-radius:12px;
+
+    background:#ff5252;
+
+    font-size:16px;
+
+    margin-left:auto;
+
+    padding:0 16px;
+
+    white-space:nowrap;
+}
+
+#clearStorageBtn{
+    background:#7a2f2f;
+}
+
+#helpPopup{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:100;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    background:
+    rgba(0,0,0,0.85);
+
+    padding:20px;
+
+    overflow-y:auto; /* 追加 */
+}
+
+#helpContent{
+
+    width:100%;
+    max-width:500px;
+
+    background:#222;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    line-height:1.8;
+
+    max-height:90vh; /* 追加 */
+    overflow-y:auto; /* 追加 */
+
+    -webkit-overflow-scrolling:touch; /* iPhone用 */
+}
+
+#helpContent h2{
+    margin-top:0;
+}
+
+.small{
+
+    font-size:13px;
+
+    opacity:0.8;
+}
+
+</style>
+</head>
+<body>
+
+<div id="topbar">
+
+<label class="fileBtn">
+
+背景
+
+<input
+type="file"
+id="bgUpload"
+accept="image/*">
+
+</label>
+
+<label class="fileBtn">
+
+ZIP
+
+<input
+type="file"
+id="zipUpload"
+accept=".zip">
+
+</label>
+
+<button id="saveBtn">
+保存
+</button>
+
+<button id="clearStorageBtn">
+データ消去
+</button>
+
+<button id="helpBtn">使い方</button>
+
+</div>
+
+<div id="canvasWrap">
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+<div id="layersPanel"></div>
+
+<div id="helpPopup">
+
+<div id="helpContent">
+
+<h2>操作説明</h2>
+
+<h3>各種ボタン</h3>
+
+<p>
+①「背景」ボタンから一枚絵をアップロード<br>
+②「ZIP」ボタンからパネル開け画像生成ツールで生成したZIPファイルをアップロード<br>
+③「保存」ボタンで進捗画像をダウンロード(画質が下がったものがダウンロードされます)<br>
+④企画が終了したら「データ消去」ボタンを押すようにして下さい(スマホの容量が少し軽くなります) <br>
+</p>
+
+<h3>文字入れ</h3>
+<p>
+ZIPファイルをアップロードするとパネル毎に文字が入れられます<br>
+パネル名の横をタップするとレイヤー選択状態になるので、文字を入力して下さい<br>
+カラー選択は左が文字、右が文字枠に対応しています<br>
+</p>
+
+<h4>スマホ操作</h4>
+
+<p>
+1本指ドラッグ → 移動<br>
+2本指ピンチ → サイズ変更<br>
+2本指回転 → 回転
+</p>
+
+<h4>PC操作</h4>
+
+<p>
+ドラッグ → 移動<br>
+ホイール → サイズ変更<br>
+Alt + ホイール → 回転
+</p>
+
+<p class="small">
+文字が表示されない時はレイヤーを変更してみてください
+</p>
+
+<button id="closeHelp">
+閉じる
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+const DB_NAME =
+"panel_editor_db";
+
+const STORE_NAME =
+"autosave";
+
+const SAVE_KEY =
+"project";
+
+let db = null;
+
+async function initDB(){
+
+    return new Promise((resolve,reject)=>{
+
+        const request =
+        indexedDB.open(
+            DB_NAME,
+            1
+        );
+
+        request.onupgradeneeded =
+        e => {
+
+            const db =
+            e.target.result;
+
+            if(
+                !db.objectStoreNames.contains(
+                    STORE_NAME
+                )
+            ){
+
+                db.createObjectStore(
+                    STORE_NAME
+                );
+            }
+        };
+
+        request.onsuccess =
+        e => {
+
+            db =
+            e.target.result;
+
+            resolve();
+        };
+
+        request.onerror =
+        reject;
+    });
+}
+
+async function saveToDB(data){
+
+    return new Promise((resolve,reject)=>{
+
+        const tx =
+        db.transaction(
+            STORE_NAME,
+            "readwrite"
+        );
+
+        const store =
+        tx.objectStore(
+            STORE_NAME
+        );
+
+        store.put(
+            data,
+            SAVE_KEY
+        );
+
+        tx.oncomplete =
+        resolve;
+
+        tx.onerror =
+        reject;
+    });
+}
+
+async function loadFromDB(){
+
+    return new Promise((resolve,reject)=>{
+
+        const tx =
+        db.transaction(
+            STORE_NAME,
+            "readonly"
+        );
+
+        const store =
+        tx.objectStore(
+            STORE_NAME
+        );
+
+        const req =
+        store.get(
+            SAVE_KEY
+        );
+
+        req.onsuccess =
+        () => {
+
+            resolve(
+                req.result
+            );
+        };
+
+        req.onerror =
+        reject;
+    });
+}
+
+async function clearDB(){
+
+    return new Promise((resolve,reject)=>{
+
+        const tx =
+        db.transaction(
+            STORE_NAME,
+            "readwrite"
+        );
+
+        const store =
+        tx.objectStore(
+            STORE_NAME
+        );
+
+        store.clear();
+
+        tx.oncomplete =
+        resolve;
+
+        tx.onerror =
+        reject;
+    });
+}
+
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
+const bgUpload =
+document.getElementById("bgUpload");
+
+const zipUpload =
+document.getElementById("zipUpload");
+
+const layersPanel =
+document.getElementById("layersPanel");
+
+const saveBtn =
+document.getElementById("saveBtn");
+
+const helpBtn =
+document.getElementById("helpBtn");
+
+const helpPopup =
+document.getElementById("helpPopup");
+
+const closeHelp =
+document.getElementById("closeHelp");
+
+const canvasWrap =
+document.getElementById("canvasWrap");
+
+const clearStorageBtn =
+document.getElementById(
+    "clearStorageBtn"
+);
+
+const DPR =
+window.devicePixelRatio || 1;
+
+let bgImage = null;
+
+let bgFit = null;
+
+let layers = [];
+
+let activeLayer = null;
+
+let dragging = false;
+
+let pointers = new Map();
+
+let pinchStartDistance = 0;
+
+let pinchStartScale = 1;
+
+let rotateStartAngle = 0;
+
+let rotateStartRotation = 0;
+
+adjustCanvasArea();
+resizeCanvas();
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        adjustCanvasArea();
+
+        resizeCanvas();
+    }
+);
+
+function adjustCanvasArea(){
+
+    const screenW =
+    window.innerWidth;
+
+    const screenH =
+    window.innerHeight;
+
+    const topbarH =
+    document
+    .getElementById("topbar")
+    .offsetHeight;
+
+    const layersMin =
+    260;
+
+    const usableH =
+    screenH - topbarH - layersMin;
+
+    let canvasH =
+    usableH;
+
+    if(bgImage){
+
+        const ratio =
+        bgImage.height /
+        bgImage.width;
+
+        canvasH =
+        screenW * ratio;
+    }
+
+    canvasWrap.style.height =
+    `${Math.min(
+        usableH,
+        canvasH
+    )}px`;
+}
+
+function resizeCanvas(){
+
+    const rect =
+    canvasWrap
+    .getBoundingClientRect();
+
+    canvas.width =
+    rect.width * DPR;
+
+    canvas.height =
+    rect.height * DPR;
+
+    ctx.setTransform(
+        DPR,
+        0,
+        0,
+        DPR,
+        0,
+        0
+    );
+
+    render();
+}
+
+function fileToDataURL(file){
+
+    return new Promise(resolve=>{
+
+        const reader =
+        new FileReader();
+
+        reader.onload =
+        () => resolve(
+            reader.result
+        );
+
+        reader.readAsDataURL(
+            file
+        );
+    });
+}
+
+function imageFromSrc(src){
+
+    return new Promise(resolve=>{
+
+        const img =
+        new Image();
+
+        img.onload =
+        () => resolve(img);
+
+        img.src = src;
+    });
+}
+
+async function autoSave(){
+
+    const saveData = {
+
+        bgImageSrc:
+        bgImage
+        ? bgImage.src
+        : null,
+
+        layers:
+        layers.map(layer=>({
+
+            name:layer.name,
+
+            imageSrc:
+            layer.image.src,
+
+            thumbnail:
+            layer.thumbnail,
+
+            visible:
+            layer.visible,
+
+            text:
+            layer.text,
+
+            color:
+            layer.color,
+
+            stroke:
+            layer.stroke,
+
+            x:layer.x,
+            y:layer.y,
+
+            scale:
+            layer.scale,
+
+            rotation:
+            layer.rotation,
+
+            baseSize:
+            layer.baseSize
+        }))
+    };
+
+    await saveToDB(
+        saveData
+    );
+}
+
+async function restoreAutoSave(){
+
+    const data =
+    await loadFromDB();
+
+    if(!data)
+        return;
+
+    const restore =
+    confirm(
+        "保存データを復元しますか？"
+    );
+
+    if(!restore)
+        return;
+
+    if(data.bgImageSrc){
+
+        bgImage =
+        await imageFromSrc(
+            data.bgImageSrc
+        );
+    }
+
+    layers = [];
+
+    layersPanel.innerHTML =
+    "";
+
+    for(
+        const saved of
+        data.layers
+    ){
+
+        const img =
+        await imageFromSrc(
+            saved.imageSrc
+        );
+
+        const layer = {
+
+            name:
+            saved.name,
+
+            image:img,
+
+            thumbnail:
+            saved.thumbnail,
+
+            visible:
+            saved.visible,
+
+            text:
+            saved.text,
+
+            color:
+            saved.color,
+
+            stroke:
+            saved.stroke,
+
+            x:saved.x,
+            y:saved.y,
+
+            scale:
+            saved.scale,
+
+            rotation:
+            saved.rotation,
+
+            baseSize:
+            saved.baseSize
+        };
+
+        layers.push(layer);
+
+        createLayerUI(layer);
+    }
+
+    adjustCanvasArea();
+
+    resizeCanvas();
+
+    render();
+}
+
+bgUpload.addEventListener(
+    "change",
+    async e => {
+
+    const file =
+    e.target.files[0];
+
+    if(!file)
+        return;
+
+    const src =
+    await fileToDataURL(
+        file
+    );
+
+    bgImage =
+    await imageFromSrc(src);
+
+    adjustCanvasArea();
+
+    resizeCanvas();
+
+    autoSave();
+});
+
+zipUpload.addEventListener(
+    "change",
+    async e => {
+
+    const file =
+    e.target.files[0];
+
+    if(!file)
+        return;
+
+    layers = [];
+
+    layersPanel.innerHTML =
+    "";
+
+    const zip =
+    await JSZip.loadAsync(
+        file
+    );
+
+    const entries =
+    Object.values(zip.files)
+    .filter(f=>
+        f.name.endsWith(
+            ".png"
+        )
+    );
+
+    for(
+        const entry of entries
+    ){
+
+        const blob =
+        await entry.async(
+            "blob"
+        );
+
+        const src =
+        await fileToDataURL(
+            blob
+        );
+
+        const img =
+        await imageFromSrc(
+            src
+        );
+
+        const thumbCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+        thumbCanvas.width = 64;
+        thumbCanvas.height = 64;
+
+        const tctx =
+        thumbCanvas.getContext(
+            "2d"
+        );
+
+        const scale =
+        Math.min(
+            64 / img.width,
+            64 / img.height
+        );
+
+        const w =
+        img.width * scale;
+
+        const h =
+        img.height * scale;
+
+        const x =
+        (64 - w) / 2;
+
+        const y =
+        (64 - h) / 2;
+
+        tctx.drawImage(
+            img,
+            x,
+            y,
+            w,
+            h
+        );
+
+        const layer = {
+
+            name:entry.name,
+
+            image:img,
+
+            thumbnail:
+            thumbCanvas.toDataURL(),
+
+            visible:true,
+
+            text:"",
+
+            color:"#ffffff",
+
+            stroke:"#000000",
+
+            x:100,
+
+            y:100,
+
+            scale:1,
+
+            rotation:0,
+
+            baseSize:48
+        };
+
+        layers.push(layer);
+
+        createLayerUI(layer);
+    }
+
+    render();
+
+    autoSave();
+});
+
+function createLayerUI(layer){
+
+    const card =
+    document.createElement("div");
+
+    card.className =
+    "layerCard";
+
+    const header =
+    document.createElement("div");
+
+    header.className =
+    "layerHeader";
+
+    const visibleBtn =
+    document.createElement(
+        "button"
+    );
+
+    visibleBtn.textContent =
+    layer.visible
+    ? "表示"
+    : "非表示";
+
+    visibleBtn.onclick = () => {
+
+        layer.visible =
+        !layer.visible;
+
+        visibleBtn.textContent =
+        layer.visible
+        ? "表示"
+        : "非表示";
+
+        render();
+
+        autoSave();
+    };
+
+    const thumb =
+    document.createElement(
+        "img"
+    );
+
+    thumb.className =
+    "thumb";
+
+    thumb.src =
+    layer.thumbnail;
+
+    const title =
+    document.createElement(
+        "div"
+    );
+
+    title.className =
+    "layerTitle";
+
+    title.textContent =
+    layer.name;
+
+    header.appendChild(
+        visibleBtn
+    );
+
+    header.appendChild(
+        thumb
+    );
+
+    header.appendChild(
+        title
+    );
+
+    const controls =
+    document.createElement(
+        "div"
+    );
+
+    controls.className =
+    "layerControls";
+
+    const textarea =
+    document.createElement(
+        "textarea"
+    );
+
+    textarea.value =
+    layer.text;
+
+    textarea.placeholder =
+    "文字入力";
+
+    textarea.oninput = () => {
+
+        layer.text =
+        textarea.value;
+
+        render();
+
+        autoSave();
+    };
+
+    const row =
+    document.createElement(
+        "div"
+    );
+
+    row.className =
+    "row";
+
+    const color =
+    document.createElement(
+        "input"
+    );
+
+    color.type =
+    "color";
+
+    color.className =
+    "color";
+
+    color.value =
+    layer.color;
+
+    color.oninput = () => {
+
+        layer.color =
+        color.value;
+
+        render();
+
+        autoSave();
+    };
+
+    const stroke =
+    document.createElement(
+        "input"
+    );
+
+    stroke.type =
+    "color";
+
+    stroke.className =
+    "color";
+
+    stroke.value =
+    layer.stroke;
+
+    stroke.oninput = () => {
+
+        layer.stroke =
+        stroke.value;
+
+        render();
+
+        autoSave();
+    };
+
+    row.appendChild(color);
+
+    row.appendChild(stroke);
+
+    controls.appendChild(
+        textarea
+    );
+
+    controls.appendChild(
+        row
+    );
+
+    card.appendChild(
+        header
+    );
+
+    card.appendChild(
+        controls
+    );
+
+    header.addEventListener(
+        "click",
+        () => {
+
+        document
+        .querySelectorAll(
+            ".layerCard"
+        )
+        .forEach(v=>{
+
+            v.classList.remove(
+                "activeLayer"
+            );
+        });
+
+        card.classList.add(
+            "activeLayer"
+        );
+
+        activeLayer =
+        layer;
+
+        render();
+    });
+
+    layersPanel.appendChild(
+        card
+    );
+}
+
+function render(){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width / DPR,
+        canvas.height / DPR
+    );
+
+    if(bgImage){
+
+        fitDraw(bgImage);
+    }
+
+    for(
+        const layer of layers
+    ){
+
+        if(
+            !layer.visible
+        ) continue;
+
+        if(
+            layer === activeLayer
+        ) continue;
+
+        drawLayer(layer);
+    }
+
+    if(
+        activeLayer &&
+        activeLayer.visible
+    ){
+
+        drawLayer(
+            activeLayer
+        );
+    }
+}
+
+function fitDraw(img){
+
+    const cw =
+    canvas.width / DPR;
+
+    const ch =
+    canvas.height / DPR;
+
+    const imgRatio =
+    img.width / img.height;
+
+    const canvasRatio =
+    cw / ch;
+
+    let drawW;
+    let drawH;
+    let drawX;
+    let drawY;
+
+    if(
+        imgRatio >
+        canvasRatio
+    ){
+
+        drawW = cw;
+
+        drawH =
+        cw / imgRatio;
+
+        drawX = 0;
+
+        drawY =
+        (ch - drawH)/2;
+
+    }else{
+
+        drawH = ch;
+
+        drawW =
+        ch * imgRatio;
+
+        drawY = 0;
+
+        drawX =
+        (cw - drawW)/2;
+    }
+
+    bgFit = {
+
+        x:drawX,
+        y:drawY,
+
+        w:drawW,
+        h:drawH
+    };
+
+    ctx.drawImage(
+        img,
+        drawX,
+        drawY,
+        drawW,
+        drawH
+    );
+}
+
+function drawLayer(layer){
+
+    if(bgFit){
+
+        ctx.drawImage(
+
+            layer.image,
+
+            bgFit.x,
+            bgFit.y,
+
+            bgFit.w,
+            bgFit.h
+        );
+    }
+
+    drawLayerText(layer);
+}
+
+function drawLayerText(layer){
+
+    if(!layer.text)
+        return;
+
+    ctx.save();
+
+    ctx.translate(
+        layer.x,
+        layer.y
+    );
+
+    ctx.rotate(
+        layer.rotation
+    );
+
+    const size =
+    layer.baseSize *
+    layer.scale;
+
+    ctx.font =
+    `${size}px sans-serif`;
+
+    ctx.textBaseline =
+    "top";
+
+    ctx.lineWidth =
+    Math.max(
+        2,
+        size * 0.08
+    );
+
+    ctx.fillStyle =
+    layer.color;
+
+    ctx.strokeStyle =
+    layer.stroke;
+
+    const lines =
+    layer.text.split("\n");
+
+    lines.forEach((line,i)=>{
+
+        const yy =
+        i * size * 1.2;
+
+        ctx.strokeText(
+            line,
+            0,
+            yy
+        );
+
+        ctx.fillText(
+            line,
+            0,
+            yy
+        );
+    });
+
+    if(
+        layer === activeLayer
+    ){
+
+        const width =
+        Math.max(
+            ...lines.map(
+                l =>
+                ctx.measureText(l)
+                .width
+            )
+        );
+
+        const height =
+        lines.length *
+        size *
+        1.2;
+
+        ctx.strokeStyle =
+        "#4da3ff";
+
+        ctx.lineWidth = 2;
+
+        ctx.strokeRect(
+            -10,
+            -10,
+            width + 20,
+            height + 20
+        );
+    }
+
+    ctx.restore();
+}
+
+canvas.addEventListener(
+    "pointerdown",
+    e => {
+
+    if(!activeLayer)
+        return;
+
+    canvas.setPointerCapture(
+        e.pointerId
+    );
+
+    pointers.set(
+        e.pointerId,
+        {
+            x:e.clientX,
+            y:e.clientY
+        }
+    );
+
+    dragging = true;
+
+    if(pointers.size === 2){
+
+        const arr =
+        [...pointers.values()];
+
+        pinchStartDistance =
+        distance(
+            arr[0],
+            arr[1]
+        );
+
+        pinchStartScale =
+        activeLayer.scale;
+
+        rotateStartAngle =
+        angle(
+            arr[0],
+            arr[1]
+        );
+
+        rotateStartRotation =
+        activeLayer.rotation;
+    }
+});
+
+canvas.addEventListener(
+    "pointermove",
+    e => {
+
+    if(
+        !activeLayer
+    ) return;
+
+    if(
+        !pointers.has(
+            e.pointerId
+        )
+    ) return;
+
+    const prev =
+    pointers.get(
+        e.pointerId
+    );
+
+    pointers.set(
+        e.pointerId,
+        {
+            x:e.clientX,
+            y:e.clientY
+        }
+    );
+
+    if(
+        pointers.size === 1 &&
+        dragging
+    ){
+
+        const dx =
+        e.clientX - prev.x;
+
+        const dy =
+        e.clientY - prev.y;
+
+        activeLayer.x += dx;
+
+        activeLayer.y += dy;
+
+        render();
+
+        autoSave();
+    }
+
+    if(
+        pointers.size === 2
+    ){
+
+        const arr =
+        [...pointers.values()];
+
+        const dist =
+        distance(
+            arr[0],
+            arr[1]
+        );
+
+        activeLayer.scale =
+
+        pinchStartScale *
+
+        (
+            dist /
+            pinchStartDistance
+        );
+
+        activeLayer.scale =
+        Math.max(
+            0.2,
+            Math.min(
+                10,
+                activeLayer.scale
+            )
+        );
+
+        const ang =
+        angle(
+            arr[0],
+            arr[1]
+        );
+
+        activeLayer.rotation =
+
+        rotateStartRotation +
+
+        (
+            ang -
+            rotateStartAngle
+        );
+
+        render();
+
+        autoSave();
+    }
+});
+
+canvas.addEventListener(
+    "pointerup",
+    e => {
+
+    pointers.delete(
+        e.pointerId
+    );
+
+    dragging = false;
+});
+
+canvas.addEventListener(
+    "wheel",
+    e => {
+
+    e.preventDefault();
+
+    if(!activeLayer)
+        return;
+
+    if(e.altKey){
+
+        activeLayer.rotation +=
+        e.deltaY * 0.005;
+
+    }else{
+
+        activeLayer.scale -=
+        e.deltaY * 0.001;
+
+        activeLayer.scale =
+        Math.max(
+            0.2,
+            Math.min(
+                10,
+                activeLayer.scale
+            )
+        );
+    }
+
+    render();
+
+    autoSave();
+
+},{
+    passive:false
+});
+
+function distance(a,b){
+
+    return Math.hypot(
+
+        b.x - a.x,
+
+        b.y - a.y
+    );
+}
+
+function angle(a,b){
+
+    return Math.atan2(
+
+        b.y - a.y,
+
+        b.x - a.x
+    );
+}
+
+saveBtn.addEventListener(
+    "click",
+    saveImage
+);
+
+function saveImage(){
+
+    const exportCanvas =
+    document.createElement(
+        "canvas"
+    );
+
+    const exportCtx =
+    exportCanvas.getContext(
+        "2d"
+    );
+
+    let exportW;
+    let exportH;
+
+    if(bgImage){
+
+        exportW =
+        bgImage.width;
+
+        exportH =
+        bgImage.height;
+
+    }else{
+
+        exportW =
+        canvas.width / DPR;
+
+        exportH =
+        canvas.height / DPR;
+    }
+
+    exportCanvas.width =
+    exportW;
+
+    exportCanvas.height =
+    exportH;
+
+    if(bgImage){
+
+        exportCtx.drawImage(
+            bgImage,
+            0,
+            0,
+            exportW,
+            exportH
+        );
+    }
+
+    for(
+        const layer of layers
+    ){
+
+        if(!layer.visible)
+            continue;
+
+        const scaleX =
+        exportW / bgFit.w;
+
+        const scaleY =
+        exportH / bgFit.h;
+
+        exportCtx.drawImage(
+
+            layer.image,
+
+            0,
+            0,
+
+            exportW,
+            exportH
+        );
+
+        if(layer.text){
+
+            exportCtx.save();
+
+            exportCtx.translate(
+
+                (layer.x - bgFit.x)
+                * scaleX,
+
+                (layer.y - bgFit.y)
+                * scaleY
+            );
+
+            exportCtx.rotate(
+                layer.rotation
+            );
+
+            const size =
+
+            layer.baseSize *
+            layer.scale *
+            scaleX;
+
+            exportCtx.font =
+            `${size}px sans-serif`;
+
+            exportCtx.textBaseline =
+            "top";
+
+            exportCtx.lineWidth =
+            Math.max(
+                2,
+                size * 0.08
+            );
+
+            exportCtx.fillStyle =
+            layer.color;
+
+            exportCtx.strokeStyle =
+            layer.stroke;
+
+            const lines =
+            layer.text.split("\n");
+
+            lines.forEach((line,i)=>{
+
+                const yy =
+                i * size * 1.2;
+
+                exportCtx.strokeText(
+                    line,
+                    0,
+                    yy
+                );
+
+                exportCtx.fillText(
+                    line,
+                    0,
+                    yy
+                );
+            });
+
+            exportCtx.restore();
+        }
+    }
+
+    exportCanvas.toBlob(blob=>{
+
+        const url =
+        URL.createObjectURL(
+            blob
+        );
+
+        const a =
+        document.createElement(
+            "a"
+        );
+
+        a.href = url;
+
+        a.download =
+        "panel_edit.png";
+
+        a.click();
+
+        setTimeout(()=>{
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },1000);
+
+    },"image/png");
+}
+
+clearStorageBtn.onclick =
+async () => {
+
+    const ok =
+    confirm(
+        "保存データを完全に削除しますか？"
+    );
+
+    if(!ok)
+        return;
+
+    await clearDB();
+
+    location.reload();
+};
+
+helpBtn.onclick = () => {
+
+    helpPopup.style.display =
+    "flex";
+};
+
+closeHelp.onclick = () => {
+
+    helpPopup.style.display =
+    "none";
+};
+
+helpPopup.onclick = e => {
+
+    if(
+        e.target === helpPopup
+    ){
+
+        helpPopup.style.display =
+        "none";
+    }
+};
+
+(async()=>{
+
+    await initDB();
+
+    await restoreAutoSave();
+
+})();
+
+</script>
+</body>
+</html>
