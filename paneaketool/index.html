@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>おんろぼの物置き｜IRIAM / イリアム配信用パネル開けツール集</title>
+
+<meta name="description" content="IRIAM（イリアム）配信者向けのスマホ対応パネル開けツール集。">
+
+<style>
+
+body{
+    font-family:sans-serif;
+    background:#f5f5f5;
+    padding:20px;
+    line-height:1.6;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:28px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:8px;
+}
+
+h4{
+    text-align:center;
+    margin-bottom:8px;
+}
+
+a.button{
+    display:block;
+    text-align:center;
+    margin:12px 0;
+    padding:12px;
+    background:#0078ff;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    font-weight:600;
+}
+
+a.button:hover{
+    opacity:0.85;
+}
+
+/* 操作説明ボタン */
+
+.helpButton{
+    display:block;
+    text-align:center;
+    margin:6px auto 12px auto;
+    padding:6px;
+    width:50%;
+    background:#6c757d;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    font-weight:600;
+    font-size:14px;
+}
+
+.helpButton:hover{
+    opacity:0.85;
+}
+
+/* モーダル背景 */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.6);
+    padding:20px;
+    z-index:1000;
+}
+
+/* モーダル本体 */
+
+.modalContent{
+    background:white;
+    max-width:500px;
+    margin:auto;
+    border-radius:10px;
+    display:flex;
+    flex-direction:column;
+    max-height:80vh;
+    overflow:hidden;
+}
+
+/* ヘッダー */
+
+.modalHeader{
+    padding:16px;
+    border-bottom:1px solid #eee;
+    position:relative;
+}
+
+/* 本文スクロール */
+
+.modalBody{
+    padding:16px;
+    overflow-y:auto;
+}
+
+/* 説明行 */
+
+.modalBody p{
+    margin:10px 0;
+}
+
+/* 閉じるボタン */
+
+.close{
+    position:absolute;
+    right:14px;
+    top:10px;
+    font-size:24px;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>パネル開けツール</h1>
+
+<h4>↓ここからパネル素材のZIPファイルを作る↓</h4>
+<a class="button" href="newgacha/">ガチャ</a
+
+<h4>↓一枚絵とZIPファイルをこっちで読み込み↓</h4>
+<a class="button" href="gacha/">ガチャツール</a>
+
+</div>
+
+
+
+<div class="modalBody" id="modalText"></div>
+
+</div>
+
+
+
+<script>
+
+const modal = document.getElementById("helpModal");
+const modalText = document.getElementById("modalText");
+const closeBtn = document.getElementById("closeModal");
+
+async function openHelp(type){
+
+    const res = await fetch("help.json");
+    const data = await res.json();
+
+    modalText.innerHTML="";
+
+    data[type].forEach(text=>{
+        const p=document.createElement("p");
+        p.textContent=text;
+        modalText.appendChild(p);
+    });
+
+    modal.style.display="block";
+}
+
+document.getElementById("helpNew").onclick=()=>{
+    openHelp("newgacha");
+}
+
+document.getElementById("helpGacha").onclick=()=>{
+    openHelp("gacha");
+}
+
+closeBtn.onclick=()=>{
+    modal.style.display="none";
+}
+
+window.onclick=(e)=>{
+    if(e.target==modal){
+        modal.style.display="none";
+    }
+}
+
+</script>
+
+</body>
+</html>
