@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>パネル開け画像生成ツール</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    background:#f0f0f0;
+    font-family:sans-serif;
+}
+
+h1{
+    margin-top:0;
+}
+
+.toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+button{
+    border:none;
+    background:black;
+    color:white;
+    padding:12px 20px;
+    cursor:pointer;
+    border-radius:10px;
+    font-size:16px;
+}
+
+button:hover{
+    opacity:0.8;
+}
+
+button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
+
+canvas{
+    border:2px solid black;
+    background:white;
+    max-width:100%;
+}
+
+.panel{
+    margin-top:10px;
+}
+
+.info{
+    margin-top:15px;
+    font-size:14px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>パネル開け画像生成ツール</h1>
+
+<div class="toolbar">
+
+<input type="file" id="upload" accept="image/png">
+
+<label>
+パネル色選択→
+<input type="color" id="colorPicker" value="#ff0000">
+</label>
+
+<button id="processBtn">
+パネル生成
+</button>
+
+<button id="downloadBtn">
+ダウンロード
+</button>
+    
+
+</div>
+
+<canvas id="canvas"></canvas>
+
+<div class="info" id="info">
+No image loaded
+</div>
+
+        <h2>使い方</h2>
+
+        <p>
+①元画像と同じサイズのキャンバスにパネル用の線を引いた透過画像を用意して下さい
+        </p>
+
+        <p>
+②用意した透過画像をサイトにアップロードして下さい
+        </p>
+
+        <p>
+③パネル生成を押すと自動でパネル分割された画像が生成されます
+        </p>
+
+        <p>
+④ダウンロードしたパネル画像を画像編集ソフトで元画像に重ねて下さい
+        </p>
+
+        <p>
+⑤解放条件をパネルのレイヤー毎に文字入れして完成
+        </p>
+
+        <hr>
+
+        <p>
+⚠️注意⚠️
+        </p>
+
+        <p>
+１.線が途切れているとパネルが繋がってしまいます
+        </p>
+
+        <p>
+２.狭すぎる隙間はパネル化されません
+        </p>
+
+    </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const upload = document.getElementById("upload");
+const processBtn = document.getElementById("processBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const colorPicker = document.getElementById("colorPicker");
+const info = document.getElementById("info");
+
+let originalImage = null;
+let regions = [];
+
+upload.addEventListener("change", e => {
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const img = new Image();
+
+    img.onload = () => {
+
+        originalImage = img;
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0);
+
+        info.innerHTML =
+            "Image Loaded : " +
+            img.width +
+            " x " +
+            img.height;
+
+        /*
+        reset button text
+        */
+
+        processBtn.textContent = "パネル生成";
+        processBtn.disabled = false;
+
+        /*
+        clear old regions
+        */
+
+        regions = [];
+    };
+
+    img.src = URL.createObjectURL(file);
+
+});
+
+processBtn.addEventListener("click", processImage);
+
+colorPicker.addEventListener("input", () => {
+
+    if(regions.length > 0){
+        renderRegions();
+    }
+
+});
+
+downloadBtn.addEventListener("click", exportZIP);
+
+function processImage(){
+
+    if(!originalImage){
+        alert("パネル画像をアップロードして下さい");
+        return;
+    }
+
+    /*
+    processing state
+    */
+
+    processBtn.textContent = "しばらくお待ちください";
+    processBtn.disabled = true;
+
+    /*
+    slight delay so UI updates immediately
+    */
+
+    setTimeout(() => {
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(originalImage,0,0);
+
+        const imageData = ctx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        const binary = createBinaryMap(imageData);
+
+        closeSmallGaps(binary);
+
+        regions = detectRegions(binary);
+
+        renderRegions();
+
+        /*
+        completed state
+        */
+
+        processBtn.textContent = "パネル完成";
+        processBtn.disabled = false;
+
+        info.innerHTML =
+            "パネル枚数 : " +
+            regions.length;
+
+    }, 50);
+}
+
+function createBinaryMap(imageData){
+
+    const width = imageData.width;
+    const height = imageData.height;
+
+    const map = new Uint8Array(width * height);
+
+    for(let i=0;i<width*height;i++){
+
+        const alpha = imageData.data[i*4 + 3];
+
+        /*
+        alpha > 10
+        = wall / line
+
+        alpha <= 10
+        = transparent space
+        */
+
+        if(alpha > 10){
+            map[i] = 1;
+        }else{
+            map[i] = 0;
+        }
+    }
+
+    /*
+    Treat screen edge as wall
+    */
+
+    for(let x=0;x<width;x++){
+
+        map[x] = 1;
+        map[(height-1)*width+x] = 1;
+    }
+
+    for(let y=0;y<height;y++){
+
+        map[y*width] = 1;
+        map[y*width + width - 1] = 1;
+    }
+
+    return {
+        data:map,
+        width,
+        height
+    };
+}
+
+function closeSmallGaps(binary){
+
+    const data = binary.data;
+    const width = binary.width;
+    const height = binary.height;
+
+    const copy = new Uint8Array(data);
+
+    for(let y=1;y<height-1;y++){
+
+        for(let x=1;x<width-1;x++){
+
+            const idx = y*width+x;
+
+            if(copy[idx] === 0){
+
+                let walls = 0;
+
+                for(let dy=-1;dy<=1;dy++){
+
+                    for(let dx=-1;dx<=1;dx++){
+
+                        const ni =
+                            (y+dy)*width + (x+dx);
+
+                        if(copy[ni] === 1){
+                            walls++;
+                        }
+                    }
+                }
+
+                /*
+                gap closing
+                */
+
+                if(walls >= 7){
+                    data[idx] = 1;
+                }
+            }
+        }
+    }
+}
+
+function detectRegions(binary){
+
+    const data = binary.data;
+    const width = binary.width;
+    const height = binary.height;
+
+    const visited = new Uint8Array(width*height);
+
+    const found = [];
+
+    let regionId = 0;
+
+    for(let y=0;y<height;y++){
+
+        for(let x=0;x<width;x++){
+
+            const idx = y*width+x;
+
+            if(
+                data[idx] === 0 &&
+                !visited[idx]
+            ){
+
+                const region = floodFill(
+                    x,
+                    y,
+                    data,
+                    visited,
+                    width,
+                    height
+                );
+
+                /*
+                Remove tiny garbage
+                */
+
+                if(region.length > 300){
+
+                    found.push({
+                        id:regionId++,
+                        pixels:region
+                    });
+                }
+            }
+        }
+    }
+
+    return found;
+}
+
+function floodFill(
+    startX,
+    startY,
+    data,
+    visited,
+    width,
+    height
+){
+
+    const stack = [[startX,startY]];
+    const pixels = [];
+
+    while(stack.length){
+
+        const [x,y] = stack.pop();
+
+        if(
+            x < 0 ||
+            y < 0 ||
+            x >= width ||
+            y >= height
+        ){
+            continue;
+        }
+
+        const idx = y*width+x;
+
+        if(visited[idx]) continue;
+
+        visited[idx] = 1;
+
+        if(data[idx] === 1) continue;
+
+        pixels.push({x,y});
+
+        stack.push([x+1,y]);
+        stack.push([x-1,y]);
+        stack.push([x,y+1]);
+        stack.push([x,y-1]);
+    }
+
+    return pixels;
+}
+
+function renderRegions(){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const fillColor = colorPicker.value;
+
+    for(const region of regions){
+
+        ctx.fillStyle = fillColor;
+
+        for(const p of region.pixels){
+
+            ctx.fillRect(
+                p.x,
+                p.y,
+                1,
+                1
+            );
+        }
+    }
+
+    /*
+    Draw original lineart on top
+    */
+
+    ctx.drawImage(
+        originalImage,
+        0,
+        0
+    );
+}
+
+async function exportZIP(){
+
+    if(regions.length === 0){
+
+        alert("No panels detected");
+
+        return;
+    }
+
+    const zip = new JSZip();
+
+    for(const region of regions){
+
+        const off =
+            document.createElement("canvas");
+
+        off.width = canvas.width;
+        off.height = canvas.height;
+
+        const offCtx = off.getContext("2d");
+
+        /*
+        transparent background
+        */
+
+        offCtx.clearRect(
+            0,
+            0,
+            off.width,
+            off.height
+        );
+
+        /*
+        fill panel
+        */
+
+        offCtx.fillStyle =
+            colorPicker.value;
+
+        for(const p of region.pixels){
+
+            offCtx.fillRect(
+                p.x,
+                p.y,
+                1,
+                1
+            );
+        }
+
+        /*
+        overlay lineart
+        */
+
+        offCtx.drawImage(
+            originalImage,
+            0,
+            0
+        );
+
+        const blob =
+            await new Promise(resolve => {
+
+                off.toBlob(
+                    resolve,
+                    "image/png"
+                );
+
+            });
+
+        zip.file(
+            `panel_${region.id}.png`,
+            blob
+        );
+    }
+
+    const content =
+        await zip.generateAsync({
+            type:"blob"
+        });
+
+    const a =
+        document.createElement("a");
+
+    a.href =
+        URL.createObjectURL(content);
+
+    a.download = "panels.zip";
+
+    a.click();
+}
+
+</script>
+
+</body>
+</html>
