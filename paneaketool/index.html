@@ -139,12 +139,10 @@ a.button:hover{
 
 <h4>↓パネル画像生成ツール↓</h4>
 <a class="button" href="pane/">パネル生成</a>
-<a class="helpButton" id="hpane">操作説明</a>
-
+<button class="helpButton" id="hpane">操作説明</button>
 <h4>↓パネル開けツール↓</h4>
 <a class="button" href="ake/">パネル開け</a>
-<a class="helpButton" id="hake">操作説明</a>
-
+<button class="helpButton" id="hake">操作説明</button>
 </div>
 
 
@@ -190,15 +188,13 @@ async function openHelp(type){
     modal.style.display = "block";
 }
 
-/* パネル生成の説明 */
 document.getElementById("hpane").onclick = () => {
     openHelp("hpane");
-}
+};
 
-/* パネル開けの説明 */
 document.getElementById("hake").onclick = () => {
     openHelp("hake");
-}
+};
 
 closeBtn.onclick = () => {
     modal.style.display = "none";
