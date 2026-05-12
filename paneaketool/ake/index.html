@@ -263,7 +263,11 @@ accept=".zip">
 </label>
 
 <button id="saveBtn">
-保存
+画像DL
+</button>
+
+<button id="workSaveBtn">
+作業セーブ
 </button>
 
 <button id="clearBtn">
@@ -434,6 +438,9 @@ document.getElementById("layersPanel");
 const saveBtn =
 document.getElementById("saveBtn");
 
+const workSaveBtn =
+document.getElementById("workSaveBtn");
+
 const clearBtn =
 document.getElementById("clearBtn");
 
@@ -559,7 +566,7 @@ function cleanupLayers(){
     activeLayer = null;
 }
 
-async function autoSave(){
+async function saveWorkData(){
 
     const saveData = {
 
@@ -662,7 +669,7 @@ async function autoSave(){
     await saveToDB(saveData);
 }
 
-async function restoreAutoSave(){
+async function restoreWorkSave(){
 
     const data =
     await loadFromDB();
@@ -862,8 +869,6 @@ bgUpload.addEventListener(
     adjustCanvasArea();
 
     resizeCanvas();
-
-    await autoSave();
 });
 
 zipUpload.addEventListener(
@@ -993,7 +998,6 @@ zipUpload.addEventListener(
 
     requestRender();
 
-    await autoSave();
 });
 
 function createLayerUI(layer){
@@ -1033,7 +1037,6 @@ function createLayerUI(layer){
 
         requestRender();
 
-        await autoSave();
     };
 
     const thumb =
@@ -1175,13 +1178,6 @@ function createLayerUI(layer){
     header.addEventListener(
         "click",
         async ()=>{
-
-        if(
-            activeLayer !== layer
-        ){
-
-            await autoSave();
-        }
 
         document
         .querySelectorAll(
@@ -1636,6 +1632,16 @@ canvas.addEventListener(
 saveBtn.onclick =
 saveImage;
 
+workSaveBtn.onclick =
+async ()=>{
+
+    await saveWorkData();
+
+    alert(
+        "作業状態を保存しました"
+    );
+};
+
 clearBtn.onclick =
 async ()=>{
 
@@ -1817,7 +1823,7 @@ function saveImage(){
 
     await initDB();
 
-    await restoreAutoSave();
+    await restoreWorkSave();
 
 })();
 
