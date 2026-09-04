@@ -529,43 +529,50 @@ async function generateCanvasImage(list) {
   const count = list.length;
 
   /* =========================
-     180枚ごとにキャンバス段階拡張
-     1〜180   = 1倍
-     181〜360 = 2倍
-     361〜540 = 3倍
-     最大4倍
-  ========================= */
-  const scale = Math.max(1, Math.ceil(count / 180));
-
-  const W = 1920 * scale;
-  const H = 1080 * scale;
+     Canvasサイズ
+     Safari対策のため固定
+     ========================= */
+  const W = 1920;
+  const H = 1080;
 
   /* =========================
-     余白設定
-     scaleに応じて少しだけ広げる
-  ========================= */
-  const outerPadding = Math.floor(24 * Math.sqrt(scale));
-  const gap = Math.floor(16 * Math.sqrt(scale));
+     余白・間隔
+     ========================= */
+  const outerPadding = 24;
+  const gap = 16;
 
   /* =========================
      最適レイアウト探索
-     ・画像サイズ最大化
-     ・下余白削減
-     ・余白維持
-  ========================= */
+     
+     画像をできるだけ大きくしつつ、
+     1920×1080の中にすべて収める
+     ========================= */
   let best = {
     cols: 1,
     rows: count,
     thumbSize: 0,
-    score: 0
+    score: -Infinity
   };
 
-  for (let cols = 1; cols <= count; cols++) {
+  /*
+    列数を無制限に試す必要はないので、
+    現実的な範囲だけ探索
+  */
+  const maxCols = Math.min(count, 100);
+
+  for (let cols = 1; cols <= maxCols; cols++) {
 
     const rows = Math.ceil(count / cols);
 
-    const usableW = W - outerPadding * 2 - gap * (cols - 1);
-    const usableH = H - outerPadding * 2 - gap * (rows - 1);
+    const usableW =
+      W -
+      outerPadding * 2 -
+      gap * (cols - 1);
+
+    const usableH =
+      H -
+      outerPadding * 2 -
+      gap * (rows - 1);
 
     if (usableW <= 0 || usableH <= 0) continue;
 
@@ -578,11 +585,23 @@ async function generateCanvasImage(list) {
 
     if (thumbSize <= 0) continue;
 
-    /* 使用効率（空白削減） */
-    const usageRate = count / (cols * rows);
+    /*
+      最後の行がスカスカになるレイアウトを
+      少し不利にする
+    */
+    const lastRowCount =
+      count - (rows - 1) * cols;
 
-    /* サイズ重視 + 空白率補助 */
-    const score = (thumbSize * 0.85) + (usageRate * 100 * 0.15);
+    const fillRate =
+      lastRowCount / cols;
+
+    /*
+      基本は画像サイズ優先。
+      そのうえで最後の行の空白を少なくする。
+    */
+    const score =
+      thumbSize * 100 +
+      fillRate * 20;
 
     if (score > best.score) {
       best = {
@@ -599,23 +618,44 @@ async function generateCanvasImage(list) {
   const thumbSize = best.thumbSize;
 
   /* =========================
-     グリッド全体サイズ
-  ========================= */
-  const gridW = cols * thumbSize + gap * (cols - 1);
-  const gridH = rows * thumbSize + gap * (rows - 1);
+     グリッド全体
+     ========================= */
+  const gridW =
+    cols * thumbSize +
+    gap * (cols - 1);
 
-  /* 左上基準 + 外枠余白 */
-  const startX = outerPadding;
-  const startY = outerPadding;
+  const gridH =
+    rows * thumbSize +
+    gap * (rows - 1);
+
+  /*
+    中央配置
+    */
+  const startX =
+    Math.max(
+      outerPadding,
+      Math.floor((W - gridW) / 2)
+    );
+
+  const startY =
+    Math.max(
+      outerPadding,
+      Math.floor((H - gridH) / 2)
+    );
 
   /* =========================
      Canvas生成
-  ========================= */
+     ========================= */
   const canvas = document.createElement("canvas");
+
   canvas.width = W;
   canvas.height = H;
 
   const ctx = canvas.getContext("2d");
+
+  if (!ctx) {
+    throw new Error("Canvas contextを取得できませんでした");
+  }
 
   /* 背景 */
   ctx.fillStyle = "#ffffff";
@@ -627,16 +667,25 @@ async function generateCanvasImage(list) {
 
   /* =========================
      画像読み込み
-  ========================= */
+     ========================= */
   const imagePromises = list.map(item =>
-    loadImageSmart(item.id).then(img => ({ img, item }))
+    loadImageSmart(item.id)
+      .then(img => ({
+        img,
+        item
+      }))
+      .catch(() => ({
+        img: null,
+        item
+      }))
   );
 
-  const loadedImages = await Promise.all(imagePromises);
+  const loadedImages =
+    await Promise.all(imagePromises);
 
   /* =========================
      描画
-  ========================= */
+     ========================= */
   loadedImages.forEach((data, i) => {
 
     const { img, item } = data;
@@ -644,22 +693,41 @@ async function generateCanvasImage(list) {
     const col = i % cols;
     const row = Math.floor(i / cols);
 
-    const cellX = startX + col * (thumbSize + gap);
-    const cellY = startY + row * (thumbSize + gap);
+    const cellX =
+      startX +
+      col * (thumbSize + gap);
 
-    if (img) {
+    const cellY =
+      startY +
+      row * (thumbSize + gap);
 
-      /* 比率維持してセル内最大化 */
+    /* =========================
+       画像
+       ========================= */
+    if (img && img.width > 0 && img.height > 0) {
+
+      /*
+        縦横比を維持して、
+        セルいっぱいまで拡大
+      */
       const scaleRatio = Math.min(
         thumbSize / img.width,
         thumbSize / img.height
       );
 
-      const drawW = img.width * scaleRatio;
-      const drawH = img.height * scaleRatio;
+      const drawW =
+        img.width * scaleRatio;
 
-      const drawX = cellX + (thumbSize - drawW) / 2;
-      const drawY = cellY + (thumbSize - drawH) / 2;
+      const drawH =
+        img.height * scaleRatio;
+
+      const drawX =
+        cellX +
+        (thumbSize - drawW) / 2;
+
+      const drawY =
+        cellY +
+        (thumbSize - drawH) / 2;
 
       ctx.drawImage(
         img,
@@ -671,8 +739,11 @@ async function generateCanvasImage(list) {
 
     } else {
 
-      /* 読み込み失敗時 */
+      /*
+        読み込み失敗時
+      */
       ctx.fillStyle = "#dddddd";
+
       ctx.fillRect(
         cellX,
         cellY,
@@ -683,24 +754,55 @@ async function generateCanvasImage(list) {
 
     /* =========================
        disabled斜線
-    ========================= */
+       ========================= */
     if (item.disabled) {
 
       ctx.strokeStyle = "red";
-      ctx.lineWidth = Math.max(4, Math.floor(thumbSize * 0.04));
+
+      ctx.lineWidth =
+        Math.max(
+          4,
+          Math.floor(thumbSize * 0.04)
+        );
 
       ctx.beginPath();
-      ctx.moveTo(cellX, cellY);
-      ctx.lineTo(cellX + thumbSize, cellY + thumbSize);
+
+      ctx.moveTo(
+        cellX,
+        cellY
+      );
+
+      ctx.lineTo(
+        cellX + thumbSize,
+        cellY + thumbSize
+      );
+
       ctx.stroke();
     }
-
   });
 
   /* =========================
-     出力
-  ========================= */
-  return canvas.toDataURL("image/jpeg", 0.95);
+     JPEG出力
+     
+     1920×1080固定なので
+     iPhone Safariでも扱いやすい
+     ========================= */
+  try {
+
+    return canvas.toDataURL(
+      "image/jpeg",
+      0.92
+    );
+
+  } catch (e) {
+
+    console.error(
+      "画像生成に失敗しました:",
+      e
+    );
+
+    throw e;
+  }
 }
 
 /* ===== プレビュー制御 ===== */
