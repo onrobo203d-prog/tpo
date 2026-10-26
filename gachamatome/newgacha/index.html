@@ -33,6 +33,41 @@ textarea{width:100%;height:90px;box-sizing:border-box}
 .actionRow button{flex:1;min-width:0}
 @media(max-width:520px){.actionRow button{font-size:17px;padding:14px 6px}.playerSelect{font-size:20px}.playerAdd{font-size:16px;padding:10px}}
 .note{font-size:13px;color:#555}
+
+
+/* 確率プリセット */
+.generateActions{margin:8px 0 12px}
+.generateActions button{margin:0}
+.generateActions .presetButton{background:#6558c9;flex:0 0 auto}
+.modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box}
+.modalOverlay.hidden{display:none}
+.presetModal{background:#fff;border-radius:14px;width:min(100%,440px);max-height:90dvh;overflow-y:auto;padding:18px;box-sizing:border-box;box-shadow:0 10px 35px rgba(0,0,0,.25)}
+.presetModal h2{font-size:21px;margin:0}
+.presetHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.presetClose{font-size:25px!important;padding:3px 10px!important;background:#eee!important;color:#333!important;margin:0!important}
+.presetHelp{font-size:14px;color:#555;margin:4px 0 16px}
+.presetGroup{border:0;padding:0;margin:0 0 18px}
+.presetGroup legend{font-size:16px;font-weight:bold;margin-bottom:8px}
+.presetOptions{display:grid;gap:8px}
+.presetModeOptions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.presetOption{display:flex;align-items:flex-start;gap:9px;border:1px solid #d8d8e0;border-radius:9px;padding:11px;cursor:pointer;min-width:0;box-sizing:border-box}
+.presetOption:has(input:checked){border:2px solid #6558c9;background:#f3f1ff;padding:10px}
+.presetOption input{width:18px;height:18px;flex:0 0 auto;margin:2px 0 0}
+.presetOptionText{min-width:0}
+.presetOption strong{display:block;font-size:15px;margin-bottom:3px}
+.presetOption small{display:block;font-size:12px;line-height:1.4;color:#555}
+.presetCountInput{width:100%;max-width:130px}
+.presetFooter{display:flex;gap:8px;position:sticky;bottom:-18px;background:#fff;padding:12px 0 2px}
+.presetFooter button{flex:1;margin:0;font-size:17px;padding:13px 8px}
+.presetCancel{background:#777}
+@media(max-width:520px){
+ .generateActions button{font-size:17px;padding:14px 8px}
+ .presetModal{padding:16px;max-height:88dvh}
+ .presetOption{padding:10px}
+ .presetOption:has(input:checked){padding:9px}
+ .presetOption small{font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -43,7 +78,10 @@ textarea{width:100%;height:90px;box-sizing:border-box}
       <div class="field">最大確率 <input id="maxProb" type="number" value="60" min="0" step="any"></div>
       <div class="field">最小確率 <input id="minProb" type="number" value="0.1" min="0" step="any"></div>
       <div class="field">レア数 <input id="rarityCount" type="number" value="5" min="1" max="30"></div>
-      <button onclick="generateRarities()">ガチャ生成</button>
+      <div class="actionRow generateActions">
+        <button onclick="generateRarities()">ガチャ生成</button>
+        <button type="button" class="presetButton" onclick="openPresetModal()">プリセット</button>
+      </div>
       <div id="rarityEditor"></div>
       <hr>
       <label><input type="checkbox" id="pityEnabled" onchange="updatePityDisplay();save()"> 天井機能</label>
@@ -69,6 +107,7 @@ textarea{width:100%;height:90px;box-sizing:border-box}
   </div>
 </div>
 
+
 <div class="section">
   <h2>ガチャ操作</h2>
   <div class="playerRow">
@@ -78,7 +117,8 @@ textarea{width:100%;height:90px;box-sizing:border-box}
   <select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()" aria-label="使用するプレイヤー"></select>
   <button class="red small" onclick="resetPlayers()">プレイヤーリセット</button>
   <div id="pityDisplay"></div>
-  <br>
+  \
+
   <button onclick="setRoll(1)">1回</button>
   <button onclick="setRoll(5)">5回</button>
   <button onclick="setRoll(10)">10回</button>
@@ -86,6 +126,7 @@ textarea{width:100%;height:90px;box-sizing:border-box}
   <button onclick="rollGacha()">ガチャを回す</button>
   <p class="note">確定枠機能がオンの場合、設定した回数ごとに確定枠が1つ発動します。例：10連設定なら100連で10枠、25連で2枠です。設定回数未満では確定枠は発生せず、通常抽選になります。</p>
 </div>
+
 
 <div class="section">
   <h2>今回の結果</h2>
@@ -107,6 +148,44 @@ textarea{width:100%;height:90px;box-sizing:border-box}
   <input type="file" id="importFile" accept=".json,application/json" onchange="importJSON()">
 </div>
 
+
+
+
+<div id="presetModalOverlay" class="modalOverlay hidden" aria-hidden="true" role="presentation" onclick="if(event.target===this)closePresetModal()">
+  <section class="presetModal" role="dialog" aria-modal="true" aria-labelledby="presetModalTitle">
+    <div class="presetHeader">
+      <h2 id="presetModalTitle">確率プリセット</h2>
+      <button type="button" class="presetClose" aria-label="閉じる" onclick="closePresetModal()">×</button>
+    </div>
+    <p class="presetHelp">ガチャの雰囲気を選んでね！ 決定後も確率は自由に調整できます。</p>
+    <fieldset class="presetGroup">
+      <legend>モード</legend>
+      <div class="presetOptions presetModeOptions">
+        <label class="presetOption"><input type="radio" name="presetMode" value="normal" checked><span class="presetOptionText"><strong>通常</strong><small>標準的な設定</small></span></label>
+        <label class="presetOption"><input type="radio" name="presetMode" value="dark"><span class="presetOptionText"><strong>闇</strong><small>高レアが出にくい</small></span></label>
+        <label class="presetOption"><input type="radio" name="presetMode" value="god"><span class="presetOptionText"><strong>GOD</strong><small>超激絞り</small></span></label>
+      </div>
+    </fieldset>
+    <fieldset class="presetGroup">
+      <legend>確率の傾向</legend>
+      <div class="presetOptions">
+        <label class="presetOption"><input type="radio" name="presetTrend" value="standard" checked><span class="presetOptionText"><strong>通常</strong><small>レア度が上がるほど、少しずつ出にくくなる</small></span></label>
+        <label class="presetOption"><input type="radio" name="presetTrend" value="rapid"><span class="presetOptionText"><strong>急落</strong><small>途中から急に出にくくなる</small></span></label>
+        <label class="presetOption"><input type="radio" name="presetTrend" value="tight"><span class="presetOptionText"><strong>絞り</strong><small>最高レアがかなり出にくくなる</small></span></label>
+      </div>
+    </fieldset>
+    <fieldset class="presetGroup">
+      <legend>レアリティ数</legend>
+      <label for="presetRarityCount">レア数</label>
+      <input id="presetRarityCount" class="presetCountInput" type="number" min="1" max="30" step="1" value="5">
+    </fieldset>
+    <div class="presetFooter">
+      <button type="button" class="presetCancel" onclick="closePresetModal()">キャンセル</button>
+      <button type="button" onclick="applyPreset()">決定</button>
+    </div>
+  </section>
+</div>
+
 <script>
 let rarities=[];
 let items=[];
@@ -115,24 +194,62 @@ let stats={};
 let playerStats={};
 let playerCounts={};
 
+
 const $ = id => document.getElementById(id);
+
 
 function toggle(id){$(id).classList.toggle("hidden");}
 
-function generateRarities(){
+
+function generateRarities(trend="standard"){
   const max=parseFloat($("maxProb").value);
   const min=parseFloat($("minProb").value);
   const count=parseInt($("rarityCount").value,10);
-  if(!Number.isFinite(max)||!Number.isFinite(min)||max<=0||min<0||!Number.isInteger(count)||count<1||count>30){
-    alert("確率は最大を正の数、最小を0以上、レア数を1〜30で入力してください。");return;
+  if(!Number.isFinite(max)||!Number.isFinite(min)||max<=0||min<0||min>max||!Number.isInteger(count)||count<1||count>30){
+    alert("最大確率は正の数、最小確率は0以上かつ最大以下、レア数は1〜30で入力してください。");return false;
   }
   rarities=Array.from({length:count},(_,i)=>{
     const ratio=count===1?0:i/(count-1);
-    const w=count===1?max:max*Math.pow(min/max,ratio);
-    return {name:"レア"+(i+1),weight:Number(w.toFixed(2))};
+    let curve=ratio;
+    if(trend==="rapid") curve=Math.pow(ratio,0.62);
+    else if(trend==="tight") curve=Math.pow(ratio,2.4);
+    const w=count===1?max:max*Math.pow(min/max,curve);
+    return {name:"レア"+(i+1),weight:Number(Math.max(min,w).toFixed(2))};
   });
   renderRarityEditor();
   save();
+  return true;
+}
+
+const presetModes={
+  normal:{label:"通常",max:60,min:1},
+  dark:{label:"闇",max:70,min:0.08},
+  god:{label:"GOD",max:88,min:0.02}
+};
+function openPresetModal(){
+  $("presetRarityCount").value=$("rarityCount").value||5;
+  $("presetModalOverlay").classList.remove("hidden");
+  $("presetModalOverlay").setAttribute("aria-hidden","false");
+  document.body.style.overflow="hidden";
+}
+function closePresetModal(){
+  $("presetModalOverlay").classList.add("hidden");
+  $("presetModalOverlay").setAttribute("aria-hidden","true");
+  document.body.style.overflow="";
+}
+function applyPreset(){
+  const modeKey=document.querySelector('input[name="presetMode"]:checked')?.value||"normal";
+  const trend=document.querySelector('input[name="presetTrend"]:checked')?.value||"standard";
+  const count=Number($("presetRarityCount").value);
+  if(!Number.isInteger(count)||count<1||count>30){
+    alert("レア数は1〜30の整数で入力してください。");
+    $("presetRarityCount").focus();return;
+  }
+  const mode=presetModes[modeKey];
+  $("maxProb").value=mode.max;
+  $("minProb").value=mode.min;
+  $("rarityCount").value=count;
+  if(generateRarities(trend)) closePresetModal();
 }
 
 function renderRarityEditor(){
@@ -160,6 +277,7 @@ function renderRarityEditor(){
   renderItems();renderPitySelect();renderGuaranteeSelect();
 }
 
+
 function renderItems(){
   const div=$("itemEditors");div.innerHTML="";
   rarities.forEach(r=>{
@@ -170,11 +288,13 @@ function renderItems(){
   });
 }
 
+
 function updateItems(rarity,text){
   items=items.filter(x=>x.rarity!==rarity);
   text.split("\n").map(t=>t.trim()).filter(Boolean).forEach(name=>items.push({rarity,name}));
   save();
 }
+
 
 function renderPitySelect(){
   const div=$("pityRarityChoices");div.innerHTML="";
@@ -192,6 +312,7 @@ function renderPitySelect(){
   });
   window._selectedPityRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
 }
+
 
 function renderGuaranteeSelect(){
   const div=$("guaranteeRarityChoices");
@@ -211,6 +332,7 @@ function renderGuaranteeSelect(){
   window._selectedGuaranteeRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
 }
 
+
 function addPlayer(){
   const input=$("playerNameInput");
   const clean=input.value.trim();
@@ -227,6 +349,7 @@ function addPlayer(){
   save();
 }
 
+
 function updatePlayerUI(){
   const select=$("playerSelect");const old=select.value;select.innerHTML="";
   players.forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=p;select.appendChild(o);});
@@ -234,11 +357,13 @@ function updatePlayerUI(){
   updatePityDisplay();
 }
 
+
 function updatePityDisplay(){
   const p=$("playerSelect").value;
   if(!p||!$("pityEnabled").checked){$("pityDisplay").textContent="";return;}
   $("pityDisplay").textContent=`天井カウント ${playerCounts[p]||0}/${Math.max(1,parseInt($("pityCount").value,10)||1)}`;
 }
+
 
 function weightedRandom(list){
   const valid=list.filter(x=>Number.isFinite(x.weight)&&x.weight>0);
@@ -249,9 +374,11 @@ function weightedRandom(list){
   return valid[valid.length-1];
 }
 
+
 function setRoll(n){
   $("customRoll").value = n;
 }
+
 
 function rollGacha(){
   const useGuarantee=$("guaranteeEnabled").checked;
@@ -262,6 +389,7 @@ function rollGacha(){
   const hasRarities=rarities.length>0;
   if(!hasRarities){alert("先にガチャを生成してください。");return;}
 
+
   const threshold=Math.max(1,parseInt($("guaranteeCount").value,10)||1);
   const guaranteeNames=[...$("guaranteeRarityChoices").querySelectorAll("input:checked")].map(x=>x.value);
   const guaranteeTriggers=useGuarantee?Math.floor(times/threshold):0;
@@ -270,11 +398,13 @@ function rollGacha(){
   if(guaranteeTriggers>0&&!rarities.some(r=>guaranteeNames.includes(r.name)&&r.weight>0&&items.some(x=>x.rarity===r.name))){alert("確定対象レアリティのweightを1つ以上、0より大きくしてください。");return;}
   if(!rarities.some(r=>Number.isFinite(r.weight)&&r.weight>0)){alert("レアリティのweightを1つ以上、0より大きくしてください。");return;}
 
+
   const pityLimit=Math.max(1,parseInt($("pityCount").value,10)||1);
   const pityNames=[...($("pityRarityChoices").querySelectorAll("input:checked"))].map(x=>x.value);
   if($("pityEnabled").checked&&pityNames.length===0){alert("天井対象レアリティを1つ以上選択してください。");return;}
   if($("pityEnabled").checked&&pityNames.every(n=>!items.some(x=>x.rarity===n))){alert("天井対象レアリティに景品がありません。");return;}
   if($("pityEnabled").checked&&!rarities.some(r=>pityNames.includes(r.name)&&r.weight>0&&items.some(x=>x.rarity===r.name))){alert("天井対象レアリティのweightを1つ以上、0より大きくしてください。");return;}
+
 
   const results=[];
   const guaranteeSlots=new Set();
@@ -287,10 +417,12 @@ function rollGacha(){
     }
   }
 
+
   for(let i=0;i<times;i++){
     let rarity=null;let isPity=false;let isGuarantee=false;
     const count=(playerCounts[player]||0)+1;
     playerCounts[player]=count;
+
 
     if(useGuarantee&&guaranteeSlots.has(i)){
       const guaranteePool=rarities.filter(r=>guaranteeNames.includes(r.name)&&items.some(x=>x.rarity===r.name));
@@ -303,6 +435,7 @@ function rollGacha(){
     }else{
       rarity=weightedRandom(rarities);
     }
+
 
     if(!rarity){
       alert("抽選できるレアリティがありません。weightを0より大きく設定してください。");return;
@@ -319,6 +452,7 @@ function rollGacha(){
     playerStats[player]=playerStats[player]||{};
     playerStats[player][item.name]=(playerStats[player][item.name]||0)+1;
   }
+
 
   const resultMap={};const specialLines=[];
   results.forEach(res=>{
@@ -340,10 +474,12 @@ function rollGacha(){
   renderStats();renderPlayerStats();updatePityDisplay();save();
 }
 
+
 function renderStats(){
   let text="";Object.keys(stats).forEach(i=>text+=`${i} ×${stats[i]}\n`);
   $("statsOutput").textContent=text||"まだ排出結果がありません。";
 }
+
 
 function renderPlayerStats(){
   const div=$("playerStatsOutput");div.innerHTML="";
@@ -357,6 +493,7 @@ function renderPlayerStats(){
   });
 }
 
+
 async function copyText(text){
   try{await navigator.clipboard.writeText(text);}catch(e){
     const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
@@ -368,6 +505,7 @@ function copyPlayerStats(player){
   let text=player+"\n\n";Object.keys(playerStats[player]||{}).forEach(i=>text+=`${i} ×${playerStats[player][i]}\n`);
   copyText(text);
 }
+
 
 function resetStats(){
   if(confirm("統計リセット？")){stats={};playerStats={};renderStats();renderPlayerStats();save();}
@@ -386,6 +524,7 @@ function resetRarities(){
   }
 }
 
+
 function exportJSON(){
   const data={
     rarities,items,players,stats,playerStats,playerCounts,
@@ -401,6 +540,7 @@ function exportJSON(){
   const url=URL.createObjectURL(blob);const a=document.createElement("a");
   a.href=url;a.download="gacha_setting.json";a.click();URL.revokeObjectURL(url);
 }
+
 
 function importJSON(){
   const file=$("importFile").files[0];if(!file)return;
@@ -431,6 +571,7 @@ function importJSON(){
   reader.readAsText(file);
 }
 
+
 function save(){
   const data={
     rarities,items,players,stats,playerStats,playerCounts,
@@ -444,6 +585,7 @@ function save(){
   };
   localStorage.setItem("gachaData",JSON.stringify(data));
 }
+
 
 function load(){
   const raw=localStorage.getItem("gachaData");if(!raw)return;
