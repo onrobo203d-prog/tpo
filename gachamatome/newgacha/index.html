@@ -4,687 +4,471 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>配信用ガチャツール</title>
-
 <style>
-
-body{
-font-family:sans-serif;
-margin:0;
-padding:12px;
-background:#f4f4f4;
-}
-
-.section{
-background:white;
-padding:14px;
-border-radius:10px;
-margin-bottom:12px;
-}
-
-button{
-padding:16px;
-font-size:20px;
-margin:4px;
-border-radius:8px;
-border:none;
-background:#3498db;
-color:white;
-}
-
-button.small{
-font-size:14px;
-padding:8px;
-}
-
-button.red{
-background:#e74c3c;
-}
-
-select,input{
-font-size:18px;
-padding:8px;
-}
-
-textarea{
-width:100%;
-height:90px;
-}
-
-.log{
-background:#111;
-color:#0f0;
-padding:10px;
-white-space:pre-wrap;
-font-family:monospace;
-}
-
-.stats{
-white-space:pre-wrap;
-}
-
-.collapsible{
-font-weight:bold;
-cursor:pointer;
-margin-bottom:6px;
-}
-
-.hidden{
-display:none;
-}
-
-.mainGrid{
-display:block;
-}
-
-@media(min-width:900px){
-.mainGrid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-}
-
-/* レアリティ名背景 */
-
-.rarityName{
-background:#e8f4ff;
-border:1px solid #bcdcff;
-border-radius:6px;
-padding:6px;
-}
-
-/* プレイヤーUI */
-
-.playerRow{
-display:flex;
-gap:6px;
-}
-
-.playerSelect{
-font-size:28px;
-padding:16px 18px;
-height:70px;
-width:75%;
-border-radius:12px;
-}
-
-.playerAdd{
-font-size:18px;
-height:70px;
-padding:10px 16px;
-}
-
+body{font-family:sans-serif;margin:0;padding:12px;background:#f4f4f4}
+.section{background:white;padding:14px;border-radius:10px;margin-bottom:12px}
+button{padding:16px;font-size:20px;margin:4px;border-radius:8px;border:none;background:#3498db;color:white;cursor:pointer}
+button.small{font-size:14px;padding:8px}
+button.red{background:#e74c3c}
+button.gold{background:#8e44ad}
+select,input{font-size:18px;padding:8px;max-width:100%;box-sizing:border-box}
+textarea{width:100%;height:90px;box-sizing:border-box}
+.log{background:#111;color:#0f0;padding:10px;white-space:pre-wrap;font-family:monospace;min-height:1.5em}
+.stats{white-space:pre-wrap}
+.collapsible{font-weight:bold;cursor:pointer;margin-bottom:6px}
+.hidden{display:none}
+.mainGrid{display:block}
+@media(min-width:900px){.mainGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}}
+.rarityName{background:#e8f4ff;border:1px solid #bcdcff;border-radius:6px;padding:6px}
+.playerRow{display:flex;gap:6px;align-items:stretch}
+.playerNameInput{font-size:18px;min-width:0;flex:1;padding:12px;border:1px solid #bbb;border-radius:8px}
+.playerSelect{font-size:24px;padding:12px;width:100%;height:60px;border-radius:12px;margin-top:8px}
+.playerAdd{font-size:18px;min-height:52px;padding:10px 16px;white-space:nowrap}
+.field{margin:8px 0}
+.field label{display:block;margin-bottom:4px}
+.pityChoices{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pityChoices label{display:inline-flex;align-items:center;gap:4px;background:#f2f7fb;border-radius:6px;padding:6px}
+.pityChoices input{width:18px;height:18px}
+.actionRow{display:flex;align-items:stretch;gap:8px}
+.actionRow button{flex:1;min-width:0}
+@media(max-width:520px){.actionRow button{font-size:17px;padding:14px 6px}.playerSelect{font-size:20px}.playerAdd{font-size:16px;padding:10px}}
+.note{font-size:13px;color:#555}
 </style>
 </head>
-
 <body>
-
 <div class="mainGrid">
-
-<div class="section">
-
-<div class="collapsible" onclick="toggle('gachaSettings')">
-▼ガチャ設定（タップで折りたたみ）
-</div>
-
-<div id="gachaSettings">
-
-最大確率
-<input id="maxProb" type="number" value="60">
-
-最小確率
-<input id="minProb" type="number" value="0.1">
-
-レア数
-<input id="rarityCount" type="number" value="5">
-
-<button onclick="generateRarities()">ガチャ生成</button>
-
-<div id="rarityEditor"></div>
-
-<hr>
-
-<label>
-<input type="checkbox" id="pityEnabled">
-天井機能
-</label>
-
-天井回数
-<input id="pityCount" type="number" value="30">
-
-保証レア
-<select id="pityRarity"></select>
-
-<br>
-
-<button class="red small" onclick="resetRarities()">ガチャ設定リセット</button>
-
-</div>
+  <div class="section">
+    <div class="collapsible" onclick="toggle('gachaSettings')">▼ガチャ設定（タップで折りたたみ）</div>
+    <div id="gachaSettings">
+      <div class="field">最大確率 <input id="maxProb" type="number" value="60" min="0" step="any"></div>
+      <div class="field">最小確率 <input id="minProb" type="number" value="0.1" min="0" step="any"></div>
+      <div class="field">レア数 <input id="rarityCount" type="number" value="5" min="1" max="30"></div>
+      <button onclick="generateRarities()">ガチャ生成</button>
+      <div id="rarityEditor"></div>
+      <hr>
+      <label><input type="checkbox" id="pityEnabled" onchange="updatePityDisplay();save()"> 天井機能</label>
+      <div class="field">天井回数 <input id="pityCount" type="number" value="30" min="1" step="1" onchange="save()"></div>
+      <div><b>天井対象レアリティ（複数選択可）</b></div>
+      <div id="pityRarityChoices" class="pityChoices"></div>
+      <p class="note">天井に到達すると、選択したレアリティの中から重み（weight）に応じて抽選します。</p>
+      <hr>
+      <label><input type="checkbox" id="guaranteeEnabled" onchange="save()"> 確定枠機能</label>
+      <div class="field">確定枠の間隔 <input id="guaranteeCount" type="number" value="10" min="1" step="1" onchange="save()"></div>
+      <div><b>確定対象レアリティ（複数選択可）</b></div>
+      <div id="guaranteeRarityChoices" class="pityChoices"></div>
+      <p class="note">指定回数ごとに確定枠が1つ発動します。例：10連設定なら100連で10枠、25連で2枠が確定します。</p>
+      <button class="red small" onclick="resetRarities()">ガチャ設定リセット</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="collapsible" onclick="toggle('itemSettings')">▼景品設定（タップで折りたたみ）</div>
+    <div id="itemSettings">
+      <div id="itemEditors"></div>
+      <button class="red small" onclick="resetItems()">景品リセット</button>
+    </div>
+  </div>
 </div>
 
 <div class="section">
-
-<div class="collapsible" onclick="toggle('itemSettings')">
-▼景品設定（タップで折りたたみ）
-</div>
-
-<div id="itemSettings">
-
-<div id="itemEditors"></div>
-
-<button class="red small" onclick="resetItems()">景品リセット</button>
-
-</div>
-</div>
-
-</div>
-
-<div class="section">
-
-<h2>ガチャ操作</h2>
-
-<div class="playerRow">
-
-<select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()"></select>
-
-<button class="playerAdd" onclick="addPlayer()">
-＋追加
-</button>
-
-</div>
-
-<button class="red small" onclick="resetPlayers()">プレイヤーリセット</button>
-
-<div id="pityDisplay"></div>
-
-<br>
-
-<button onclick="setRoll(1)">1回</button>
-<button onclick="setRoll(5)">5回</button>
-<button onclick="setRoll(10)">10回</button>
-
-任意
-<input id="customRoll" type="number" value="1">
-
-<br><br>
-
-<button style="width:100%;font-size:24px;" onclick="rollGacha()">
-ガチャを回す
-</button>
-
+  <h2>ガチャ操作</h2>
+  <div class="playerRow">
+    <input id="playerNameInput" class="playerNameInput" type="text" placeholder="プレイヤー名を入力" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();addPlayer();}">
+    <button class="playerAdd" onclick="addPlayer()">＋登録</button>
+  </div>
+  <select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()" aria-label="使用するプレイヤー"></select>
+  <button class="red small" onclick="resetPlayers()">プレイヤーリセット</button>
+  <div id="pityDisplay"></div>
+  <br>
+  <button onclick="setRoll(1)">1回</button>
+  <button onclick="setRoll(5)">5回</button>
+  <button onclick="setRoll(10)">10回</button>
+  <div class="field">回す回数 <input id="customRoll" type="number" value="1" min="1" step="1"></div>
+  <button onclick="rollGacha()">ガチャを回す</button>
+  <p class="note">確定枠機能がオンの場合、設定した回数ごとに確定枠が1つ発動します。例：10連設定なら100連で10枠、25連で2枠です。設定回数未満では確定枠は発生せず、通常抽選になります。</p>
 </div>
 
 <div class="section">
-
-<h2>今回の結果</h2>
-
-<div id="logOutput" class="log"></div>
-
-<button onclick="copyLog()">ログコピー</button>
-
+  <h2>今回の結果</h2>
+  <div id="logOutput" class="log"></div>
+  <button onclick="copyLog()">ログコピー</button>
 </div>
-
 <div class="section">
-
-<h2>排出統計</h2>
-
-<div id="statsOutput" class="stats"></div>
-
-<button onclick="copyStats()">統計コピー</button>
-
+  <h2>排出統計</h2>
+  <div id="statsOutput" class="stats"></div>
+  <button onclick="copyStats()">統計コピー</button>
 </div>
-
 <div class="section">
-
-<h2>プレイヤー統計</h2>
-
-<div id="playerStatsOutput"></div>
-
-<button class="red small" onclick="resetStats()">統計リセット</button>
-
+  <h2>プレイヤー統計</h2>
+  <div id="playerStatsOutput"></div>
+  <button class="red small" onclick="resetStats()">統計リセット</button>
 </div>
-
 <div class="section">
-
-<button onclick="exportJSON()">設定保存(JSON)</button>
-
-<input type="file" id="importFile" onchange="importJSON()">
-
+  <button onclick="exportJSON()">設定保存(JSON)</button>
+  <input type="file" id="importFile" accept=".json,application/json" onchange="importJSON()">
 </div>
 
 <script>
+let rarities=[];
+let items=[];
+let players=[];
+let stats={};
+let playerStats={};
+let playerCounts={};
 
-let rarities=[]
-let items=[]
-let players=[]
-let stats={}
-let playerStats={}
-let playerCounts={}
+const $ = id => document.getElementById(id);
 
-function toggle(id){
-document.getElementById(id).classList.toggle("hidden")
-}
+function toggle(id){$(id).classList.toggle("hidden");}
 
 function generateRarities(){
-
-rarities=[]
-
-let max=parseFloat(maxProb.value)
-let min=parseFloat(minProb.value)
-let count=parseInt(rarityCount.value)
-
-for(let i=0;i<count;i++){
-
-let w=max*Math.pow(min/max,i/(count-1))
-
-rarities.push({
-name:"レア"+(i+1),
-weight:parseFloat(w.toFixed(2))
-})
-
-}
-
-renderRarityEditor()
-save()
-
+  const max=parseFloat($("maxProb").value);
+  const min=parseFloat($("minProb").value);
+  const count=parseInt($("rarityCount").value,10);
+  if(!Number.isFinite(max)||!Number.isFinite(min)||max<=0||min<0||!Number.isInteger(count)||count<1||count>30){
+    alert("確率は最大を正の数、最小を0以上、レア数を1〜30で入力してください。");return;
+  }
+  rarities=Array.from({length:count},(_,i)=>{
+    const ratio=count===1?0:i/(count-1);
+    const w=count===1?max:max*Math.pow(min/max,ratio);
+    return {name:"レア"+(i+1),weight:Number(w.toFixed(2))};
+  });
+  renderRarityEditor();
+  save();
 }
 
 function renderRarityEditor(){
-
-let div=rarityEditor
-div.innerHTML=""
-
-rarities.forEach((r,i)=>{
-
-div.innerHTML+=`
-<div>
-<input class="rarityName"
-value="${r.name}"
-onchange="rarities[${i}].name=this.value;renderItems();renderPitySelect();save()">
-
-weight
-<input type="number"
-value="${r.weight}"
-onchange="rarities[${i}].weight=parseFloat(this.value);save()">
-</div>
-`
-
-})
-
-renderItems()
-renderPitySelect()
-
+  const div=$("rarityEditor");div.innerHTML="";
+  rarities.forEach((r,i)=>{
+    const row=document.createElement("div");row.className="field";
+    const name=document.createElement("input");name.className="rarityName";name.value=r.name;name.setAttribute("aria-label","レアリティ名");
+    name.addEventListener("change",()=>{
+      const old=rarities[i].name;const next=name.value.trim();
+      if(!next){name.value=old;alert("レアリティ名を入力してください。");return;}
+      if(rarities.some((x,j)=>j!==i&&x.name===next)){name.value=old;alert("レアリティ名は重複できません。");return;}
+      rarities[i].name=next;
+      items.forEach(x=>{if(x.rarity===old)x.rarity=next;});
+      renderRarityEditor();save();
+    });
+    const weightLabel=document.createTextNode(" weight ");
+    const weight=document.createElement("input");weight.type="number";weight.min="0";weight.step="any";weight.value=r.weight;weight.style.width="110px";
+    weight.addEventListener("change",()=>{
+      const v=parseFloat(weight.value);
+      if(!Number.isFinite(v)||v<0){alert("weightは0以上で入力してください。");weight.value=rarities[i].weight;return;}
+      rarities[i].weight=v;save();
+    });
+    row.append(name,weightLabel,weight);div.appendChild(row);
+  });
+  renderItems();renderPitySelect();renderGuaranteeSelect();
 }
 
 function renderItems(){
-
-let div=itemEditors
-div.innerHTML=""
-
-rarities.forEach(r=>{
-
-let list=items.filter(x=>x.rarity==r.name).map(x=>x.name)
-
-div.innerHTML+=`
-<h3>${r.name}</h3>
-<textarea onchange="updateItems('${r.name}',this.value)">
-${list.join("\n")}
-</textarea>
-`
-
-})
-
+  const div=$("itemEditors");div.innerHTML="";
+  rarities.forEach(r=>{
+    const heading=document.createElement("h3");heading.textContent=r.name;
+    const area=document.createElement("textarea");area.value=items.filter(x=>x.rarity===r.name).map(x=>x.name).join("\n");
+    area.addEventListener("change",()=>updateItems(r.name,area.value));
+    div.append(heading,area);
+  });
 }
 
 function updateItems(rarity,text){
-
-items=items.filter(x=>x.rarity!=rarity)
-
-text.split("\n").forEach(t=>{
-t=t.trim()
-if(t)items.push({rarity:rarity,name:t})
-})
-
-save()
-
+  items=items.filter(x=>x.rarity!==rarity);
+  text.split("\n").map(t=>t.trim()).filter(Boolean).forEach(name=>items.push({rarity,name}));
+  save();
 }
 
 function renderPitySelect(){
+  const div=$("pityRarityChoices");div.innerHTML="";
+  const oldSelected=new Set([...div.querySelectorAll("input:checked")].map(x=>x.value));
+  const saved=window._selectedPityRarities||[];
+  rarities.forEach(r=>{
+    const label=document.createElement("label");
+    const cb=document.createElement("input");cb.type="checkbox";cb.value=r.name;
+    cb.checked=saved.includes(r.name)||oldSelected.has(r.name);
+    cb.addEventListener("change",()=>{
+      window._selectedPityRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
+      save();
+    });
+    label.append(cb,document.createTextNode(r.name));div.appendChild(label);
+  });
+  window._selectedPityRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
+}
 
-pityRarity.innerHTML=""
-
-rarities.forEach(r=>{
-
-let o=document.createElement("option")
-o.value=r.name
-o.textContent=r.name
-pityRarity.appendChild(o)
-
-})
-
+function renderGuaranteeSelect(){
+  const div=$("guaranteeRarityChoices");
+  const saved=window._selectedGuaranteeRarities||[];
+  div.innerHTML="";
+  rarities.forEach(r=>{
+    const label=document.createElement("label");
+    const cb=document.createElement("input");
+    cb.type="checkbox";cb.value=r.name;cb.checked=saved.includes(r.name);
+    cb.addEventListener("change",()=>{
+      window._selectedGuaranteeRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
+      save();
+    });
+    label.append(cb,document.createTextNode(r.name));
+    div.appendChild(label);
+  });
+  window._selectedGuaranteeRarities=[...div.querySelectorAll("input:checked")].map(x=>x.value);
 }
 
 function addPlayer(){
-
-let name=prompt("プレイヤー名（リスナー名）")
-
-if(!name)return
-
-players.push(name)
-playerCounts[name]=0
-playerStats[name]={}
-
-updatePlayerUI()
-save()
-
+  const input=$("playerNameInput");
+  const clean=input.value.trim();
+  if(!clean){alert("プレイヤー名を入力してください。");input.focus();return;}
+  if(players.includes(clean)){alert("同じ名前のプレイヤーがすでにいます。");input.focus();input.select();return;}
+  players.push(clean);
+  playerCounts[clean]=playerCounts[clean]||0;
+  playerStats[clean]=playerStats[clean]||{};
+  updatePlayerUI();
+  $("playerSelect").value=clean;
+  input.value="";
+  input.focus();
+  updatePityDisplay();
+  save();
 }
 
 function updatePlayerUI(){
-
-playerSelect.innerHTML=""
-
-players.forEach(p=>{
-playerSelect.innerHTML+=`<option>${p}</option>`
-})
-
-updatePityDisplay()
-
+  const select=$("playerSelect");const old=select.value;select.innerHTML="";
+  players.forEach(p=>{const o=document.createElement("option");o.value=p;o.textContent=p;select.appendChild(o);});
+  if(players.includes(old))select.value=old;
+  updatePityDisplay();
 }
 
 function updatePityDisplay(){
-
-let p=playerSelect.value
-
-if(!p||!pityEnabled.checked){
-pityDisplay.innerText=""
-return
-}
-
-pityDisplay.innerText=`天井カウント ${playerCounts[p]||0}/${pityCount.value}`
-
-}
-
-function setRoll(n){
-customRoll.value=n
+  const p=$("playerSelect").value;
+  if(!p||!$("pityEnabled").checked){$("pityDisplay").textContent="";return;}
+  $("pityDisplay").textContent=`天井カウント ${playerCounts[p]||0}/${Math.max(1,parseInt($("pityCount").value,10)||1)}`;
 }
 
 function weightedRandom(list){
-
-let sum=list.reduce((a,b)=>a+b.weight,0)
-
-let r=Math.random()*sum
-
-for(let x of list){
-if(r<x.weight)return x
-r-=x.weight
+  const valid=list.filter(x=>Number.isFinite(x.weight)&&x.weight>0);
+  const sum=valid.reduce((a,b)=>a+b.weight,0);
+  if(!valid.length||sum<=0)return null;
+  let r=Math.random()*sum;
+  for(const x of valid){if(r<x.weight)return x;r-=x.weight;}
+  return valid[valid.length-1];
 }
 
+function setRoll(n){
+  $("customRoll").value = n;
 }
 
 function rollGacha(){
+  const useGuarantee=$("guaranteeEnabled").checked;
+  const player=$("playerSelect").value;
+  if(!player){alert("先にプレイヤーを追加してください。");return;}
+  const times=Number($("customRoll").value);
+  if(!Number.isInteger(times)||times<1||times>10000){alert("回数は1〜10000の整数で入力してください。");return;}
+  const hasRarities=rarities.length>0;
+  if(!hasRarities){alert("先にガチャを生成してください。");return;}
 
-let player=playerSelect.value
-if(!player)return
+  const threshold=Math.max(1,parseInt($("guaranteeCount").value,10)||1);
+  const guaranteeNames=[...$("guaranteeRarityChoices").querySelectorAll("input:checked")].map(x=>x.value);
+  const guaranteeTriggers=useGuarantee?Math.floor(times/threshold):0;
+  if(guaranteeTriggers>0&&guaranteeNames.length===0){alert("確定対象レアリティを1つ以上選択してください。");return;}
+  if(guaranteeTriggers>0&&guaranteeNames.every(n=>!items.some(x=>x.rarity===n))){alert("確定対象レアリティに景品がありません。景品を登録してください。");return;}
+  if(guaranteeTriggers>0&&!rarities.some(r=>guaranteeNames.includes(r.name)&&r.weight>0&&items.some(x=>x.rarity===r.name))){alert("確定対象レアリティのweightを1つ以上、0より大きくしてください。");return;}
+  if(!rarities.some(r=>Number.isFinite(r.weight)&&r.weight>0)){alert("レアリティのweightを1つ以上、0より大きくしてください。");return;}
 
-let times=parseInt(customRoll.value)
+  const pityLimit=Math.max(1,parseInt($("pityCount").value,10)||1);
+  const pityNames=[...($("pityRarityChoices").querySelectorAll("input:checked"))].map(x=>x.value);
+  if($("pityEnabled").checked&&pityNames.length===0){alert("天井対象レアリティを1つ以上選択してください。");return;}
+  if($("pityEnabled").checked&&pityNames.every(n=>!items.some(x=>x.rarity===n))){alert("天井対象レアリティに景品がありません。");return;}
+  if($("pityEnabled").checked&&!rarities.some(r=>pityNames.includes(r.name)&&r.weight>0&&items.some(x=>x.rarity===r.name))){alert("天井対象レアリティのweightを1つ以上、0より大きくしてください。");return;}
 
-let resultMap={}
-let pityResults=[]
+  const results=[];
+  const guaranteeSlots=new Set();
+  if(guaranteeTriggers>0){
+    // 指定回数ごとに1枠を確定枠にする（例：10連設定なら100連で10枠）。
+    for(let batch=0;batch<guaranteeTriggers;batch++){
+      const start=batch*threshold;
+      const end=Math.min(start+threshold,times);
+      guaranteeSlots.add(start+Math.floor(Math.random()*(end-start)));
+    }
+  }
 
-for(let i=0;i<times;i++){
+  for(let i=0;i<times;i++){
+    let rarity=null;let isPity=false;let isGuarantee=false;
+    const count=(playerCounts[player]||0)+1;
+    playerCounts[player]=count;
 
-playerCounts[player]++
+    if(useGuarantee&&guaranteeSlots.has(i)){
+      const guaranteePool=rarities.filter(r=>guaranteeNames.includes(r.name)&&items.some(x=>x.rarity===r.name));
+      rarity=weightedRandom(guaranteePool);
+      isGuarantee=true;
+    }else if($("pityEnabled").checked&&count>=pityLimit){
+      const pityPool=rarities.filter(r=>pityNames.includes(r.name)&&items.some(x=>x.rarity===r.name));
+      rarity=weightedRandom(pityPool);
+      if(rarity){isPity=true;playerCounts[player]=0;}
+    }else{
+      rarity=weightedRandom(rarities);
+    }
 
-let pity=false
-let rarity
+    if(!rarity){
+      alert("抽選できるレアリティがありません。weightを0より大きく設定してください。");return;
+    }
+    let pool=items.filter(x=>x.rarity===rarity.name);
+    if(pool.length===0){
+      // 景品未登録のレアリティは結果にしない。抽選カウントは進める。
+      results.push({rarity:rarity.name,item:null,pity:isPity,guarantee:isGuarantee});
+      continue;
+    }
+    const item=pool[Math.floor(Math.random()*pool.length)];
+    results.push({rarity:rarity.name,item:item.name,pity:isPity,guarantee:isGuarantee});
+    stats[item.name]=(stats[item.name]||0)+1;
+    playerStats[player]=playerStats[player]||{};
+    playerStats[player][item.name]=(playerStats[player][item.name]||0)+1;
+  }
 
-if(pityEnabled.checked && playerCounts[player]>=pityCount.value){
-
-let idx=rarities.findIndex(r=>r.name==pityRarity.value)
-let pool=rarities.slice(idx)
-
-rarity=weightedRandom(pool)
-
-playerCounts[player]=0
-pity=true
-
-}else{
-
-rarity=weightedRandom(rarities)
-
-}
-
-let pool=items.filter(x=>x.rarity==rarity.name)
-if(pool.length==0)continue
-
-let item=pool[Math.floor(Math.random()*pool.length)]
-
-let key=rarity.name+" "+item.name
-
-if(pity){
-pityResults.push(`${key} (天井)`)
-}else{
-resultMap[key]=(resultMap[key]||0)+1
-}
-
-stats[item.name]=(stats[item.name]||0)+1
-
-if(!playerStats[player])playerStats[player]={}
-playerStats[player][item.name]=(playerStats[player][item.name]||0)+1
-
-}
-
-let text=player+"\n\n"
-
-Object.keys(resultMap).forEach(k=>{
-text+=`${k} ×${resultMap[k]}\n`
-})
-
-pityResults.forEach(x=>{
-text+=x+"\n"
-})
-
-logOutput.textContent=text
-
-renderStats()
-renderPlayerStats()
-updatePityDisplay()
-save()
-
+  const resultMap={};const specialLines=[];
+  results.forEach(res=>{
+    if(!res.item)return;
+    const key=`${res.rarity} ${res.item}`;
+    if(res.pity||res.guarantee){
+      const tags=[res.pity?"天井":"",res.guarantee?"確定":""].filter(Boolean).join("・");
+      specialLines.push(`${key}（${tags}）`);
+    }else resultMap[key]=(resultMap[key]||0)+1;
+  });
+  let text=`${player}\n`;
+  if(useGuarantee)text+=`確定ガチャ：${times}回／確定枠${guaranteeSlots.size}枠（${threshold}連ごと・対象：${guaranteeNames.join("・")}）\n`;
+  text+="\n";
+  Object.keys(resultMap).forEach(k=>text+=`${k} ×${resultMap[k]}\n`);
+  specialLines.forEach(x=>text+=x+"\n");
+  const noPrize=results.filter(r=>!r.item).length;
+  if(noPrize)text+=`\n※景品未登録のレアリティ ${noPrize}回分は景品なし\n`;
+  $("logOutput").textContent=text;
+  renderStats();renderPlayerStats();updatePityDisplay();save();
 }
 
 function renderStats(){
-
-let text=""
-
-Object.keys(stats).forEach(i=>{
-text+=`${i} ×${stats[i]}\n`
-})
-
-statsOutput.textContent=text
-
+  let text="";Object.keys(stats).forEach(i=>text+=`${i} ×${stats[i]}\n`);
+  $("statsOutput").textContent=text||"まだ排出結果がありません。";
 }
 
 function renderPlayerStats(){
-
-let div=playerStatsOutput
-div.innerHTML=""
-
-Object.keys(playerStats).forEach(p=>{
-
-let text=""
-
-Object.keys(playerStats[p]).forEach(i=>{
-text+=`${i} ×${playerStats[p][i]}\n`
-})
-
-div.innerHTML+=`
-<div class="section">
-<b>${p}</b>
-<pre>${text}</pre>
-<button class="small" onclick="copyPlayerStats('${p}')">コピー</button>
-</div>
-`
-
-})
-
+  const div=$("playerStatsOutput");div.innerHTML="";
+  Object.keys(playerStats).forEach(p=>{
+    let text="";Object.keys(playerStats[p]).forEach(i=>text+=`${i} ×${playerStats[p][i]}\n`);
+    const box=document.createElement("div");box.className="section";
+    const b=document.createElement("b");b.textContent=p;
+    const pre=document.createElement("pre");pre.textContent=text;
+    const btn=document.createElement("button");btn.className="small";btn.textContent="コピー";btn.onclick=()=>copyPlayerStats(p);
+    box.append(b,pre,btn);div.appendChild(box);
+  });
 }
 
-function copyLog(){
-navigator.clipboard.writeText(logOutput.textContent)
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);}catch(e){
+    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
+  }
 }
-
-function copyStats(){
-navigator.clipboard.writeText(statsOutput.textContent)
-}
-
+function copyLog(){copyText($("logOutput").textContent);}
+function copyStats(){copyText($("statsOutput").textContent);}
 function copyPlayerStats(player){
-
-let text=player+"\n\n"
-
-Object.keys(playerStats[player]).forEach(i=>{
-text+=`${i} ×${playerStats[player][i]}\n`
-})
-
-navigator.clipboard.writeText(text)
-
+  let text=player+"\n\n";Object.keys(playerStats[player]||{}).forEach(i=>text+=`${i} ×${playerStats[player][i]}\n`);
+  copyText(text);
 }
 
 function resetStats(){
-
-if(confirm("統計リセット？")){
-
-stats={}
-playerStats={}
-
-renderStats()
-renderPlayerStats()
-
-save()
-
+  if(confirm("統計リセット？")){stats={};playerStats={};renderStats();renderPlayerStats();save();}
 }
-
-}
-
 function resetPlayers(){
-
-if(confirm("プレイヤーリセット？")){
-
-players=[]
-playerCounts={}
-playerStats={}
-
-updatePlayerUI()
-
-save()
-
+  if(confirm("プレイヤーリセット？")){
+    players=[];playerCounts={};playerStats={};updatePlayerUI();renderPlayerStats();save();
+  }
 }
-
-}
-
 function resetItems(){
-
-if(confirm("景品リセット？")){
-
-items=[]
-renderItems()
-save()
-
+  if(confirm("景品リセット？")){items=[];renderItems();save();}
 }
-
-}
-
 function resetRarities(){
-
-if(confirm("ガチャ設定リセット？")){
-
-rarities=[]
-renderRarityEditor()
-save()
-
-}
-
+  if(confirm("ガチャ設定リセット？")){
+    rarities=[];window._selectedPityRarities=[];renderRarityEditor();save();
+  }
 }
 
 function exportJSON(){
-
-let data={rarities,items,players}
-
-let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"})
-
-let url=URL.createObjectURL(blob)
-
-let a=document.createElement("a")
-a.href=url
-a.download="gacha_setting.json"
-a.click()
-
+  const data={
+    rarities,items,players,stats,playerStats,playerCounts,
+    pityEnabled:$("pityEnabled").checked,
+    guaranteeEnabled:$("guaranteeEnabled").checked,
+    pityCount:$("pityCount").value,
+    pityRarities:[...$("pityRarityChoices").querySelectorAll("input:checked")].map(x=>x.value),
+    guaranteeCount:$("guaranteeCount").value,
+    guaranteeRarities:[...$("guaranteeRarityChoices").querySelectorAll("input:checked")].map(x=>x.value),
+    maxProb:$("maxProb").value,minProb:$("minProb").value,rarityCount:$("rarityCount").value
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  a.href=url;a.download="gacha_setting.json";a.click();URL.revokeObjectURL(url);
 }
 
 function importJSON(){
-
-let file=importFile.files[0]
-
-let reader=new FileReader()
-
-reader.onload=e=>{
-
-let data=JSON.parse(e.target.result)
-
-rarities=data.rarities||[]
-items=data.items||[]
-players=data.players||[]
-
-renderRarityEditor()
-renderItems()
-updatePlayerUI()
-
-save()
-
-}
-
-reader.readAsText(file)
-
+  const file=$("importFile").files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      rarities=Array.isArray(data.rarities)?data.rarities:[];
+      items=Array.isArray(data.items)?data.items:[];
+      players=Array.isArray(data.players)?data.players:[];
+      stats=data.stats||{};playerStats=data.playerStats||{};playerCounts=data.playerCounts||{};
+      $("pityEnabled").checked=!!data.pityEnabled;
+      $("guaranteeEnabled").checked=!!data.guaranteeEnabled;
+      $("pityCount").value=data.pityCount||30;
+      $("guaranteeCount").value=data.guaranteeCount||10;
+      window._selectedGuaranteeRarities=Array.isArray(data.guaranteeRarities)?data.guaranteeRarities:
+        (data.guaranteeRarity?[data.guaranteeRarity]:[]);
+      $("maxProb").value=data.maxProb||60;$("minProb").value=data.minProb||0.1;
+      $("rarityCount").value=data.rarityCount||rarities.length||5;
+      window._selectedPityRarities=Array.isArray(data.pityRarities)?data.pityRarities:
+        (data.pityRarity?[data.pityRarity]:[]);
+      renderRarityEditor();
+      renderGuaranteeSelect();
+      updatePlayerUI();renderStats();renderPlayerStats();save();
+      alert("設定を読み込みました。");
+    }catch(err){alert("JSONを読み込めませんでした。ファイルの内容を確認してください。");}
+  };
+  reader.readAsText(file);
 }
 
 function save(){
-
-localStorage.setItem("gachaData",JSON.stringify({
-rarities,
-items,
-players,
-stats,
-playerStats,
-playerCounts
-}))
-
+  const data={
+    rarities,items,players,stats,playerStats,playerCounts,
+    pityEnabled:$("pityEnabled").checked,
+    guaranteeEnabled:$("guaranteeEnabled").checked,
+    pityCount:$("pityCount").value,
+    pityRarities:[...$("pityRarityChoices").querySelectorAll("input:checked")].map(x=>x.value),
+    guaranteeCount:$("guaranteeCount").value,
+    guaranteeRarities:[...$("guaranteeRarityChoices").querySelectorAll("input:checked")].map(x=>x.value),
+    maxProb:$("maxProb").value,minProb:$("minProb").value,rarityCount:$("rarityCount").value
+  };
+  localStorage.setItem("gachaData",JSON.stringify(data));
 }
 
 function load(){
-
-let data=localStorage.getItem("gachaData")
-if(!data)return
-
-data=JSON.parse(data)
-
-rarities=data.rarities||[]
-items=data.items||[]
-players=data.players||[]
-stats=data.stats||{}
-playerStats=data.playerStats||{}
-playerCounts=data.playerCounts||{}
-
-renderRarityEditor()
-renderItems()
-updatePlayerUI()
-renderStats()
-renderPlayerStats()
-
+  const raw=localStorage.getItem("gachaData");if(!raw)return;
+  try{
+    const data=JSON.parse(raw);
+    rarities=Array.isArray(data.rarities)?data.rarities:[];
+    items=Array.isArray(data.items)?data.items:[];
+    players=Array.isArray(data.players)?data.players:[];
+    stats=data.stats||{};playerStats=data.playerStats||{};playerCounts=data.playerCounts||{};
+    $("pityEnabled").checked=!!data.pityEnabled;
+    $("guaranteeEnabled").checked=!!data.guaranteeEnabled;
+    $("pityCount").value=data.pityCount||30;
+    $("guaranteeCount").value=data.guaranteeCount||10;
+    window._selectedGuaranteeRarities=Array.isArray(data.guaranteeRarities)?data.guaranteeRarities:
+      (data.guaranteeRarity?[data.guaranteeRarity]:[]);
+    $("maxProb").value=data.maxProb||60;$("minProb").value=data.minProb||0.1;
+    $("rarityCount").value=data.rarityCount||5;
+    window._selectedPityRarities=Array.isArray(data.pityRarities)?data.pityRarities:
+      (data.pityRarity?[data.pityRarity]:[]);
+    renderRarityEditor();
+    renderGuaranteeSelect();
+    updatePlayerUI();renderStats();renderPlayerStats();
+  }catch(e){console.error("保存データを読み込めませんでした",e);}
 }
-
-load()
-
+load();
 </script>
-
 </body>
 </html>
