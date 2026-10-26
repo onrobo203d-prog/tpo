@@ -133,20 +133,22 @@ textarea{width:100%;height:90px;box-sizing:border-box}
   <button onclick="copyLog()">ログコピー</button>
 </div>
 <div class="section">
+ 
+ <h2>プレイヤー統計</h2>
+  <div id="playerStatsOutput"></div>
+  <button class="red small" onclick="resetStats()">統計リセット</button>
+</div>
+ 
+<div class="section">
   <h2>排出統計</h2>
   <div id="statsOutput" class="stats"></div>
   <button onclick="copyStats()">統計コピー</button>
 </div>
-<div class="section">
-  <h2>プレイヤー統計</h2>
-  <div id="playerStatsOutput"></div>
-  <button class="red small" onclick="resetStats()">統計リセット</button>
-</div>
+ 
 <div class="section">
   <button onclick="exportJSON()">設定保存(JSON)</button>
   <input type="file" id="importFile" accept=".json,application/json" onchange="importJSON()">
 </div>
-
 
 
 
@@ -192,6 +194,8 @@ let players=[];
 let stats={};
 let playerStats={};
 let playerCounts={};
+let totalPlayCount=0;
+let playerPlayCounts={};
 
 
 const $ = id => document.getElementById(id);
@@ -439,6 +443,9 @@ function rollGacha(){
     if(!rarity){
       alert("抽選できるレアリティがありません。weightを0より大きく設定してください。");return;
     }
+    totalPlayCount++;
+    playerPlayCounts[player]=(playerPlayCounts[player]||0)+1;
+    playerStats[player]=playerStats[player]||{};
     let pool=items.filter(x=>x.rarity===rarity.name);
     if(pool.length===0){
       // 景品未登録のレアリティは結果にしない。抽選カウントは進める。
@@ -453,20 +460,30 @@ function rollGacha(){
   }
 
 
-  const resultMap={};const specialLines=[];
+  const resultMap={};const displayLines=[];
   results.forEach(res=>{
     if(!res.item)return;
     const key=`${res.rarity} ${res.item}`;
     if(res.pity||res.guarantee){
       const tags=[res.pity?"天井":"",res.guarantee?"確定":""].filter(Boolean).join("・");
-      specialLines.push(`${key}（${tags}）`);
+      displayLines.push({rarity:res.rarity,text:`${key}（${tags}）`,order:displayLines.length});
     }else resultMap[key]=(resultMap[key]||0)+1;
   });
+  Object.keys(resultMap).forEach(k=>{
+    const rarity=rarities.find(r=>k.startsWith(r.name+" "));
+    displayLines.push({rarity:rarity?rarity.name:"",text:`${k} ×${resultMap[k]}`,weight:rarity?rarity.weight:-1,order:displayLines.length});
+  });
+  displayLines.forEach(line=>{
+    if(line.weight===undefined){
+      const rarity=rarities.find(r=>r.name===line.rarity);
+      line.weight=rarity?rarity.weight:-1;
+    }
+  });
+  displayLines.sort((a,b)=>b.weight-a.weight||a.order-b.order);
   let text=`${player}\n`;
   if(useGuarantee)text+=`確定ガチャ：${times}回／確定枠${guaranteeSlots.size}枠（${threshold}連ごと・対象：${guaranteeNames.join("・")}）\n`;
   text+="\n";
-  Object.keys(resultMap).forEach(k=>text+=`${k} ×${resultMap[k]}\n`);
-  specialLines.forEach(x=>text+=x+"\n");
+  displayLines.forEach(line=>text+=line.text+"\n");
   const noPrize=results.filter(r=>!r.item).length;
   if(noPrize)text+=`\n※景品未登録のレアリティ ${noPrize}回分は景品なし\n`;
   $("logOutput").textContent=text;
@@ -475,8 +492,9 @@ function rollGacha(){
 
 
 function renderStats(){
-  let text="";Object.keys(stats).forEach(i=>text+=`${i} ×${stats[i]}\n`);
-  $("statsOutput").textContent=text||"まだ排出結果がありません。";
+  let text=`総プレイ数：${totalPlayCount}回\n\n`;
+  Object.keys(stats).forEach(i=>text+=`${i} ×${stats[i]}\n`);
+  $("statsOutput").textContent=text;
 }
 
 
@@ -485,7 +503,7 @@ function renderPlayerStats(){
   Object.keys(playerStats).forEach(p=>{
     let text="";Object.keys(playerStats[p]).forEach(i=>text+=`${i} ×${playerStats[p][i]}\n`);
     const box=document.createElement("div");box.className="section";
-    const b=document.createElement("b");b.textContent=p;
+    const b=document.createElement("b");b.textContent=`${p} ${playerPlayCounts[p]||0}回`;
     const pre=document.createElement("pre");pre.textContent=text;
     const btn=document.createElement("button");btn.className="small";btn.textContent="コピー";btn.onclick=()=>copyPlayerStats(p);
     box.append(b,pre,btn);div.appendChild(box);
@@ -501,17 +519,17 @@ async function copyText(text){
 function copyLog(){copyText($("logOutput").textContent);}
 function copyStats(){copyText($("statsOutput").textContent);}
 function copyPlayerStats(player){
-  let text=player+"\n\n";Object.keys(playerStats[player]||{}).forEach(i=>text+=`${i} ×${playerStats[player][i]}\n`);
+  let text=`${player} ${playerPlayCounts[player]||0}回\n\n`;Object.keys(playerStats[player]||{}).forEach(i=>text+=`${i} ×${playerStats[player][i]}\n`);
   copyText(text);
 }
 
 
 function resetStats(){
-  if(confirm("統計リセット？")){stats={};playerStats={};renderStats();renderPlayerStats();save();}
+  if(confirm("統計リセット？")){stats={};playerStats={};totalPlayCount=0;playerPlayCounts={};renderStats();renderPlayerStats();save();}
 }
 function resetPlayers(){
   if(confirm("プレイヤーリセット？")){
-    players=[];playerCounts={};playerStats={};updatePlayerUI();renderPlayerStats();save();
+    players=[];playerCounts={};playerStats={};playerPlayCounts={};updatePlayerUI();renderPlayerStats();save();
   }
 }
 function resetItems(){
@@ -526,7 +544,7 @@ function resetRarities(){
 
 function exportJSON(){
   const data={
-    rarities,items,players,stats,playerStats,playerCounts,
+    rarities,items,players,stats,playerStats,playerCounts,totalPlayCount,playerPlayCounts,
     pityEnabled:$("pityEnabled").checked,
     guaranteeEnabled:$("guaranteeEnabled").checked,
     pityCount:$("pityCount").value,
@@ -551,6 +569,10 @@ function importJSON(){
       items=Array.isArray(data.items)?data.items:[];
       players=Array.isArray(data.players)?data.players:[];
       stats=data.stats||{};playerStats=data.playerStats||{};playerCounts=data.playerCounts||{};
+    totalPlayCount=Number.isFinite(data.totalPlayCount)?data.totalPlayCount:Object.values(stats).reduce((a,n)=>a+(Number(n)||0),0);
+    playerPlayCounts=data.playerPlayCounts||Object.fromEntries(Object.entries(playerStats).map(([p,items])=>[p,Object.values(items||{}).reduce((a,n)=>a+(Number(n)||0),0)]));
+      totalPlayCount=Number.isFinite(data.totalPlayCount)?data.totalPlayCount:Object.values(stats).reduce((a,n)=>a+(Number(n)||0),0);
+      playerPlayCounts=data.playerPlayCounts||Object.fromEntries(Object.entries(playerStats).map(([p,items])=>[p,Object.values(items||{}).reduce((a,n)=>a+(Number(n)||0),0)]));
       $("pityEnabled").checked=!!data.pityEnabled;
       $("guaranteeEnabled").checked=!!data.guaranteeEnabled;
       $("pityCount").value=data.pityCount||30;
@@ -573,7 +595,7 @@ function importJSON(){
 
 function save(){
   const data={
-    rarities,items,players,stats,playerStats,playerCounts,
+    rarities,items,players,stats,playerStats,playerCounts,totalPlayCount,playerPlayCounts,
     pityEnabled:$("pityEnabled").checked,
     guaranteeEnabled:$("guaranteeEnabled").checked,
     pityCount:$("pityCount").value,
@@ -594,6 +616,8 @@ function load(){
     items=Array.isArray(data.items)?data.items:[];
     players=Array.isArray(data.players)?data.players:[];
     stats=data.stats||{};playerStats=data.playerStats||{};playerCounts=data.playerCounts||{};
+    totalPlayCount=Number.isFinite(data.totalPlayCount)?data.totalPlayCount:Object.values(stats).reduce((a,n)=>a+(Number(n)||0),0);
+    playerPlayCounts=data.playerPlayCounts||Object.fromEntries(Object.entries(playerStats).map(([p,items])=>[p,Object.values(items||{}).reduce((a,n)=>a+(Number(n)||0),0)]));
     $("pityEnabled").checked=!!data.pityEnabled;
     $("guaranteeEnabled").checked=!!data.guaranteeEnabled;
     $("pityCount").value=data.pityCount||30;
