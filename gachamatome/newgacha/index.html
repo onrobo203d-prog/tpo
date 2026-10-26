@@ -52,8 +52,8 @@ textarea{width:100%;height:90px;box-sizing:border-box}
       <div id="pityRarityChoices" class="pityChoices"></div>
       <p class="note">天井に到達すると、選択したレアリティの中から重み（weight）に応じて抽選します。</p>
       <hr>
-      <label><input type="checkbox" id="guaranteeEnabled" onchange="save()"> 確定枠機能</label>
-      <div class="field">確定枠の間隔 <input id="guaranteeCount" type="number" value="10" min="1" step="1" onchange="save()"></div>
+      <label><input type="checkbox" id="guaranteeEnabled" onchange="save()"> 確定ガチャ機能</label>
+      <div class="field">指定連で発動⇒ <input id="guaranteeCount" type="number" value="10" min="1" step="1" onchange="save()"></div>
       <div><b>確定対象レアリティ（複数選択可）</b></div>
       <div id="guaranteeRarityChoices" class="pityChoices"></div>
       <p class="note">指定回数ごとに確定枠が1つ発動します。例：10連設定なら100連で10枠、25連で2枠が確定します。</p>
