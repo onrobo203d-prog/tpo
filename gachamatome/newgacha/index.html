@@ -111,11 +111,11 @@ textarea{width:100%;height:90px;box-sizing:border-box}
 <div class="section">
   <h2>ガチャ操作</h2>
   <div class="playerRow">
-    <input id="playerNameInput" class="playerNameInput" type="text" placeholder="プレイヤー名を入力" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();addPlayer();}">
+    <input id="playerNameInput" class="playerNameInput" type="text" placeholder="リスナー名を入力" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();addPlayer();}">
     <button class="playerAdd" onclick="addPlayer()">＋登録</button>
   </div>
-  <select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()" aria-label="使用するプレイヤー"></select>
-  <button class="red small" onclick="resetPlayers()">プレイヤーリセット</button>
+  <select id="playerSelect" class="playerSelect" onchange="updatePityDisplay()" aria-label="使用するリスナー"></select>
+  <button class="red small" onclick="resetPlayers()">参加者リセット</button>
   <div id="pityDisplay"></div>
 
   <button onclick="setRoll(1)">1回</button>
@@ -134,7 +134,7 @@ textarea{width:100%;height:90px;box-sizing:border-box}
 </div>
 <div class="section">
  
- <h2>プレイヤー統計</h2>
+ <h2>リスナー別履歴</h2>
   <div id="playerStatsOutput"></div>
 </div>
  
@@ -339,8 +339,8 @@ function renderGuaranteeSelect(){
 function addPlayer(){
   const input=$("playerNameInput");
   const clean=input.value.trim();
-  if(!clean){alert("プレイヤー名を入力してください。");input.focus();return;}
-  if(players.includes(clean)){alert("同じ名前のプレイヤーがすでにいます。");input.focus();input.select();return;}
+  if(!clean){alert("リスナー名を入力してください。");input.focus();return;}
+  if(players.includes(clean)){alert("同じ名前のリスナーがすでにいます。");input.focus();input.select();return;}
   players.push(clean);
   playerCounts[clean]=playerCounts[clean]||0;
   playerStats[clean]=playerStats[clean]||{};
@@ -386,7 +386,7 @@ function setRoll(n){
 function rollGacha(){
   const useGuarantee=$("guaranteeEnabled").checked;
   const player=$("playerSelect").value;
-  if(!player){alert("先にプレイヤーを追加してください。");return;}
+  if(!player){alert("先にリスナーを追加してください。");return;}
   const times=Number($("customRoll").value);
   if(!Number.isInteger(times)||times<1||times>10000){alert("回数は1〜10000の整数で入力してください。");return;}
   const hasRarities=rarities.length>0;
@@ -528,7 +528,7 @@ function resetStats(){
   if(confirm("統計リセット？")){stats={};playerStats={};totalPlayCount=0;playerPlayCounts={};renderStats();renderPlayerStats();save();}
 }
 function resetPlayers(){
-  if(confirm("プレイヤーリセット？")){
+  if(confirm("参加者リセット？")){
     players=[];playerCounts={};playerStats={};playerPlayCounts={};updatePlayerUI();renderPlayerStats();save();
   }
 }
