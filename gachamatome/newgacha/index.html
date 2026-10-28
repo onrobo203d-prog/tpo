@@ -218,7 +218,7 @@ function generateRarities(trend="standard"){
     if(trend==="rapid") curve=Math.pow(ratio,0.62);
     else if(trend==="tight") curve=Math.pow(ratio,2.4);
     const w=count===1?max:max*Math.pow(min/max,curve);
-    return {name:"レア"+(i+1),weight:Number(Math.max(min,w).toFixed(2))};
+    return {name:"景品名を入力"+(i+1),weight:Number(Math.max(min,w).toFixed(2))};
   });
   renderRarityEditor();
   save();
