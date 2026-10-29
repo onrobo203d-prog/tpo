@@ -494,20 +494,63 @@ function rollGacha(){
 
 function renderStats(){
   let text=`総プレイ数：${totalPlayCount}回\n\n`;
-  Object.keys(stats).forEach(i=>text+=`${i} ×${stats[i]}\n`);
+
+  Object.entries(stats)
+  .sort((a,b)=>{
+    const itemA=items.find(x=>x.name===a[0]);
+    const itemB=items.find(x=>x.name===b[0]);
+
+    const weightA=rarities.find(r=>r.name===itemA?.rarity)?.weight ?? -1;
+    const weightB=rarities.find(r=>r.name===itemB?.rarity)?.weight ?? -1;
+
+    return weightB-weightA || a[0].localeCompare(b[0],"ja");
+  })
+  .forEach(([name,count])=>{
+    text+=`${name} ×${count}\n`;
+  });
+
   $("statsOutput").textContent=text;
 }
 
 
 function renderPlayerStats(){
-  const div=$("playerStatsOutput");div.innerHTML="";
+  const div=$("playerStatsOutput");
+  div.innerHTML="";
+
   Object.keys(playerStats).forEach(p=>{
-    let text="";Object.keys(playerStats[p]).forEach(i=>text+=`${i} ×${playerStats[p][i]}\n`);
-    const box=document.createElement("div");box.className="section";
-    const b=document.createElement("b");b.textContent=`${p} ${playerPlayCounts[p]||0}回`;
-    const pre=document.createElement("pre");pre.textContent=text;
-    const btn=document.createElement("button");btn.className="small";btn.textContent="コピー";btn.onclick=()=>copyPlayerStats(p);
-    box.append(b,pre,btn);div.appendChild(box);
+
+    let text="";
+
+    Object.entries(playerStats[p]||{})
+    .sort((a,b)=>{
+      const itemA=items.find(x=>x.name===a[0]);
+      const itemB=items.find(x=>x.name===b[0]);
+
+      const weightA=rarities.find(r=>r.name===itemA?.rarity)?.weight ?? -1;
+      const weightB=rarities.find(r=>r.name===itemB?.rarity)?.weight ?? -1;
+
+      return weightB-weightA || a[0].localeCompare(b[0],"ja");
+    })
+    .forEach(([name,count])=>{
+      text+=`${name} ×${count}\n`;
+    });
+
+    const box=document.createElement("div");
+    box.className="section";
+
+    const b=document.createElement("b");
+    b.textContent=`${p} ${playerPlayCounts[p]||0}回`;
+
+    const pre=document.createElement("pre");
+    pre.textContent=text;
+
+    const btn=document.createElement("button");
+    btn.className="small";
+    btn.textContent="コピー";
+    btn.onclick=()=>copyPlayerStats(p);
+
+    box.append(b,pre,btn);
+    div.appendChild(box);
   });
 }
 
@@ -520,10 +563,25 @@ async function copyText(text){
 function copyLog(){copyText($("logOutput").textContent);}
 function copyStats(){copyText($("statsOutput").textContent);}
 function copyPlayerStats(player){
-  let text=`${player} ${playerPlayCounts[player]||0}回\n\n`;Object.keys(playerStats[player]||{}).forEach(i=>text+=`${i} ×${playerStats[player][i]}\n`);
+
+  let text=`${player} ${playerPlayCounts[player]||0}回\n\n`;
+
+  Object.entries(playerStats[player]||{})
+  .sort((a,b)=>{
+    const itemA=items.find(x=>x.name===a[0]);
+    const itemB=items.find(x=>x.name===b[0]);
+
+    const weightA=rarities.find(r=>r.name===itemA?.rarity)?.weight ?? -1;
+    const weightB=rarities.find(r=>r.name===itemB?.rarity)?.weight ?? -1;
+
+    return weightB-weightA || a[0].localeCompare(b[0],"ja");
+  })
+  .forEach(([name,count])=>{
+    text+=`${name} ×${count}\n`;
+  });
+
   copyText(text);
 }
-
 
 function resetStats(){
   if(confirm("統計リセット？")){stats={};playerStats={};totalPlayCount=0;playerPlayCounts={};renderStats();renderPlayerStats();save();}
@@ -572,8 +630,6 @@ function importJSON(){
       stats=data.stats||{};playerStats=data.playerStats||{};playerCounts=data.playerCounts||{};
     totalPlayCount=Number.isFinite(data.totalPlayCount)?data.totalPlayCount:Object.values(stats).reduce((a,n)=>a+(Number(n)||0),0);
     playerPlayCounts=data.playerPlayCounts||Object.fromEntries(Object.entries(playerStats).map(([p,items])=>[p,Object.values(items||{}).reduce((a,n)=>a+(Number(n)||0),0)]));
-      totalPlayCount=Number.isFinite(data.totalPlayCount)?data.totalPlayCount:Object.values(stats).reduce((a,n)=>a+(Number(n)||0),0);
-      playerPlayCounts=data.playerPlayCounts||Object.fromEntries(Object.entries(playerStats).map(([p,items])=>[p,Object.values(items||{}).reduce((a,n)=>a+(Number(n)||0),0)]));
       $("pityEnabled").checked=!!data.pityEnabled;
       $("guaranteeEnabled").checked=!!data.guaranteeEnabled;
       $("pityCount").value=data.pityCount||30;
