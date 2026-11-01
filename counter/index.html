@@ -13,20 +13,22 @@ button{border:none;color:#fff;background:#2196f3}.green{background:#4caf50}.red{
 .result{text-align:center;font-size:2rem;font-weight:bold;min-height:70px}
 .listener{background:#fafafa;border-radius:10px;padding:12px;margin-bottom:8px}
 .rank1{background:#fff4c2}.rank2{background:#eee}.rank3{background:#ffe6cf}
-#exportRanking{display:none;width:1080px;background:#fff;padding:60px;color:#222}
+#exportRanking{position:absolute;left:-99999px;top:0;width:1080px;background:#fff;padding:60px;color:#222}
+.preview-image{width:100%;border-radius:12px;border:1px solid #ddd;margin-top:12px}
 .export-top{font-size:56px;font-weight:bold;text-align:center;margin-bottom:20px}
 .export-second{font-size:48px;text-align:center;margin-bottom:20px}
 .export-third{font-size:42px;text-align:center;margin-bottom:40px}
 .export-list{font-size:32px;line-height:1.8}
+.notice{text-align:center;color:#666;margin-top:8px}
 </style>
-</head>
-<body>
-<h1>嫁こな、ちょっと待った抽選ツール</h1>
+</head><body>
+<h1>嫁こな、ちょっと待った抽選</h1>
 <div class="section"><h2>リスナー登録</h2><input id="listenerInput" placeholder="リスナー名"><button class="green" onclick="addListener()">登録</button></div>
 <div class="section"><h2>ポイント付与</h2><select id="plusTarget"></select><input id="pointAmount" type="number" value="1" min="1"><button class="green" onclick="givePoints()">ポイント付与</button></div>
 <div class="section"><h2>抽選</h2><button onclick="drawOne()">1回抽選</button><input id="multiCount" type="number" value="5" min="1"><button onclick="drawMultiple()">任意数抽選</button></div>
 <div class="section"><h2>抽選結果</h2><div id="result" class="result">待機中</div></div>
-<div class="section"><h2>ランキング</h2><button onclick="downloadRanking()">ランキングを画像保存</button><div id="listenerList"></div></div>
+<div class="section"><h2>ランキング</h2><button onclick="generateRankingImage()">ランキング画像を生成</button><div id="listenerList"></div></div>
+<div class="section" id="previewSection" style="display:none"><h2>画像プレビュー</h2><p class="notice">長押しまたは右クリックで保存してください</p><img id="previewImage" class="preview-image"></div>
 <div class="section"><button class="red" onclick="resetAll()">全リセット</button></div>
 <div id="exportRanking"></div>
 <script>
@@ -40,9 +42,7 @@ function drawOne(){if(!listeners.length)return;const w=listeners[Math.floor(Math
 function drawMultiple(){const c=parseInt(multiCount.value)||1;if(!listeners.length)return;const r={};for(let i=0;i<c;i++){const w=listeners[Math.floor(Math.random()*listeners.length)];w.minus++;r[w.name]=(r[w.name]||0)+1;}result.innerHTML='🎉 '+c+'回抽選<br>'+Object.entries(r).sort((a,b)=>b[1]-a[1]).map(v=>v[0]+' × '+v[1]).join('<br>');save();render();}
 function resetAll(){if(!confirm('全データを削除しますか？'))return;listeners=[];save();render();result.textContent='待機中';}
 function render(){listenerList.innerHTML='';plusTarget.innerHTML='';listeners.forEach((l,i)=>plusTarget.innerHTML+=`<option value="${i}">${l.name}</option>`);sorted().forEach((l,r)=>{const idx=listeners.indexOf(l);const total=l.plus-l.minus;const medal=r===0?'🥇':r===1?'🥈':r===2?'🥉':(r+1)+'位';listenerList.innerHTML+=`<div class="listener rank${r+1}"><strong>${medal} ${l.name}</strong><br>＋${l.plus} ／ －${l.minus} ／ 合計 ${total}<br><button onclick="listeners[${idx}].minus++;save();render()">－1</button><button class="red" onclick="deleteListener(${idx})">削除</button></div>`})}
-function buildExport(){const data=sorted();let html='';if(data[0])html+=`<div class="export-top">🥇 ${data[0].name}<br>${data[0].plus-data[0].minus}pt</div>`;if(data[1])html+=`<div class="export-second">🥈 ${data[1].name}<br>${data[1].plus-data[1].minus}pt</div>`;if(data[2])html+=`<div class="export-third">🥉 ${data[2].name}<br>${data[2].plus-data[2].minus}pt</div>`;html+='<hr>';html+='<div class="export-list">';data.slice(3).forEach((u,i)=>{html+=`${i+4}位　${u.name}　${u.plus-u.minus}pt<br>`});html+='</div>';exportRanking.innerHTML=html;}
-function downloadRanking(){buildExport();exportRanking.style.display='block';html2canvas(exportRanking,{scale:4,backgroundColor:'#ffffff'}).then(canvas=>{const a=document.createElement('a');a.download='ranking.png';a.href=canvas.toDataURL('image/png');a.click();exportRanking.style.display='none';});}
+function buildExport(){const data=sorted();let html='';if(data[0])html+=`<div class="export-top">🥇 ${data[0].name}<br>${data[0].plus-data[0].minus}pt</div>`;if(data[1])html+=`<div class="export-second">🥈 ${data[1].name}<br>${data[1].plus-data[1].minus}pt</div>`;if(data[2])html+=`<div class="export-third">🥉 ${data[2].name}<br>${data[2].plus-data[2].minus}pt</div>`;html+='<hr><div class="export-list">';data.slice(3).forEach((u,i)=>html+=`${i+4}位　${u.name}　${u.plus-u.minus}pt<br>`);html+='</div>';exportRanking.innerHTML=html;}
+function generateRankingImage(){buildExport();html2canvas(exportRanking,{scale:3,backgroundColor:'#ffffff'}).then(canvas=>{previewImage.src=canvas.toDataURL('image/png');previewSection.style.display='block';previewSection.scrollIntoView({behavior:'smooth'});});}
 document.addEventListener('DOMContentLoaded',()=>{listenerInput.addEventListener('keydown',e=>{if(e.key==='Enter')addListener()});render();});
-</script>
-</body>
-</html>
+</script></body></html>
