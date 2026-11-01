@@ -6,43 +6,52 @@
 <title>嫁こな、ちょっと待った抽選</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
-body{font-family:sans-serif;background:#f4f6f9;max-width:900px;margin:0 auto;padding:12px}
-h1{text-align:center}.section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px}
-input,select,button{width:100%;box-sizing:border-box;padding:12px;margin-top:6px;border-radius:8px;font-size:16px}
-button{border:none;color:#fff;background:#2196f3}.green{background:#4caf50}.red{background:#f44336}
-.result{text-align:center;font-size:2rem;font-weight:bold;min-height:70px}
-.listener{background:#fafafa;border-radius:10px;padding:12px;margin-bottom:8px}
+body{font-family:sans-serif;background:#f4f6f9;max-width:900px;margin:auto;padding:12px}
+.section{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px}
+h1{text-align:center}
+input,select,button{width:100%;padding:12px;margin-top:6px;border-radius:8px;box-sizing:border-box;font-size:16px}
+button{border:none;background:#2196f3;color:#fff}
+.green{background:#4caf50}.red{background:#f44336}
+.listener{background:#fafafa;padding:12px;border-radius:10px;margin:8px 0}
 .rank1{background:#fff4c2}.rank2{background:#eee}.rank3{background:#ffe6cf}
-#exportRanking{position:absolute;left:-99999px;top:0;width:1080px;background:#fff;padding:60px;color:#222}
-.preview-image{width:100%;border-radius:12px;border:1px solid #ddd;margin-top:12px}
+.result{text-align:center;font-size:2rem;font-weight:bold;min-height:60px}
+#exportRanking{position:absolute;left:-99999px;top:0;width:1080px;background:#fff;padding:60px}
 .export-top{font-size:56px;font-weight:bold;text-align:center;margin-bottom:20px}
 .export-second{font-size:48px;text-align:center;margin-bottom:20px}
 .export-third{font-size:42px;text-align:center;margin-bottom:40px}
 .export-list{font-size:32px;line-height:1.8}
-.notice{text-align:center;color:#666;margin-top:8px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;padding:20px}
+.modal-content{background:#fff;max-width:700px;margin:auto;border-radius:12px;padding:16px}
+.modal-content img{width:100%;display:block}
+.notice{text-align:center;color:#666}
 </style>
-</head><body>
-<h1>嫁こな、ちょっと待った抽選</h1>
+</head>
+<body>
+<h1>嫁こな、ちょま抽選</h1>
 <div class="section"><h2>リスナー登録</h2><input id="listenerInput" placeholder="リスナー名"><button class="green" onclick="addListener()">登録</button></div>
-<div class="section"><h2>ポイント付与</h2><select id="plusTarget"></select><input id="pointAmount" type="number" value="1" min="1"><button class="green" onclick="givePoints()">ポイント付与</button></div>
-<div class="section"><h2>抽選</h2><button onclick="drawOne()">1回抽選</button><input id="multiCount" type="number" value="5" min="1"><button onclick="drawMultiple()">任意数抽選</button></div>
+<div class="section"><h2>嫁こな</h2><select id="plusTarget"></select><input id="plusAmount" type="number" min="1" value="1"><button class="green" onclick="givePlus()">付与</button></div>
+<div class="section"><h2>ちょっと待った</h2><select id="minusTarget"></select><input id="minusAmount" type="number" min="1" value="1"><button class="red" onclick="giveMinus()">減算</button></div>
+<div class="section"><h2>ちょっと待ったランダム抽選</h2><input id="drawCount" type="number" min="1" value="1"><button onclick="drawRandom()">ランダム抽選</button></div>
 <div class="section"><h2>抽選結果</h2><div id="result" class="result">待機中</div></div>
-<div class="section"><h2>ランキング</h2><button onclick="generateRankingImage()">ランキング画像を生成</button><div id="listenerList"></div></div>
-<div class="section" id="previewSection" style="display:none"><h2>画像プレビュー</h2><p class="notice">長押しまたは右クリックで保存してください</p><img id="previewImage" class="preview-image"></div>
+<div class="section"><h2>ランキング</h2><button id="generateBtn" onclick="generateRankingImage()">ランキング画像を生成</button><div id="listenerList"></div></div>
 <div class="section"><button class="red" onclick="resetAll()">全リセット</button></div>
 <div id="exportRanking"></div>
+<div id="imageModal" class="modal" onclick="modalBackground(event)"><div class="modal-content"><img id="previewImage"><p class="notice">長押しまたは右クリックで保存してください</p><button class="red" onclick="closeModal()">閉じる</button></div></div>
 <script>
 let listeners=JSON.parse(localStorage.getItem('listeners')||'[]');
 function save(){localStorage.setItem('listeners',JSON.stringify(listeners));}
 function sorted(){return [...listeners].sort((a,b)=>(b.plus-b.minus)-(a.plus-a.minus)||b.plus-a.plus)}
-function addListener(){const n=listenerInput.value.trim();if(!n)return;if(listeners.some(x=>x.name===n))return;listeners.push({name:n,plus:0,minus:0});listenerInput.value='';save();render();}
-function givePoints(){const i=Number(plusTarget.value);const a=Math.max(1,parseInt(pointAmount.value)||1);listeners[i].plus+=a;save();render();}
-function deleteListener(i){if(!confirm('削除しますか？'))return;listeners.splice(i,1);save();render();}
-function drawOne(){if(!listeners.length)return;const w=listeners[Math.floor(Math.random()*listeners.length)];w.minus++;result.innerHTML='🏆 '+w.name;save();render();}
-function drawMultiple(){const c=parseInt(multiCount.value)||1;if(!listeners.length)return;const r={};for(let i=0;i<c;i++){const w=listeners[Math.floor(Math.random()*listeners.length)];w.minus++;r[w.name]=(r[w.name]||0)+1;}result.innerHTML='🎉 '+c+'回抽選<br>'+Object.entries(r).sort((a,b)=>b[1]-a[1]).map(v=>v[0]+' × '+v[1]).join('<br>');save();render();}
-function resetAll(){if(!confirm('全データを削除しますか？'))return;listeners=[];save();render();result.textContent='待機中';}
-function render(){listenerList.innerHTML='';plusTarget.innerHTML='';listeners.forEach((l,i)=>plusTarget.innerHTML+=`<option value="${i}">${l.name}</option>`);sorted().forEach((l,r)=>{const idx=listeners.indexOf(l);const total=l.plus-l.minus;const medal=r===0?'🥇':r===1?'🥈':r===2?'🥉':(r+1)+'位';listenerList.innerHTML+=`<div class="listener rank${r+1}"><strong>${medal} ${l.name}</strong><br>＋${l.plus} ／ －${l.minus} ／ 合計 ${total}<br><button onclick="listeners[${idx}].minus++;save();render()">－1</button><button class="red" onclick="deleteListener(${idx})">削除</button></div>`})}
-function buildExport(){const data=sorted();let html='';if(data[0])html+=`<div class="export-top">🥇 ${data[0].name}<br>${data[0].plus-data[0].minus}pt</div>`;if(data[1])html+=`<div class="export-second">🥈 ${data[1].name}<br>${data[1].plus-data[1].minus}pt</div>`;if(data[2])html+=`<div class="export-third">🥉 ${data[2].name}<br>${data[2].plus-data[2].minus}pt</div>`;html+='<hr><div class="export-list">';data.slice(3).forEach((u,i)=>html+=`${i+4}位　${u.name}　${u.plus-u.minus}pt<br>`);html+='</div>';exportRanking.innerHTML=html;}
-function generateRankingImage(){buildExport();html2canvas(exportRanking,{scale:3,backgroundColor:'#ffffff'}).then(canvas=>{previewImage.src=canvas.toDataURL('image/png');previewSection.style.display='block';previewSection.scrollIntoView({behavior:'smooth'});});}
+function refreshSelectors(){plusTarget.innerHTML='';minusTarget.innerHTML='';listeners.forEach((l,i)=>{plusTarget.innerHTML+=`<option value="${i}">${l.name}</option>`;minusTarget.innerHTML+=`<option value="${i}">${l.name}</option>`})}
+function addListener(){const n=listenerInput.value.trim();if(!n)return;if(listeners.some(x=>x.name===n))return;listeners.push({name:n,plus:0,minus:0});listenerInput.value='';save();render()}
+function givePlus(){const i=Number(plusTarget.value);listeners[i].plus+=Math.max(1,parseInt(plusAmount.value)||1);save();render()}
+function giveMinus(){const i=Number(minusTarget.value);listeners[i].minus+=Math.max(1,parseInt(minusAmount.value)||1);save();render();result.textContent='🎯 '+listeners[i].name}
+function drawRandom(){let c=Math.max(1,parseInt(drawCount.value)||1);const out={};for(let i=0;i<c;i++){const w=listeners[Math.floor(Math.random()*listeners.length)];if(!w) return;w.minus++;out[w.name]=(out[w.name]||0)+1;}result.innerHTML=Object.entries(out).map(v=>v[0]+' × '+v[1]).join('<br>');save();render()}
+function render(){refreshSelectors();listenerList.innerHTML='';sorted().forEach((l,r)=>{const total=l.plus-l.minus;const idx=listeners.indexOf(l);const medal=r===0?'🥇':r===1?'🥈':r===2?'🥉':(r+1)+'位';listenerList.innerHTML+=`<div class="listener rank${r+1}"><strong>${medal} ${l.name}</strong><br>＋${l.plus} ／ －${l.minus}<br>合計 ${total}<br><button class="red" onclick="deleteListener(${idx})">削除</button></div>`})}
+function deleteListener(i){if(confirm('削除しますか？')){listeners.splice(i,1);save();render()}}
+function resetAll(){if(confirm('全データを削除しますか？')){listeners=[];save();render();result.textContent='待機中';}}
+function buildExport(){const d=sorted();let h='';if(d[0])h+=`<div class="export-top">🥇 ${d[0].name}<br>${d[0].plus-d[0].minus}pt</div>`;if(d[1])h+=`<div class="export-second">🥈 ${d[1].name}<br>${d[1].plus-d[1].minus}pt</div>`;if(d[2])h+=`<div class="export-third">🥉 ${d[2].name}<br>${d[2].plus-d[2].minus}pt</div>`;h+='<hr><div class="export-list">';d.slice(3).forEach((u,i)=>h+=`${i+4}位 ${u.name} ${u.plus-u.minus}pt<br>`);h+='</div>';exportRanking.innerHTML=h;}
+function generateRankingImage(){const btn=document.getElementById('generateBtn');btn.textContent='画像生成中...';buildExport();html2canvas(exportRanking,{scale:3,backgroundColor:'#fff'}).then(canvas=>{previewImage.src=canvas.toDataURL('image/png');imageModal.style.display='block';btn.textContent='ランキング画像を生成';});}
+function closeModal(){imageModal.style.display='none';document.getElementById('generateBtn').textContent='ランキング画像を生成';}
+function modalBackground(e){if(e.target.id==='imageModal')closeModal();}
 document.addEventListener('DOMContentLoaded',()=>{listenerInput.addEventListener('keydown',e=>{if(e.key==='Enter')addListener()});render();});
 </script></body></html>
