@@ -661,7 +661,33 @@ async function generateCanvasImage(list) {
   /* 背景 */
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, W, H);
+  /* =========================
+     背景ウォーターマーク
+     ========================= */
 
+  ctx.save();
+
+  ctx.translate(W / 2, H / 2);
+  ctx.rotate(-Math.PI / 6);
+
+ctx.fillStyle = "#f0f0f0";  
+  ctx.font = "bold 25px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  for (let y = -900; y <= 900; y += 100) {
+    for (let x = -1400; x <= 1400; x += 250) {
+
+      ctx.fillText(
+        "おんろぼの物置き",
+        x,
+        y
+      );
+
+    }
+  }
+
+  ctx.restore();
   /* 高品質描画 */
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
