@@ -2,929 +2,141 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>おんろぼの物置き | IRIAM（イリアム）向け全ギフト耐久支援ツール | 全ギフト一覧 | ギフト名検索</title>
-<meta name="description" content="IRIAM（イリアム）配信者向け全ギフト耐久支援ツール。全ギフト一覧、斜線入れ、ギフト名検索など、スマホからも使えるブラウザ型管理ツールです。">
-<meta name="keywords" content="IRIAM ギフト耐久, IRIAM 全ギフト, ギフト名, スマホ 配信ツール">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>IRIAMギフトカウント管理ツール | おんろぼの物置き</title>
 <style>
+:root{--card-size:clamp(105px,18vw,150px);--blue:#62bdf2;--ink:#252525}
+*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:12px;background:#fff;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px #00000012}
+h1{font-size:18px;margin:0 0 10px}.help{font-size:12px;color:#666;line-height:1.5;margin-bottom:10px}
+.toolbar,.searchrow,.filterrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.toolbar button,.toolbar select,.searchrow input,.filterrow input{font:inherit;padding:10px 12px;border:1px solid #ccc;border-radius:9px;background:#fff;min-width:0}
+button,input,select{touch-action:manipulation}button{cursor:pointer;transition:filter .15s,transform .15s,box-shadow .15s}button:hover:not(:disabled){filter:brightness(.97);box-shadow:0 2px 6px #00000018}button:active:not(:disabled){transform:translateY(1px)}button:disabled{cursor:not-allowed;opacity:.45}.primary{background:var(--blue)!important;color:#fff;border:0!important;font-weight:bold}.danger{background:#ef5555!important;color:#fff;border:0!important}.subtle{background:#eee;border:0!important}.toolbar button{flex:1;font-weight:600}.searchrow input{flex:1}.filterrow input{flex:1;width:90px}
+#selectModeBtn{background:#e8f5ff;border:1px solid #8bcaf0!important;color:#176b9e;font-weight:700}#selectModeBtn.primary{background:#1688c5!important;color:#fff}#manageCustomBtn{background:#eaf2ff;border:1px solid #a9c6f5!important;color:#245a9d}#saveCustomBtn{background:#e8f6ed;border:1px solid #a9d8b8!important;color:#247443}#addCustomBtn{background:#fff;border:1px solid #c7cbd1!important;color:#444}.toolbar-group{display:flex;align-items:center;gap:8px;flex:1;min-width:240px;padding:7px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:11px}.toolbar-group-label{font-size:11px;color:#777;font-weight:700;white-space:nowrap;padding:0 3px}.toolbar-group .toolbar-actions{display:flex;gap:7px;flex:1;min-width:0}.toolbar-group .toolbar-actions button{min-width:0}.toolbar-group.import-group{background:#fafafa}
+#tabs{display:flex;gap:6px;padding:10px;overflow-x:auto;white-space:nowrap}#tabs button{border:0;border-radius:18px;background:#e3e5e8;padding:8px 13px;font-size:13px}#tabs button.active{background:#252525;color:#fff}#tabs button.custom{background:#d9efff}#tabs button.custom.active{background:#176b9e;color:#fff}
+#status{padding:0 12px 8px;font-size:13px;color:#555;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#grid{padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-size),1fr));gap:10px}
+.card{touch-action:manipulation;position:relative;background:#fff;border-radius:10px;padding:7px;text-align:center;cursor:pointer;box-shadow:0 1px 4px #0000000d;min-width:0}.card.selected{outline:3px solid #39a9ed;background:#eef8ff}.thumbwrap{position:relative;width:100%;aspect-ratio:1/1}.thumb{width:100%;height:100%;object-fit:contain;border-radius:7px}.count{position:absolute;top:3px;right:5px;color:#f00000;font-size:clamp(20px,3vw,30px);font-weight:900;line-height:1;text-shadow:1px 1px 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff;pointer-events:none}.card.done .thumbwrap:after{content:"";position:absolute;inset:0;background:linear-gradient(45deg,transparent 47%,#d00000 48%,#d00000 52%,transparent 53%);pointer-events:none;border-radius:8px}.name{font-size:12px;margin-top:4px;overflow-wrap:anywhere}.point{font-size:11px;color:#777}.goalrow{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:5px;font-size:11px;color:#555}.goalrow input{width:58px;padding:4px;border:1px solid #ccc;border-radius:5px;text-align:center;font-size:12px}
+#empty{padding:40px 15px;text-align:center;color:#777;grid-column:1/-1}
+.overlay{position:fixed;inset:0;background:#0009;display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.dialog{background:#fff;border-radius:14px;padding:20px;width:min(420px,100%);max-height:90vh;overflow:auto}.dialog h2{font-size:18px;margin:0 0 10px}.dialog p{font-size:13px;color:#555;line-height:1.6}.dialog input[type=text]{width:100%;padding:10px;border:1px solid #ccc;border-radius:7px;font:inherit}.dialog .actions{display:flex;gap:8px;margin-top:14px}.dialog .actions button{flex:1;padding:10px;border:0;border-radius:8px;font:inherit}
+#previewInner{position:relative;background:#fff;padding:10px;max-width:96vw;max-height:95vh;text-align:center}#previewImg{max-width:92vw;max-height:82vh;display:block}#pageInfo{font-size:12px;margin-bottom:6px}#closePreview{position:absolute;right:4px;top:4px;border:0;background:#fff;font-size:24px;z-index:2}#prevImg,#nextImg{position:absolute;top:50%;transform:translateY(-50%);border:0;border-radius:50%;width:44px;height:44px;background:#222b;color:#fff;font-size:22px;z-index:2}#prevImg{left:8px}#nextImg{right:8px}
+#fileInput{display:none}.smallnote{font-size:11px;color:#777}
+#topControls{display:flex;align-items:stretch;gap:7px;margin:0 0 6px}
+#modeSwitch{display:flex;gap:4px;flex:1;min-width:0;margin:0;padding:3px;background:#eef1f4;border-radius:10px}
+#modeSwitch button{flex:1;min-width:0;border:0;border-radius:7px;padding:8px 5px;background:transparent;font-weight:700;color:#555;font-size:13px;white-space:nowrap}
+#modeSwitch button.active{background:#fff;color:#176b9e;box-shadow:0 1px 4px #0002}
+#toolsToggle{flex:0 0 auto;border:1px solid #cbd2d9;border-radius:9px;background:#f5f7f9;padding:8px 10px;font-weight:700;color:#344454;margin:0;white-space:nowrap}
+#toolsPanel[hidden]{display:none}#toolsPanel{padding-bottom:4px}
+#tabs{position:static;top:auto;z-index:auto;background:#fff;border-top:1px solid #eee;padding:7px 0;margin:5px 0 0;scrollbar-width:none}#tabs::-webkit-scrollbar{display:none}
+#status{position:static;top:auto;z-index:auto;background:#fff;padding:4px 0 6px;border-bottom:1px solid #e8e8e8;font-weight:600;flex-wrap:nowrap;white-space:nowrap;overflow:hidden}
+#statusText{font-size:12px;white-space:nowrap}#selectionText{font-size:11px;color:#176b9e;flex:none}
+.searchrow{align-items:center;flex-wrap:nowrap;margin:6px 0}#filterToggle{flex:none;border:1px solid #cbd2d9;border-radius:9px;background:#f5f7f9;padding:10px 11px;font-size:13px;font-weight:700;color:#344454}
+.popupHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:16px}.popupHead button{border:0;background:#edf0f3;border-radius:8px;width:34px;height:34px;font-size:23px;line-height:1}
+#toolsPanel:not([hidden]){display:block;position:fixed;z-index:31;left:50%;top:50%;transform:translate(-50%,-50%);width:min(540px,calc(100vw - 28px));max-height:82dvh;overflow:auto;background:#fff;padding:16px;border-radius:16px;box-shadow:0 12px 50px #0005,0 0 0 100vmax #0008}
+#toolsPanel:not([hidden]):before{content:none}
+#toolsToggle{margin:0;padding:7px 9px;min-width:0;font-size:11px}
+#filterPopup .dialog{max-width:360px}#filterPopup .filterrow{margin:8px 0}
+@media(max-width:520px){header{padding:8px 9px}h1{font-size:15px;margin:0 0 5px}.help{display:none}#modeSwitch{margin:0;padding:3px}#modeSwitch button{padding:6px 3px;font-size:11px}#toolsToggle{font-size:10px;padding:6px 7px}.searchrow input{padding:9px 10px;font-size:14px}.searchrow{gap:6px}#filterToggle{padding:9px 8px;font-size:12px}#tabs{padding:6px 0;gap:5px}#tabs button{padding:7px 11px;font-size:12px}#status{padding:4px 0 5px}#statusText{font-size:10px}#selectionText{font-size:10px}#toolsToggle{padding:7px 9px;font-size:11px;min-width:0;margin:0}#grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px} .card{padding:4px}.name{font-size:11px}.point{font-size:10px}.goalrow{font-size:10px}.goalrow input{width:43px;padding:3px} }
+@media(min-width:521px){header{padding:10px 14px}#toolsToggle{margin-top:2px}}
+@media(max-width:650px){.toolbar-group{min-width:100%;}.toolbar-group-label{min-width:42px}.toolbar-group .toolbar-actions button{font-size:12px;padding:9px 7px}}
+@media(max-width:520px){:root{--card-size:calc((100vw - 38px)/3)}header{padding:10px}.toolbar button{font-size:12px;padding:8px 5px}.toolbar-group{padding:6px;gap:5px}.toolbar-group .toolbar-actions{gap:5px}.toolbar-group .toolbar-actions button{font-size:11px;padding:9px 5px;line-height:1.25}#grid{gap:7px;padding:7px}.card{padding:5px}.goalrow input{width:48px}}
 
-/* ===== 上部アクションボタン ===== */
-.actionRow {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-#exportBtn {
-  background: #6ec8ff;
-  border: none;
-  color: #fff;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-#resetBtn {
-  background: #ff4d4d;
-  border: none;
-  color: #fff;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: bold;
-}
-
-  
-:root { --card-size: clamp(90px, 10vw, 140px); }
-body { margin:0; font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f6f6f6; }
-
-header { padding: 10px; }
-
-/* style に追加 */
-#minPoint, #maxPoint {
-  flex: 1;
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-/* #pageCount のCSSを置き換え */
-#pageCount {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #fff;
-}
-
-/* ===== メッセージ行 ===== */
-#messageRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-#messageText {
-  font-size: 13px;
-  color: #555;
-  font-weight: bold;
-  white-space: pre-line;
-  line-height: 1.0;
-}
-
-#noticeBtn {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  background: #444;
-  color: #fff;
-  white-space: nowrap;
-}
-
-/* ===== 検索 ===== */
-.searchRow { display: flex; gap: 8px; }
-#search { flex:1; padding:8px; font-size:14px; }
-#exportBtn { padding:8px 12px; }
-
-/* ===== タブ ===== */
-#tabs { display:flex; gap:6px; padding:0 10px; overflow-x:auto; }
-#tabs button {
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  background:#ddd;
-  font-size:13px;
-  white-space:nowrap;
-}
-#tabs button.active { background:#222; color:#fff; }
-
-/* ===== グリッド ===== */
-#grid {
-  padding:10px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(var(--card-size),1fr));
-  gap:10px;
-}
-
-.card {
-  background:#fff;
-  border-radius:8px;
-  padding:6px;
-  text-align:center;
-  position:relative;
-  cursor:pointer;
-}
-
-.thumb {
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:contain;
-  border-radius:6px;
-}
-
-.name { font-size:12px; }
-.point { font-size:11px; color:#666; }
-
-.card.disabled { opacity:0.5; }
-.card.disabled::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-    45deg,
-    transparent 45%,
-    rgba(200,0,0,.8) 45%,
-    rgba(200,0,0,.8) 55%,
-    transparent 55%
-  );
-  pointer-events:none;
-}
-
-/* ===== プレビュー ===== */
-#preview {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-#previewInner {
-  position:relative;
-  background:#fff;
-  padding:10px;
-  max-width:95vw;
-  max-height:95vh;
-  text-align:center;
-}
-#previewImg {
-  max-width:100%;
-  max-height:80vh;
-  display:block;
-  margin:auto;
-}
-#closePreview {
-  position:absolute;
-  top:4px;
-  right:8px;
-  font-size:24px;
-  background:none;
-  border:none;
-}
-
-#prevImg, #nextImg {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  font-size: 26px;
-  font-weight: bold;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  z-index: 20;
-
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-#prevImg {
-  left: 10px;
-}
-
-#nextImg {
-  right: 10px;
-}
-
-#prevImg:active,
-#nextImg:active {
-  background: rgba(0,0,0,0.85);
-  transform: translateY(-50%) scale(0.95);
-}
-#pageInfo { font-size:12px; margin-bottom:6px; }
-
-/* ===== 注意モーダル ===== */
-#noticeModal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-#noticeInner {
-  background: #fff;
-  padding: 20px;
-  max-width: 90vw;
-  width: 320px;
-  border-radius: 10px;
-  position: relative;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-#closeNotice {
-  position: absolute;
-  top: 6px;
-  right: 10px;
-  font-size: 20px;
-  border: none;
-  background: none;
-}
+#selectionActions{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:12;display:flex;gap:8px;align-items:center;padding:8px;background:#fff;border:1px solid #d9e0e6;border-radius:14px;box-shadow:0 5px 22px #0003;max-width:calc(100vw - 24px)}
+#selectionActions[hidden]{display:none}
+#selectionActions button{border:0;border-radius:10px;padding:12px 15px;font-size:14px;font-weight:700;white-space:nowrap;min-height:44px}
+#selectionCreateBtn{background:#1688c5;color:#fff}
+#selectionCancelBtn{background:#edf0f3;color:#39434d}
+#selectionCreateBtn:disabled{opacity:.42}
+@media(max-width:520px){#selectionActions{right:9px;bottom:calc(9px + env(safe-area-inset-bottom));gap:6px;padding:6px;border-radius:12px}#selectionActions button{font-size:12px;padding:10px 11px;min-height:42px}}
 </style>
 </head>
-
 <body>
-
 <header>
-
-  <div id="messageRow">
-    <div id="messageText">
-     イリアムの常設ギフトのみに対応しています。<br>
-      画像をタップすると斜線が入ります<br>
-      画像出力は表示されるまで少し時間がかかります
-    </div>
-    <button id="noticeBtn">使用前にお読み下さい</button>
-  </div>
-
-<!-- 今の actionRow を置き換え -->
-<div class="actionRow">
-  <select id="pageCount">
-<option value="1" selected>1枚</option>
-    <option value="2">2枚</option>
-    <option value="3">3枚</option>
-    <option value="4">4枚</option>
-  </select>
-
-  <button id="exportBtn">画像出力</button>
-  <button id="resetBtn" onclick="resetState()">状態をリセット</button>
+<h1>IRIAM ギフトカウント管理ツール</h1>
+<div class="help" id="modeHelp">カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。</div>
+<div id="topControls"><div id="modeSwitch" aria-label="操作モード"><button id="slashModeBtn" type="button">斜線モード</button><button id="countModeBtn" class="active" type="button">カウントモード</button></div><button id="toolsToggle" type="button" aria-expanded="false">⚙ 操作メニュー</button></div>
+<div id="toolsPanel" hidden role="dialog" aria-modal="true" aria-label="操作メニュー"><div class="popupHead"><strong>操作メニュー</strong><div style="display:flex;gap:6px;align-items:center"><button id="helpBtn" type="button" class="subtle" style="width:auto;padding:5px 10px;font-size:13px">？ ヘルプ</button><button id="closeTools" type="button" aria-label="閉じる">×</button></div></div>
+<div class="toolbar">
+<button id="selectModeBtn" class="subtle">ギフト選択モード</button>
+<button id="createCategoryBtn" class="primary" disabled>選択したギフトでカテゴリ作成</button>
+<select id="pageCount" aria-label="画像のページ数"><option value="1">1枚</option><option value="2">2枚</option><option value="3">3枚</option><option value="4">4枚</option></select><button id="exportBtn" class="primary">画像出力</button>
+<button id="resetBtn" class="danger">カウントリセット</button>
 </div>
-
-  <div class="searchRow">
-    <input id="search" placeholder="検索">
-  </div>
-
-<!-- 検索欄の下に追加 -->
-<div class="searchRow" style="margin-top:8px; display:flex; gap:8px;">
-  <input id="minPoint" type="number" min="1" max="30000" placeholder="最低pt">
-  <input id="maxPoint" type="number" min="1" max="30000" placeholder="最高pt">
+<div class="toolbar">
+<div class="toolbar-group"><span class="toolbar-group-label">カスタム</span><div class="toolbar-actions">
+<button id="manageCustomBtn" class="subtle">カスタム管理・編集</button>
+<button id="saveCustomBtn" class="subtle">カスタム保存</button>
+</div></div>
+<div class="toolbar-group import-group"><span class="toolbar-group-label">JSON</span><div class="toolbar-actions">
+<button id="addCustomBtn" class="subtle">＋ 追加読み込み</button>
+</div></div>
 </div>
-
-</header>
-
+</div>
+<div class="searchrow"><input id="search" placeholder="ギフト名で検索"><button id="filterToggle" type="button" aria-expanded="false" aria-label="ポイント絞り込み">⚙ 絞込</button></div>
+<div id="filterPopup" class="overlay"><div class="dialog"><div class="popupHead"><strong>ポイント絞り込み</strong><button id="closeFilter" type="button" aria-label="閉じる">×</button></div><div class="filterrow"><input id="minPoint" type="number" min="0" placeholder="最低pt"><input id="maxPoint" type="number" min="0" placeholder="最高pt"></div><div class="actions"><button id="clearFilter" class="subtle">クリア</button><button id="applyFilter" class="primary">適用</button></div></div></div>
+<input id="fileInput" type="file" accept=".json,application/json">
 <nav id="tabs">
-  <button class="active" data-tab="全て">全て</button>
-  <button data-tab="おもちゃ">おもちゃ</button>
-  <button data-tab="ネタ">ネタ</button>
-  <button data-tab="笑">笑</button>
-  <button data-tab="定番">定番</button>
-  <button data-tab="えらい">えらい</button>
-  <button data-tab="挨拶">挨拶</button>
-  <button data-tab="ステージ">ステージ</button>
-  <button data-tab="LOVE">LOVE</button>
+<button class="active" data-tab="全て">全て</button><button data-tab="おもちゃ">おもちゃ</button><button data-tab="ネタ">ネタ</button><button data-tab="笑">笑</button><button data-tab="定番">定番</button><button data-tab="えらい">えらい</button><button data-tab="挨拶">挨拶</button><button data-tab="ステージ">ステージ</button><button data-tab="LOVE">LOVE</button>
 </nav>
-
+<div id="status"><span id="statusText">ギフトデータを読み込み中...</span><span id="selectionText"></span></div>
+</header>
 <main id="grid"></main>
-
-<!-- プレビュー -->
-<div id="preview">
-  <div id="previewInner">
-    <button id="closePreview">×</button>
-  <button id="prevImg">◀</button>
-<button id="nextImg">▶</button>
-    <div id="pageInfo"></div>
-    <img id="previewImg">
-  </div>
-</div>
-
-<!-- 注意事項 -->
-<div id="noticeModal">
-  <div id="noticeInner">
-    <button id="closeNotice">×</button>
-    <h3>ご利用前の注意事項</h3>
-    <p>
-      本ツールはイリアム内で配信を行うライバーの支援を目的として制作された非営利のツールです。<br>
-     株式会社イリアムとは無関係のファンツールとなります。<br>
-      本ツール内で表示されるギフト画像は株式会社イリアムが著作権を保有しており<br>
-      画像出力された一覧画像及び表示されているギフト画像の利用に関する規約は<br>
-      株式会社イリアムの掲げる規約及びガイドラインに則って扱われます。<br>
-      イリアムのガイドラインでの禁止事項に則り、ツール内の画像を用いてのグッズ販売等は禁止となります。<br>
-      配信支援ツールとしてSNS等で画像を利用する行為にのみ活用して下さい。<br>
-      その他、利用範囲、権利等に関するご質問にはお答え致しかねますのでご了承下さい。
-    </p>
-  </div>
-</div>
-
+<div id="helpModal" class="overlay"><div class="dialog"><div class="popupHead"><strong>操作ヘルプ</strong><button id="closeHelp" type="button" aria-label="閉じる">×</button></div>
+<h2>基本の使い方</h2><p><b>カウントモード：</b>ギフトをタップするとカウントが1増えます。各ギフトの「目標」に設定した回数に達すると赤い斜線が表示されます。目標を0にするとカウントだけ行います。</p>
+<p><b>斜線モード：</b>ギフトをタップするたびに赤い斜線の表示・非表示が切り替わります。カウント数や目標数は変更されません。</p>
+<h2>検索・絞り込み</h2><p>検索欄にギフト名を入力すると絞り込めます。フィルターアイコンから最低pt・最高ptを指定できます。カテゴリは横にスライドして切り替えられます。</p>
+<h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
+<div class="actions"><button id="closeHelpBottom" class="primary">閉じる</button></div></div></div>
+<div id="startupModal" class="overlay"><div class="dialog"><h2>前回のカウントデータ</h2><p>前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。</p><div class="actions"><button id="restoreBtn" class="primary">前回の状態を復旧</button><button id="freshBtn" class="danger">新しく開始</button></div></div></div>
+<div id="nameModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ作成</h2><p>選択したギフトを登録するカテゴリ名を入力してください。</p><input id="categoryName" type="text" maxlength="40" placeholder="例：誕生日耐久"><div class="actions"><button id="cancelName" class="subtle">キャンセル</button><button id="confirmName" class="primary">作成する</button></div></div></div>
+<div id="customManagerModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ管理</h2><p>作成済みカテゴリの内容を編集したり、不要なカテゴリを削除できます。</p><div id="customManagerList"></div><div class="actions"><button id="closeCustomManager" class="subtle">閉じる</button></div></div></div>
+<div id="preview" class="overlay"><div id="previewInner"><button id="closePreview">×</button><button id="prevImg">◀</button><button id="nextImg">▶</button><div id="pageInfo"></div><img id="previewImg"></div></div>
+<div id="selectionActions" hidden aria-label="ギフト選択操作"><button id="selectionCreateBtn" type="button" disabled>カテゴリ作成</button><button id="selectionCancelBtn" type="button">選択キャンセル</button></div>
 <script>
-
-/* ===== 状態保存設定 ===== */
-const STORAGE_KEY = "gift_state_v4";
-const AUTO_LIMIT = 60 * 60 * 1000; // 1時間
-
-
-const DATA_URL = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/data.json";
-const IMG_BASE = "https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/images/";
-
-let items = [];
-let activeTab = "全て";
-
-const grid = document.getElementById("grid");
-const search = document.getElementById("search");
-
-/* search取得の下に追加 */
-const minPoint = document.getElementById("minPoint");
-const maxPoint = document.getElementById("maxPoint");
-
-/* minPoint / maxPoint の下に追加 */
-const pageCount = document.getElementById("pageCount");
-
-fetch(DATA_URL)
-  .then(r => r.json())
-  .then(data => { items = data; restoreState(); render(); });
-
-function normalize(str){
-  return str.normalize("NFKC")
-    .replace(/[\u30A1-\u30F6]/g, ch =>
-      String.fromCharCode(ch.charCodeAt(0) - 0x60)
-    )
-    .toLowerCase();
-}
-
-/* getFiltered() を以下に置き換え */
-function getFiltered(ignoreSearch=false) {
-  const min = Number(minPoint.value) || 1;
-  const max = Number(maxPoint.value) || 30000;
-
-  return items
-    .filter(i => {
-      if (!ignoreSearch) {
-        const keyword = normalize(search.value);
-        const target = normalize(i.name);
-        if (!target.includes(keyword)) return false;
-      }
-
-      if (activeTab !== "全て" && !i.categories.includes(activeTab)) {
-        return false;
-      }
-
-      const points = Number(i.points) || 0;
-
-      if (points < min || points > max) {
-        return false;
-      }
-
-      return true;
-    })
-    .sort((a,b)=>(Number(a.points)||0)-(Number(b.points)||0));
-}
-
-/* ===== 表示 ===== */
-
-function createImageElement(id) {
-  const img = document.createElement("img");
-  img.className = "thumb";
-  img.loading = "lazy";
-  img.src = IMG_BASE + id + ".PNG";
-  img.onerror = () => {
-    img.onerror = null;
-    img.src = IMG_BASE + id + ".png";
-  };
-  return img;
-}
-
-function render() {
-  grid.innerHTML = "";
-  getFiltered().forEach(item => {
-    const c = document.createElement("div");
-    c.className = "card";
-    if (item.disabled) c.classList.add("disabled");
-
-    const img = createImageElement(item.id);
-
-    const name = document.createElement("div");
-    name.className = "name";
-    name.textContent = item.name;
-
-    const point = document.createElement("div");
-    point.className = "point";
-    point.textContent = item.points + "pt";
-
-    c.append(img,name,point);
-
-    c.onclick = () => {
-      item.disabled = !item.disabled;
-      c.classList.toggle("disabled");
-
-saveState();
-
-    };
-
-    grid.appendChild(c);
-  });
-}
-
-document.querySelectorAll("#tabs button").forEach(b=>{
-  b.onclick=()=>{
-    document.querySelector("#tabs .active").classList.remove("active");
-    b.classList.add("active");
-    activeTab=b.dataset.tab;
-    render();
-  };
-});
-
-search.oninput=render;
-
-/* search.oninput=render; の下に追加 */
-minPoint.oninput = render;
-maxPoint.oninput = render;
-
-/* ===== 出力処理 ===== */
-
-function loadImageSmart(id){
-  return new Promise((resolve) => {
-
-    const tryLoad = (ext) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = () => {
-        if (ext === ".PNG") {
-          tryLoad(".png");
-        } else {
-          resolve(null);
-        }
-      };
-      img.src = IMG_BASE + id + ext;
-    };
-
-    tryLoad(".PNG");
-  });
-}
-
-let previewImages = [];
-let currentPreviewIndex = 0;
-
-/* ===== exportBtn.onclick 全体をこれに置き換え ===== */
-document.getElementById("exportBtn").onclick = async () => {
-  const list = getFiltered();
-  if (!list.length) return;
-
-  previewImages = [];
-  currentPreviewIndex = 0;
-
-  /* =========================
-     ページ数取得
-     ・1枚出力対応
-     ・不正値対策
-  ========================= */
-  let requestedPages = Number(pageCount.value) || 1;
-
-  /* 最低1枚保証 */
-  requestedPages = Math.max(1, requestedPages);
-
-  /* 対象数よりページ数が多すぎる場合補正 */
-  requestedPages = Math.min(requestedPages, list.length);
-
-  /* =========================
-     1ページあたり件数
-  ========================= */
-  const perPage = Math.ceil(list.length / requestedPages);
-
-  /* =========================
-     ページごと生成
-  ========================= */
-  for (let i = 0; i < list.length; i += perPage) {
-    const slice = list.slice(i, i + perPage);
-
-    /* 各ページ単位で最適化 */
-    const img = await generateCanvasImage(slice);
-
-    previewImages.push(img);
-  }
-
-  /* =========================
-     プレビュー表示
-  ========================= */
-  showPreview();
-};
-
-/* ===== generateCanvasImage(list) を丸ごと置き換え ===== */
-async function generateCanvasImage(list) {
-
-  const count = list.length;
-
-  /* =========================
-     Canvasサイズ
-     Safari対策のため固定
-     ========================= */
-  const W = 1920;
-  const H = 1080;
-
-  /* =========================
-     余白・間隔
-     ========================= */
-  const outerPadding = 24;
-  const gap = 16;
-
-  /* =========================
-     最適レイアウト探索
-     
-     画像をできるだけ大きくしつつ、
-     1920×1080の中にすべて収める
-     ========================= */
-  let best = {
-    cols: 1,
-    rows: count,
-    thumbSize: 0,
-    score: -Infinity
-  };
-
-  /*
-    列数を無制限に試す必要はないので、
-    現実的な範囲だけ探索
-  */
-  const maxCols = Math.min(count, 100);
-
-  for (let cols = 1; cols <= maxCols; cols++) {
-
-    const rows = Math.ceil(count / cols);
-
-    const usableW =
-      W -
-      outerPadding * 2 -
-      gap * (cols - 1);
-
-    const usableH =
-      H -
-      outerPadding * 2 -
-      gap * (rows - 1);
-
-    if (usableW <= 0 || usableH <= 0) continue;
-
-    const thumbSize = Math.floor(
-      Math.min(
-        usableW / cols,
-        usableH / rows
-      )
-    );
-
-    if (thumbSize <= 0) continue;
-
-    /*
-      最後の行がスカスカになるレイアウトを
-      少し不利にする
-    */
-    const lastRowCount =
-      count - (rows - 1) * cols;
-
-    const fillRate =
-      lastRowCount / cols;
-
-    /*
-      基本は画像サイズ優先。
-      そのうえで最後の行の空白を少なくする。
-    */
-    const score =
-      thumbSize * 100 +
-      fillRate * 20;
-
-    if (score > best.score) {
-      best = {
-        cols,
-        rows,
-        thumbSize,
-        score
-      };
-    }
-  }
-
-  const cols = best.cols;
-  const rows = best.rows;
-  const thumbSize = best.thumbSize;
-
-  /* =========================
-     グリッド全体
-     ========================= */
-  const gridW =
-    cols * thumbSize +
-    gap * (cols - 1);
-
-  const gridH =
-    rows * thumbSize +
-    gap * (rows - 1);
-
-  /*
-    中央配置
-    */
-  const startX =
-    Math.max(
-      outerPadding,
-      Math.floor((W - gridW) / 2)
-    );
-
-  const startY =
-    Math.max(
-      outerPadding,
-      Math.floor((H - gridH) / 2)
-    );
-
-  /* =========================
-     Canvas生成
-     ========================= */
-  const canvas = document.createElement("canvas");
-
-  canvas.width = W;
-  canvas.height = H;
-
-  const ctx = canvas.getContext("2d");
-
-  if (!ctx) {
-    throw new Error("Canvas contextを取得できませんでした");
-  }
-
-  /* 背景 */
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, W, H);
-  /* =========================
-     背景ウォーターマーク
-     ========================= */
-
-  ctx.save();
-
-  ctx.translate(W / 2, H / 2);
-  ctx.rotate(-Math.PI / 6);
-
-ctx.fillStyle = "#f0f0f0";  
-  ctx.font = "bold 25px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  for (let y = -900; y <= 900; y += 100) {
-    for (let x = -1400; x <= 1400; x += 250) {
-
-      ctx.fillText(
-        "おんろぼの物置き",
-        x,
-        y
-      );
-
-    }
-  }
-
-  ctx.restore();
-  /* 高品質描画 */
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-
-  /* =========================
-     画像読み込み
-     ========================= */
-  const imagePromises = list.map(item =>
-    loadImageSmart(item.id)
-      .then(img => ({
-        img,
-        item
-      }))
-      .catch(() => ({
-        img: null,
-        item
-      }))
-  );
-
-  const loadedImages =
-    await Promise.all(imagePromises);
-
-  /* =========================
-     描画
-     ========================= */
-  loadedImages.forEach((data, i) => {
-
-    const { img, item } = data;
-
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-
-    const cellX =
-      startX +
-      col * (thumbSize + gap);
-
-    const cellY =
-      startY +
-      row * (thumbSize + gap);
-
-    /* =========================
-       画像
-       ========================= */
-    if (img && img.width > 0 && img.height > 0) {
-
-      /*
-        縦横比を維持して、
-        セルいっぱいまで拡大
-      */
-      const scaleRatio = Math.min(
-        thumbSize / img.width,
-        thumbSize / img.height
-      );
-
-      const drawW =
-        img.width * scaleRatio;
-
-      const drawH =
-        img.height * scaleRatio;
-
-      const drawX =
-        cellX +
-        (thumbSize - drawW) / 2;
-
-      const drawY =
-        cellY +
-        (thumbSize - drawH) / 2;
-
-      ctx.drawImage(
-        img,
-        drawX,
-        drawY,
-        drawW,
-        drawH
-      );
-
-    } else {
-
-      /*
-        読み込み失敗時
-      */
-      ctx.fillStyle = "#dddddd";
-
-      ctx.fillRect(
-        cellX,
-        cellY,
-        thumbSize,
-        thumbSize
-      );
-    }
-
-    /* =========================
-       disabled斜線
-       ========================= */
-    if (item.disabled) {
-
-      ctx.strokeStyle = "red";
-
-      ctx.lineWidth =
-        Math.max(
-          4,
-          Math.floor(thumbSize * 0.04)
-        );
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        cellX,
-        cellY
-      );
-
-      ctx.lineTo(
-        cellX + thumbSize,
-        cellY + thumbSize
-      );
-
-      ctx.stroke();
-    }
-  });
-
-  /* =========================
-     JPEG出力
-     
-     1920×1080固定なので
-     iPhone Safariでも扱いやすい
-     ========================= */
-  try {
-
-    return canvas.toDataURL(
-      "image/jpeg",
-      0.92
-    );
-
-  } catch (e) {
-
-    console.error(
-      "画像生成に失敗しました:",
-      e
-    );
-
-    throw e;
-  }
-}
-
-/* ===== プレビュー制御 ===== */
-
-function showPreview(){
-  document.getElementById("previewImg").src = previewImages[currentPreviewIndex];
-  document.getElementById("pageInfo").textContent =
-    `${currentPreviewIndex+1} / ${previewImages.length}`;
-  document.getElementById("preview").style.display="flex";
-}
-
-document.getElementById("prevImg").onclick=()=>{
-  if(currentPreviewIndex>0){
-    currentPreviewIndex--;
-    showPreview();
-  }
-};
-
-document.getElementById("nextImg").onclick=()=>{
-  if(currentPreviewIndex<previewImages.length-1){
-    currentPreviewIndex++;
-    showPreview();
-  }
-};
-
-document.getElementById("closePreview").onclick=()=>{
-  document.getElementById("preview").style.display="none";
-};
-
-/* ===== 注意モーダル ===== */
-
-document.getElementById("noticeBtn").onclick = () => {
-  document.getElementById("noticeModal").style.display="flex";
-};
-document.getElementById("closeNotice").onclick = () => {
-  document.getElementById("noticeModal").style.display="none";
-};
-document.getElementById("noticeModal").onclick = (e)=>{
-  if(e.target.id==="noticeModal"){
-    document.getElementById("noticeModal").style.display="none";
-  }
-};
-
-function saveState() {
-  const state = items.map(i => ({
-    id: i.id,
-    disabled: !!i.disabled
-  }));
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    updated: Date.now(),
-    state
-  }));
-}
-
-function restoreState() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-
-  try {
-    const data = JSON.parse(raw);
-    const diff = Date.now() - data.updated;
-
-    if (diff > AUTO_LIMIT) {
-      const ok = confirm("前回の状態を復元しますか？");
-      if (!ok) return;
-    }
-
-    const map = new Map(data.state.map(s => [s.id, s.disabled]));
-    items.forEach(i => {
-      if (map.has(i.id)) {
-        i.disabled = map.get(i.id);
-      }
-    });
-
-  } catch (e) {
-    console.warn("復元失敗", e);
-  }
-}
-
-function resetState() {
-  if (!confirm("本当に状態をリセットしますか？")) return;
-
-  localStorage.removeItem(STORAGE_KEY);
-
-  items.forEach(i => i.disabled = false);
-
-  if (typeof render === "function") {
-    render();
-  }
-}
-
-
+const DATA_URL='https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/data.json';
+const IMG_BASE='https://raw.githubusercontent.com/onrobo203d-prog/gifts-image/main/images/';
+const STATE_KEY='onrobo_gift_counter_state_v1';
+let items=[],activeTab='全て',customCategories=[],counts={},goals={},manualSlashes={},operationMode='count',selectedIds=new Set(),selectionMode=false,previewImages=[],previewIndex=0,editingCategoryIndex=-1;
+const $=id=>document.getElementById(id);
+function normalize(s){return String(s??'').normalize('NFKC').replace(/[\u30A1-\u30F6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).toLowerCase()}
+function getItem(id){return items.find(x=>String(x.id)===String(id))}
+function isDone(item){if(operationMode==='slash')return !!manualSlashes[String(item.id)];const goal=Number(goals[item.id])||0;return goal>0&&(Number(counts[item.id])||0)>=goal}
+function saveProgress(){localStorage.setItem(STATE_KEY,JSON.stringify({updated:Date.now(),counts,goals,manualSlashes,operationMode}))}
+function getCurrentPoints(){return items.reduce((sum,item)=>sum+(Number(item.points)||0)*(Number(counts[String(item.id)])||0),0)}
+function renderTabs(){document.querySelectorAll('#tabs button').forEach(b=>b.remove());const tabs=[['全て','全て'],['おもちゃ','おもちゃ'],['ネタ','ネタ'],['笑','笑'],['定番','定番'],['えらい','えらい'],['挨拶','挨拶'],['ステージ','ステージ'],['LOVE','LOVE']];const nav=$('tabs');tabs.forEach(([label,key])=>addTab(nav,label,key,false));customCategories.forEach((cat,i)=>addTab(nav,cat.name,'custom:'+i,true));setActiveTab()}
+function addTab(nav,label,key,isCustom){const b=document.createElement('button');b.textContent=label;b.dataset.tab=key;if(isCustom)b.classList.add('custom');b.onclick=()=>{activeTab=key;setActiveTab();render()};nav.appendChild(b)}
+function setActiveTab(){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===activeTab))}
+function getFiltered(){const keyword=normalize($('search').value),min=$('minPoint').value===''?0:Number($('minPoint').value),max=$('maxPoint').value===''?Infinity:Number($('maxPoint').value);let list=items.filter(i=>normalize(i.name).includes(keyword));if(activeTab.startsWith('custom:')){const cat=customCategories[Number(activeTab.split(':')[1])];const ids=new Set(cat?.giftIds||[]);list=list.filter(i=>ids.has(String(i.id)))}else if(activeTab!=='全て'){list=list.filter(i=>(i.categories||[]).includes(activeTab))}return list.filter(i=>{const p=Number(i.points)||0;return p>=min&&p<=max}).sort((a,b)=>(Number(a.points)||0)-(Number(b.points)||0))}
+function imageUrl(id,ext){return IMG_BASE+id+ext}
+function createImg(id){const img=document.createElement('img');img.className='thumb';img.loading='lazy';img.src=imageUrl(id,'.PNG');img.onerror=()=>{img.onerror=null;img.src=imageUrl(id,'.png')};return img}
+function render(){const grid=$('grid');grid.innerHTML='';const list=getFiltered();if(!list.length){const e=document.createElement('div');e.id='empty';e.textContent='表示できるギフトがありません';grid.appendChild(e)}list.forEach(item=>{const id=String(item.id),card=document.createElement('div');card.className='card';if(isDone(item))card.classList.add('done');if(selectedIds.has(id))card.classList.add('selected');const wrap=document.createElement('div');wrap.className='thumbwrap';wrap.append(createImg(item.id));if(operationMode==='count'){const count=document.createElement('div');count.className='count';count.textContent=String(counts[id]||0);wrap.appendChild(count)}const name=document.createElement('div');name.className='name';name.textContent=item.name;const point=document.createElement('div');point.className='point';point.textContent=(item.points??'')+'pt';card.append(wrap,name,point);if(operationMode==='count'){const goalrow=document.createElement('div');goalrow.className='goalrow';goalrow.innerHTML='<span>目標</span>';const goal=document.createElement('input');goal.type='number';goal.min='0';goal.max='999999';goal.value=goals[id]??0;goal.title='0でカウントのみ';goal.onclick=e=>e.stopPropagation();goal.onchange=e=>{goals[id]=Math.max(0,Number(e.target.value)||0);saveProgress();render()};goalrow.append(goal,document.createTextNode('回'));card.append(goalrow)}card.onclick=()=>{if(selectionMode){selectedIds.has(id)?selectedIds.delete(id):selectedIds.add(id);updateSelectionUI();render()}else if(operationMode==='slash'){manualSlashes[id]=!manualSlashes[id];saveProgress();render()}else{counts[id]=(Number(counts[id])||0)+1;saveProgress();render()}};grid.appendChild(card)});const totalPoints=list.reduce((sum,item)=>sum+(Number(item.points)||0)*(1+(Number(goals[String(item.id)])||0)),0);$('statusText').textContent=`表示 ${list.length} 件 / 合計ポイント ${totalPoints.toLocaleString('ja-JP')} / 現在：${getCurrentPoints().toLocaleString('ja-JP')}ポイント`;updateSelectionUI()}
+function setOperationMode(mode){operationMode=mode==='slash'?'slash':'count';$('slashModeBtn').classList.toggle('active',operationMode==='slash');$('countModeBtn').classList.toggle('active',operationMode==='count');$('modeHelp').textContent=operationMode==='slash'?'斜線モード：ギフトをタップすると赤い斜線の表示・非表示が切り替わります。':'カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。';saveProgress();render()}
+$('slashModeBtn').onclick=()=>setOperationMode('slash');$('countModeBtn').onclick=()=>setOperationMode('count');
+function openTools(){ $('toolsPanel').hidden=false;$('toolsToggle').textContent='× 操作メニューを閉じる';$('toolsToggle').setAttribute('aria-expanded','true');$('closeTools').focus() }
+function closeTools(){ $('toolsPanel').hidden=true;$('toolsToggle').textContent='⚙ 操作メニュー';$('toolsToggle').setAttribute('aria-expanded','false') }
+$('toolsToggle').onclick=openTools;$('closeTools').onclick=closeTools;
+$('toolsPanel').addEventListener('click',e=>{if(e.target=== $('toolsPanel'))closeTools()});
+$('filterToggle').onclick=()=>{$('filterPopup').style.display='flex';$('filterToggle').setAttribute('aria-expanded','true')};
+$('helpBtn').onclick=()=>{$('helpModal').style.display='flex'};function closeHelp(){$('helpModal').style.display='none'}$('closeHelp').onclick=closeHelp;$('closeHelpBottom').onclick=closeHelp;$('helpModal').onclick=e=>{if(e.target.id==='helpModal')closeHelp()};
+function closeFilter(){$('filterPopup').style.display='none';$('filterToggle').setAttribute('aria-expanded','false')}
+$('closeFilter').onclick=closeFilter;$('applyFilter').onclick=()=>{render();closeFilter()};$('clearFilter').onclick=()=>{$('minPoint').value='';$('maxPoint').value='';render();closeFilter()};$('filterPopup').onclick=e=>{if(e.target.id==='filterPopup')closeFilter()};document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeTools();closeFilter();closeHelp()}});
+
+function updateSelectionUI(){$('selectModeBtn').textContent=selectionMode?'選択モードを終了':'ギフト選択モード';$('selectModeBtn').classList.toggle('primary',selectionMode);$('createCategoryBtn').disabled=!selectionMode||selectedIds.size===0;$('createCategoryBtn').textContent=editingCategoryIndex>=0?'編集内容を保存':'選択したギフトでカテゴリ作成';$('selectionText').textContent=selectionMode?`選択中：${selectedIds.size} 件`:'';$('selectionActions').hidden=!selectionMode;$('selectionCreateBtn').disabled=selectedIds.size===0;$('selectionCreateBtn').textContent=editingCategoryIndex>=0?'編集を保存':'カテゴリ作成';}
+$('selectModeBtn').onclick=()=>{selectionMode=!selectionMode;selectedIds.clear();if(!selectionMode)editingCategoryIndex=-1;updateSelectionUI();render();closeTools()};$('createCategoryBtn').onclick=()=>{if(!selectedIds.size)return;closeTools();$('categoryName').value=editingCategoryIndex>=0?customCategories[editingCategoryIndex].name:'';$('nameModal').style.display='flex';$('categoryName').focus()};$('selectionCreateBtn').onclick=()=>$('createCategoryBtn').click();$('selectionCancelBtn').onclick=()=>{selectionMode=false;selectedIds.clear();editingCategoryIndex=-1;updateSelectionUI();render()};$('cancelName').onclick=()=>$('nameModal').style.display='none';$('confirmName').onclick=()=>{const name=$('categoryName').value.trim();if(!name){alert('カテゴリ名を入力してください');return}if(editingCategoryIndex>=0){customCategories[editingCategoryIndex]={name,giftIds:[...selectedIds]};activeTab='custom:'+editingCategoryIndex}else{customCategories.push({name,giftIds:[...selectedIds]});activeTab='custom:'+(customCategories.length-1)}editingCategoryIndex=-1;selectionMode=false;selectedIds.clear();$('nameModal').style.display='none';renderTabs();render()};
+function renderCustomManager(){const box=$('customManagerList');box.innerHTML='';if(!customCategories.length){box.innerHTML='<p>カスタムカテゴリはまだありません。</p>';return}customCategories.forEach((cat,index)=>{const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid #eee';const info=document.createElement('div');info.style.cssText='flex:1;min-width:0';const title=document.createElement('strong');title.textContent=cat.name;const sub=document.createElement('div');sub.className='smallnote';sub.textContent=`登録ギフト：${cat.giftIds.length}件`;info.append(title,sub);const edit=document.createElement('button');edit.textContent='編集';edit.className='primary';edit.style.cssText='border:0;border-radius:7px;padding:7px 10px';edit.onclick=()=>editCustomCategory(index);const del=document.createElement('button');del.textContent='削除';del.className='danger';del.style.cssText='border:0;border-radius:7px;padding:7px 10px';del.onclick=()=>{if(!confirm(`「${cat.name}」を削除しますか？`))return;customCategories.splice(index,1);if(activeTab.startsWith('custom:'))activeTab='全て';renderTabs();renderCustomManager();render()};row.append(info,edit,del);box.appendChild(row)})}
+function editCustomCategory(index){editingCategoryIndex=index;selectedIds=new Set(customCategories[index].giftIds.map(String));selectionMode=true;activeTab='全て';$('customManagerModal').style.display='none';updateSelectionUI();renderTabs();render();$('statusText').textContent='編集モード：ギフトを選び直して「編集内容を保存」を押してください'}
+$('manageCustomBtn').onclick=()=>{renderCustomManager();$('customManagerModal').style.display='flex';closeTools()};$('closeCustomManager').onclick=()=>$('customManagerModal').style.display='none';$('customManagerModal').onclick=e=>{if(e.target.id==='customManagerModal')$('customManagerModal').style.display='none'};
+$('search').oninput=render;$('minPoint').oninput=render;$('maxPoint').oninput=render;
+$('resetBtn').onclick=()=>{closeTools();if(!confirm('カウント数・目標数・斜線状態をすべてリセットしますか？'))return;counts={};goals={};manualSlashes={};saveProgress();render()};
+function downloadJSON(obj,filename){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
+$('saveCustomBtn').onclick=()=>{if(!customCategories.length){alert('保存するカスタムカテゴリがありません');return}downloadJSON({format:'onrobo-gift-custom-v1',categories:customCategories},'カスタムカテゴリ.json');closeTools()};
+function chooseImport(){$('fileInput').value='';closeTools();$('fileInput').click()}$('addCustomBtn').onclick=chooseImport;
+$('fileInput').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=Array.isArray(data)?data:data.categories;if(!Array.isArray(incoming))throw new Error('categoriesがありません');const valid=incoming.map(c=>({name:String(c.name||'').trim(),giftIds:[...new Set((c.giftIds||[]).map(String).filter(id=>getItem(id)))]})).filter(c=>c.name&&c.giftIds.length);if(!valid.length)throw new Error('読み込めるカテゴリがありません');const existing=new Set(customCategories.map(c=>c.name));const duplicates=valid.filter(c=>existing.has(c.name));if(duplicates.length&&!confirm('同じ名前のカテゴリがあります。追加してよろしいですか？'))return;customCategories.push(...valid);activeTab='全て';renderTabs();render();alert(`${valid.length} 件のカスタムカテゴリを読み込みました`)}catch(err){alert('JSONを読み込めませんでした。保存したカスタムカテゴリのJSONか確認してください。\n'+err.message)}};
+function loadImage(id){return new Promise(resolve=>{const img=new Image();img.crossOrigin='anonymous';img.onload=()=>resolve(img);img.onerror=()=>{const fallback=new Image();fallback.crossOrigin='anonymous';fallback.onload=()=>resolve(fallback);fallback.onerror=()=>resolve(null);fallback.src=imageUrl(id,'.png')};img.src=imageUrl(id,'.PNG')})}
+async function makeCanvas(list){const W=1920,H=1080,pad=28,gap=16,n=list.length;let best={size:0,score:-1};for(let cols=1;cols<=Math.min(n,100);cols++){const rows=Math.ceil(n/cols),size=Math.floor(Math.min((W-2*pad-gap*(cols-1))/cols,(H-2*pad-gap*(rows-1))/rows));const fill=(n-(rows-1)*cols)/cols,score=size*100+fill*20;if(size>0&&score>best.score)best={size,score,cols,rows}}const {size,cols,rows}=best;const gw=cols*size+(cols-1)*gap,gh=rows*size+(rows-1)*gap,sx=Math.max(pad,(W-gw)/2),sy=Math.max(pad,(H-gh)/2);const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-Math.PI/6);ctx.fillStyle='#ededed';ctx.font='bold 26px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';for(let y=-900;y<=900;y+=105)for(let x=-1400;x<=1400;x+=260)ctx.fillText('おんろぼの物置き',x,y);ctx.restore();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';const imgs=await Promise.all(list.map(i=>loadImage(i.id)));list.forEach((item,i)=>{const x=sx+(i%cols)*(size+gap),y=sy+Math.floor(i/cols)*(size+gap),img=imgs[i];if(img){const r=Math.min(size/img.width,size/img.height),w=img.width*r,h=img.height*r;ctx.drawImage(img,x+(size-w)/2,y+(size-h)/2,w,h)}else{ctx.fillStyle='#ddd';ctx.fillRect(x,y,size,size)}const count=Number(counts[String(item.id)])||0;if(operationMode==='count'){ctx.save();ctx.textAlign='right';ctx.textBaseline='top';ctx.font=`900 ${Math.max(28,Math.floor(size*.22))}px sans-serif`;ctx.lineWidth=Math.max(4,size*.025);ctx.strokeStyle='#fff';ctx.strokeText(String(count),x+size-5,y+5);ctx.fillStyle='#f00000';ctx.fillText(String(count),x+size-5,y+5);ctx.restore()}if(isDone(item)){ctx.strokeStyle='#d00000';ctx.lineWidth=Math.max(5,size*.04);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+size,y+size);ctx.stroke()}});return canvas.toDataURL('image/jpeg',.92)}
+$('exportBtn').onclick=async()=>{closeTools();const list=getFiltered();if(!list.length){alert('画像出力するギフトがありません');return}const pages=Math.min(Math.max(1,Number($('pageCount').value)||1),list.length);const perPage=Math.ceil(list.length/pages);previewImages=[];try{for(let i=0;i<list.length;i+=perPage)previewImages.push(await makeCanvas(list.slice(i,i+perPage)));previewIndex=0;showPreview()}catch(e){console.error(e);alert('画像を生成できませんでした。ギフト画像の読み込み状態を確認してください。')}};
+function showPreview(){$('previewImg').src=previewImages[previewIndex];$('pageInfo').textContent=`${previewIndex+1} / ${previewImages.length}`;$('prevImg').style.display=previewIndex===0?'none':'block';$('nextImg').style.display=previewIndex===previewImages.length-1?'none':'block';$('preview').style.display='flex'}$('prevImg').onclick=()=>{if(previewIndex>0){previewIndex--;showPreview()}};$('nextImg').onclick=()=>{if(previewIndex<previewImages.length-1){previewIndex++;showPreview()}};$('closePreview').onclick=()=>$('preview').style.display='none';$('preview').onclick=e=>{if(e.target.id==='preview')$('preview').style.display='none'};
+function startFresh(){counts={};goals={};manualSlashes={};operationMode='count';saveProgress();setOperationModeUI();$('startupModal').style.display='none';render()}function setOperationModeUI(){$('slashModeBtn').classList.toggle('active',operationMode==='slash');$('countModeBtn').classList.toggle('active',operationMode==='count');$('modeHelp').textContent=operationMode==='slash'?'斜線モード：ギフトをタップすると赤い斜線の表示・非表示が切り替わります。':'カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。'}function restore(){try{const d=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');counts=d.counts||{};goals=d.goals||{};manualSlashes=d.manualSlashes||{};operationMode=d.operationMode==='slash'?'slash':'count'}catch(e){counts={};goals={};manualSlashes={};operationMode='count'}setOperationModeUI();$('startupModal').style.display='none';render()} 
+async function init(){try{const r=await fetch(DATA_URL);if(!r.ok)throw new Error('ギフトデータを取得できません');items=await r.json();renderTabs();const saved=localStorage.getItem(STATE_KEY);if(saved){$('startupModal').style.display='flex'}else{render()}}catch(e){$('statusText').textContent='ギフトデータを読み込めませんでした。ネット接続を確認してください。';$('grid').innerHTML='<div id="empty">ギフトデータの読み込みに失敗しました。</div>';console.error(e)}}document.addEventListener('dblclick',e=>{if(e.target.closest('button,.card,input,select'))e.preventDefault()},{passive:false});$('restoreBtn').onclick=restore;$('freshBtn').onclick=startFresh;setOperationModeUI();init();
 </script>
-
-
 </body>
 </html>
