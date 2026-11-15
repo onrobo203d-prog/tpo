@@ -82,7 +82,7 @@ button,input,select{touch-action:manipulation}button{cursor:pointer;transition:f
 <main id="grid"></main>
 <div id="helpModal" class="overlay"><div class="dialog"><div class="popupHead"><strong>操作ヘルプ</strong><button id="closeHelp" type="button" aria-label="閉じる">×</button></div>
 <h2>基本の使い方</h2><p><b>カウントモード：</b>ギフトをタップするとカウントが1増えます。各ギフトの「目標」に設定した回数に達すると赤い斜線が表示されます。目標を0にするとカウントだけ行います。</p>
-<p><b>斜線モード：</b>ギフトをタップするたびに赤い斜線の表示・非表示が切り替わります。カウント数や目標数は変更されません。</p>
+<p><b>斜線モード：</b>ギフトをタップするたびに赤い斜線の表示・非表示が切り替わります。斜線を付けたギフトのポイント合計が「現在」に表示されます。カウント数や目標数は変更されません。</p>
 <h2>検索・絞り込み</h2><p>検索欄にギフト名を入力すると絞り込めます。フィルターアイコンから最低pt・最高ptを指定できます。カテゴリは横にスライドして切り替えられます。</p>
 <h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
 <div class="actions"><button id="closeHelpBottom" class="primary">閉じる</button></div></div></div>
@@ -101,7 +101,7 @@ function normalize(s){return String(s??'').normalize('NFKC').replace(/[\u30A1-\u
 function getItem(id){return items.find(x=>String(x.id)===String(id))}
 function isDone(item){if(operationMode==='slash')return !!manualSlashes[String(item.id)];const goal=Number(goals[item.id])||0;return goal>0&&(Number(counts[item.id])||0)>=goal}
 function saveProgress(){localStorage.setItem(STATE_KEY,JSON.stringify({updated:Date.now(),counts,goals,manualSlashes,operationMode}))}
-function getCurrentPoints(){return items.reduce((sum,item)=>sum+(Number(item.points)||0)*(Number(counts[String(item.id)])||0),0)}
+function getCurrentPoints(){if(operationMode==='slash'){return items.reduce((sum,item)=>sum+(manualSlashes[String(item.id)]?(Number(item.points)||0):0),0)}return items.reduce((sum,item)=>sum+(Number(item.points)||0)*(Number(counts[String(item.id)])||0),0)}
 function renderTabs(){document.querySelectorAll('#tabs button').forEach(b=>b.remove());const tabs=[['全て','全て'],['おもちゃ','おもちゃ'],['ネタ','ネタ'],['笑','笑'],['定番','定番'],['えらい','えらい'],['挨拶','挨拶'],['ステージ','ステージ'],['LOVE','LOVE']];const nav=$('tabs');tabs.forEach(([label,key])=>addTab(nav,label,key,false));customCategories.forEach((cat,i)=>addTab(nav,cat.name,'custom:'+i,true));setActiveTab()}
 function addTab(nav,label,key,isCustom){const b=document.createElement('button');b.textContent=label;b.dataset.tab=key;if(isCustom)b.classList.add('custom');b.onclick=()=>{activeTab=key;setActiveTab();render()};nav.appendChild(b)}
 function setActiveTab(){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===activeTab))}
