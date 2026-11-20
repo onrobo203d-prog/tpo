@@ -100,7 +100,7 @@ button,input,select{touch-action:manipulation}button{cursor:pointer;transition:f
 <h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>共有リンク作成：</b>今の途中経過（カウント・目標・斜線・カスタムカテゴリ）を入れたリンクを作ります。開いた人は続きから付けられます。リンクを作った後の変更は入らないので、交代する直前に作ってください。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
 <div class="actions"><button id="closeHelpBottom" class="primary">閉じる</button></div></div></div>
 <div id="startupModal" class="overlay"><div class="dialog"><h2 id="startupTitle">前回のカウントデータ</h2><p id="startupText">前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。</p><div class="actions" style="flex-direction:column"><button id="sharedBtn" class="primary" hidden>共有されたデータで開始</button><button id="restoreBtn" class="primary">前回の状態を復旧</button><button id="freshBtn" class="danger">新しく開始</button></div></div></div>
-<div id="shareModal" class="overlay"><div class="dialog"><h2>共有リンク</h2><p>このリンクを開いた人は、今の途中経過から続きを付けられます。リンクを作った後の変更は入らないので、交代する直前に作り直してください。</p><textarea id="shareUrl" readonly rows="4" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:7px;font:12px monospace;word-break:break-all;resize:vertical"></textarea><p id="shareNote" class="smallnote"></p><div class="actions" style="flex-wrap:wrap"><button id="copyShare" class="primary">コピー</button><button id="copyShareDiscord" class="primary">Discord用にコピー</button><button id="closeShare" class="subtle" style="flex-basis:100%">閉じる</button></div><p class="smallnote">「Discord用にコピー」は、長いURLを隠して「🎁 ギフト共有リンク」の文字だけを表示する形でコピーします。</p></div></div>
+<div id="shareModal" class="overlay"><div class="dialog"><h2>共有リンク</h2><p>このリンクを開いた人は、今の途中経過から続きを付けられます。リンクを作った後の変更は入らないので、交代する直前に作り直してください。</p><textarea id="shareUrl" readonly rows="4" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:7px;font:12px monospace;word-break:break-all;resize:vertical"></textarea><p id="shareNote" class="smallnote"></p><div class="actions" style="flex-wrap:wrap"><button id="copyShare" class="primary">コピー</button><button id="copyShareDiscord" class="primary">Discord用にコピー</button><button id="closeShare" class="subtle" style="flex-basis:100%">閉じる</button></div><p class="smallnote">「Discord用にコピー」は、長いURLを隠して「ギフト共有リンク」の文字だけを表示する形でコピーします。</p></div></div>
 <div id="nameModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ作成</h2><p>選択したギフトを登録するカテゴリ名を入力してください。</p><input id="categoryName" type="text" maxlength="40" placeholder="例：誕生日耐久"><div class="actions"><button id="cancelName" class="subtle">キャンセル</button><button id="confirmName" class="primary">作成する</button></div></div></div>
 <div id="customManagerModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ管理</h2><p>作成済みカテゴリの内容を編集したり、不要なカテゴリを削除できます。</p><div id="customManagerList"></div><div class="actions"><button id="closeCustomManager" class="subtle">閉じる</button></div></div></div>
 <div id="preview" class="overlay"><div id="previewInner"><button id="closePreview">×</button><button id="prevImg">◀</button><button id="nextImg">▶</button><div id="pageInfo"></div><img id="previewImg"></div></div>
@@ -226,7 +226,7 @@ function shareProgressLabel(){
   const done=operationMode==='slash'
     ?items.filter(i=>manualSlashes[String(i.id)]).length
     :items.filter(i=>(Number(counts[String(i.id)])||0)>0).length;
-  return `🎁 ギフト共有リンク（${operationMode==='slash'?'斜線':'カウント済'} ${done}/${items.length}件）`;
+  return `ギフト共有リンク（${operationMode==='slash'?'斜線':'カウント済'} ${done}/${items.length}件）`;
 }
 async function copyShareText(text,button){
   try{await navigator.clipboard.writeText(text);$('copyShare').textContent='コピー';$('copyShareDiscord').textContent='Discord用にコピー';button.textContent='コピーしました'}
@@ -234,6 +234,7 @@ async function copyShareText(text,button){
 }
 $('copyShare').onclick=()=>copyShareText($('shareUrl').value,$('copyShare'));
 // Discordのマスクリンク [表示文字](URL) にして、長いURLをチャット上で見せない
+// 表示文字に絵文字を入れるとDiscordでリンクにならず文字のまま表示されたため、絵文字は使わない
 $('copyShareDiscord').onclick=()=>copyShareText(`[${shareProgressLabel()}](${$('shareUrl').value})`,$('copyShareDiscord'));
 $('closeShare').onclick=()=>$('shareModal').style.display='none';
 $('shareModal').onclick=e=>{if(e.target.id==='shareModal')$('shareModal').style.display='none'};
