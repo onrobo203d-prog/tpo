@@ -100,7 +100,7 @@ button,input,select{touch-action:manipulation}button{cursor:pointer;transition:f
 <h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>共有リンク作成：</b>今の途中経過（カウント・目標・斜線・カスタムカテゴリ）を入れたリンクを作ります。開いた人は続きから付けられます。リンクを作った後の変更は入らないので、交代する直前に作ってください。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
 <div class="actions"><button id="closeHelpBottom" class="primary">閉じる</button></div></div></div>
 <div id="startupModal" class="overlay"><div class="dialog"><h2 id="startupTitle">前回のカウントデータ</h2><p id="startupText">前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。</p><div class="actions" style="flex-direction:column"><button id="sharedBtn" class="primary" hidden>共有されたデータで開始</button><button id="restoreBtn" class="primary">前回の状態を復旧</button><button id="freshBtn" class="danger">新しく開始</button></div></div></div>
-<div id="shareModal" class="overlay"><div class="dialog"><h2>共有リンク</h2><p>このリンクを開いた人は、今の途中経過から続きを付けられます。リンクを作った後の変更は入らないので、交代する直前に作り直してください。</p><textarea id="shareUrl" readonly rows="4" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:7px;font:12px monospace;word-break:break-all;resize:vertical"></textarea><p id="shareNote" class="smallnote"></p><div class="actions"><button id="closeShare" class="subtle">閉じる</button><button id="copyShare" class="primary">コピー</button></div></div></div>
+<div id="shareModal" class="overlay"><div class="dialog"><h2>共有リンク</h2><p>このリンクを開いた人は、今の途中経過から続きを付けられます。リンクを作った後の変更は入らないので、交代する直前に作り直してください。</p><textarea id="shareUrl" readonly rows="4" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:7px;font:12px monospace;word-break:break-all;resize:vertical"></textarea><p id="shareNote" class="smallnote"></p><div class="actions" style="flex-wrap:wrap"><button id="copyShare" class="primary">コピー</button><button id="copyShareDiscord" class="primary">Discord用にコピー</button><button id="closeShare" class="subtle" style="flex-basis:100%">閉じる</button></div><p class="smallnote">「Discord用にコピー」は、長いURLを隠して「🎁 ギフト共有リンク」の文字だけを表示する形でコピーします。</p></div></div>
 <div id="nameModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ作成</h2><p>選択したギフトを登録するカテゴリ名を入力してください。</p><input id="categoryName" type="text" maxlength="40" placeholder="例：誕生日耐久"><div class="actions"><button id="cancelName" class="subtle">キャンセル</button><button id="confirmName" class="primary">作成する</button></div></div></div>
 <div id="customManagerModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ管理</h2><p>作成済みカテゴリの内容を編集したり、不要なカテゴリを削除できます。</p><div id="customManagerList"></div><div class="actions"><button id="closeCustomManager" class="subtle">閉じる</button></div></div></div>
 <div id="preview" class="overlay"><div id="previewInner"><button id="closePreview">×</button><button id="prevImg">◀</button><button id="nextImg">▶</button><div id="pageInfo"></div><img id="previewImg"></div></div>
@@ -167,13 +167,16 @@ function isNumericId(id){const n=Number(id);return Number.isInteger(n)&&n>0}
 // ギフトIDは "001" 形式の数字なので、数値IDを添字にした配列で持つ。
 // IDをキーにしたJSONだと、全ギフ耐久の終盤でDiscordの1メッセージ2000文字を超えるため
 function toIdArray(map){const arr=[];for(const [id,v] of Object.entries(map)){const n=clampNum(v);if(n>0&&isNumericId(id)&&getItem(id))arr[Number(id)]=n}return Array.from(arr,v=>v||0)}
+// 斜線はIDの一覧だと8割付けた時に約750文字になるため、1ギフト1ビットで持つ
+function toBitString(numbers){if(!numbers.length)return '';const bytes=new Uint8Array((Math.max(...numbers)>>3)+1);numbers.forEach(n=>{bytes[n>>3]|=1<<(n&7)});return toBase64Url(bytes)}
+function fromBitString(str){const out=[];if(typeof str!=='string'||!str)return out;fromBase64Url(str).forEach((byte,i)=>{for(let b=0;b<8;b++)if(byte&(1<<b))out.push(i*8+b)});return out}
 async function createShareUrl(){
   const payload={
     v:1,
     m:operationMode==='slash'?'s':'c',
     c:toIdArray(counts),
     g:toIdArray(goals),
-    s:Object.keys(manualSlashes).filter(id=>manualSlashes[id]&&isNumericId(id)&&getItem(id)).map(Number),
+    s:toBitString(Object.keys(manualSlashes).filter(id=>manualSlashes[id]&&isNumericId(id)&&getItem(id)).map(Number)),
     k:customCategories.map(cat=>[cat.name,cat.giftIds.filter(isNumericId).map(Number)])
   };
   return location.origin+location.pathname+SHARE_PREFIX+toBase64Url(await deflate(JSON.stringify(payload)));
@@ -184,7 +187,7 @@ function parseSharePayload(p){
   const idByNumber=new Map(items.filter(i=>isNumericId(i.id)).map(i=>[Number(i.id),String(i.id)]));
   const fromArray=a=>{const out={};if(Array.isArray(a))a.forEach((v,n)=>{const id=idByNumber.get(n),c=clampNum(v);if(id&&c>0)out[id]=c});return out};
   const toIds=a=>Array.isArray(a)?[...new Set(a.map(n=>idByNumber.get(Number(n))).filter(Boolean))]:[];
-  const slashes={};toIds(p.s).forEach(id=>{slashes[id]=true});
+  const slashes={};toIds(fromBitString(p.s)).forEach(id=>{slashes[id]=true});
   const categories=(Array.isArray(p.k)?p.k:[]).map(c=>Array.isArray(c)?{name:String(c[0]??'').trim().slice(0,40),giftIds:toIds(c[1])}:null).filter(c=>c&&c.name&&c.giftIds.length);
   return {operationMode:p.m==='s'?'slash':'count',counts:fromArray(p.c),goals:fromArray(p.g),manualSlashes:slashes,categories};
 }
@@ -215,15 +218,23 @@ $('shareBtn').onclick=async()=>{
   let url;
   try{url=await createShareUrl()}catch(e){console.error(e);alert('このブラウザでは共有リンクを作成できません。ブラウザを最新版にしてお試しください。');return}
   $('shareUrl').value=url;
-  $('copyShare').textContent='コピー';
+  $('copyShare').textContent='コピー';$('copyShareDiscord').textContent='Discord用にコピー';
   $('shareNote').textContent=`リンクの長さ：${url.length.toLocaleString('ja-JP')} 文字`+(url.length>2000?'（Discordの通常の上限 2,000 文字を超えています）':'');
   $('shareModal').style.display='flex';
 };
-$('copyShare').onclick=async()=>{
-  const box=$('shareUrl');
-  try{await navigator.clipboard.writeText(box.value);$('copyShare').textContent='コピーしました'}
-  catch(e){box.focus();box.select();$('shareNote').textContent='自動でコピーできませんでした。選択されたリンクを手動でコピーしてください。'}
-};
+function shareProgressLabel(){
+  const done=operationMode==='slash'
+    ?items.filter(i=>manualSlashes[String(i.id)]).length
+    :items.filter(i=>(Number(counts[String(i.id)])||0)>0).length;
+  return `🎁 ギフト共有リンク（${operationMode==='slash'?'斜線':'カウント済'} ${done}/${items.length}件）`;
+}
+async function copyShareText(text,button){
+  try{await navigator.clipboard.writeText(text);$('copyShare').textContent='コピー';$('copyShareDiscord').textContent='Discord用にコピー';button.textContent='コピーしました'}
+  catch(e){const box=$('shareUrl');box.focus();box.select();$('shareNote').textContent='自動でコピーできませんでした。選択されたリンクを手動でコピーしてください。'}
+}
+$('copyShare').onclick=()=>copyShareText($('shareUrl').value,$('copyShare'));
+// Discordのマスクリンク [表示文字](URL) にして、長いURLをチャット上で見せない
+$('copyShareDiscord').onclick=()=>copyShareText(`[${shareProgressLabel()}](${$('shareUrl').value})`,$('copyShareDiscord'));
 $('closeShare').onclick=()=>$('shareModal').style.display='none';
 $('shareModal').onclick=e=>{if(e.target.id==='shareModal')$('shareModal').style.display='none'};
 function startFresh(){pendingShare=null;clearShareHash();counts={};goals={};manualSlashes={};operationMode='count';saveProgress();setOperationModeUI();$('startupModal').style.display='none';render()}function setOperationModeUI(){$('slashModeBtn').classList.toggle('active',operationMode==='slash');$('countModeBtn').classList.toggle('active',operationMode==='count');$('modeHelp').textContent=operationMode==='slash'?'斜線モード：ギフトをタップすると赤い斜線の表示・非表示が切り替わります。':'カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。'}function restore(){pendingShare=null;clearShareHash();try{const d=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');counts=d.counts||{};goals=d.goals||{};manualSlashes=d.manualSlashes||{};operationMode=d.operationMode==='slash'?'slash':'count'}catch(e){counts={};goals={};manualSlashes={};operationMode='count'}setOperationModeUI();$('startupModal').style.display='none';render()} 
