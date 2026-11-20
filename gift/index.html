@@ -11,7 +11,7 @@ header{padding:12px;background:#fff;position:sticky;top:0;z-index:5;box-shadow:0
 h1{font-size:18px;margin:0 0 10px}.help{font-size:12px;color:#666;line-height:1.5;margin-bottom:10px}
 .toolbar,.searchrow,.filterrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.toolbar button,.toolbar select,.searchrow input,.filterrow input{font:inherit;padding:10px 12px;border:1px solid #ccc;border-radius:9px;background:#fff;min-width:0}
 button,input,select{touch-action:manipulation}button{cursor:pointer;transition:filter .15s,transform .15s,box-shadow .15s}button:hover:not(:disabled){filter:brightness(.97);box-shadow:0 2px 6px #00000018}button:active:not(:disabled){transform:translateY(1px)}button:disabled{cursor:not-allowed;opacity:.45}.primary{background:var(--blue)!important;color:#fff;border:0!important;font-weight:bold}.danger{background:#ef5555!important;color:#fff;border:0!important}.subtle{background:#eee;border:0!important}.toolbar button{flex:1;font-weight:600}.searchrow input{flex:1}.filterrow input{flex:1;width:90px}
-#selectModeBtn{background:#e8f5ff;border:1px solid #8bcaf0!important;color:#176b9e;font-weight:700}#selectModeBtn.primary{background:#1688c5!important;color:#fff}#manageCustomBtn{background:#eaf2ff;border:1px solid #a9c6f5!important;color:#245a9d}#saveCustomBtn{background:#e8f6ed;border:1px solid #a9d8b8!important;color:#247443}#addCustomBtn{background:#fff;border:1px solid #c7cbd1!important;color:#444}.toolbar-group{display:flex;align-items:center;gap:8px;flex:1;min-width:240px;padding:7px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:11px}.toolbar-group-label{font-size:11px;color:#777;font-weight:700;white-space:nowrap;padding:0 3px}.toolbar-group .toolbar-actions{display:flex;gap:7px;flex:1;min-width:0}.toolbar-group .toolbar-actions button{min-width:0}.toolbar-group.import-group{background:#fafafa}
+#selectModeBtn{background:#e8f5ff;border:1px solid #8bcaf0!important;color:#176b9e;font-weight:700}#selectModeBtn.primary{background:#1688c5!important;color:#fff}#manageCustomBtn{background:#eaf2ff;border:1px solid #a9c6f5!important;color:#245a9d}#saveCustomBtn{background:#e8f6ed;border:1px solid #a9d8b8!important;color:#247443}#shareBtn{background:#fff6ec;border:1px solid #f0c896!important;color:#8a4f12}#addCustomBtn{background:#fff;border:1px solid #c7cbd1!important;color:#444}.toolbar-group{display:flex;align-items:center;gap:8px;flex:1;min-width:240px;padding:7px;background:#f7f8fa;border:1px solid #e5e7eb;border-radius:11px}.toolbar-group-label{font-size:11px;color:#777;font-weight:700;white-space:nowrap;padding:0 3px}.toolbar-group .toolbar-actions{display:flex;gap:7px;flex:1;min-width:0}.toolbar-group .toolbar-actions button{min-width:0}.toolbar-group.import-group{background:#fafafa}
 #tabs{display:flex;gap:6px;padding:10px;overflow-x:auto;white-space:nowrap}#tabs button{border:0;border-radius:18px;background:#e3e5e8;padding:8px 13px;font-size:13px}#tabs button.active{background:#252525;color:#fff}#tabs button.custom{background:#d9efff}#tabs button.custom.active{background:#176b9e;color:#fff}
 #status{padding:0 12px 8px;font-size:13px;color:#555;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 #grid{padding:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-size),1fr));gap:10px}
@@ -76,6 +76,9 @@ button,input,select{touch-action:manipulation}button{cursor:pointer;transition:f
 <button id="manageCustomBtn" class="subtle">カスタム管理・編集</button>
 <button id="saveCustomBtn" class="subtle">カスタム保存</button>
 </div></div>
+<div class="toolbar-group"><span class="toolbar-group-label">共有</span><div class="toolbar-actions">
+<button id="shareBtn" class="subtle">共有リンク作成</button>
+</div></div>
 <div class="toolbar-group import-group"><span class="toolbar-group-label">JSON</span><div class="toolbar-actions">
 <button id="addCustomBtn" class="subtle">＋ 追加読み込み</button>
 </div></div>
@@ -94,9 +97,10 @@ button,input,select{touch-action:manipulation}button{cursor:pointer;transition:f
 <h2>基本の使い方</h2><p><b>カウントモード：</b>ギフトをタップするとカウントが1増えます。各ギフトの「目標」に設定した回数に達すると赤い斜線が表示されます。目標を0にするとカウントだけ行います。</p>
 <p><b>斜線モード：</b>ギフトをタップするたびに赤い斜線の表示・非表示が切り替わります。斜線を付けたギフトのポイント合計が「現在」に表示されます。カウント数や目標数は変更されません。</p>
 <h2>検索・絞り込み</h2><p>検索欄にギフト名を入力すると絞り込めます。フィルターアイコンから最低pt・最高ptを指定できます。カテゴリは横にスライドして切り替えられます。</p>
-<h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
+<h2>操作メニュー</h2><p><b>ギフト選択モード：</b>ギフトを複数選び、カスタムカテゴリを作成・編集します。</p><p><b>カスタム管理・編集：</b>作成済みカテゴリの名前や登録ギフトを変更したり、削除できます。</p><p><b>カスタム保存／JSON追加：</b>カスタムカテゴリをJSONファイルとして保存したり、保存済みJSONを追加読み込みできます。</p><p><b>共有リンク作成：</b>今の途中経過（カウント・目標・斜線・カスタムカテゴリ）を入れたリンクを作ります。開いた人は続きから付けられます。リンクを作った後の変更は入らないので、交代する直前に作ってください。</p><p><b>画像出力：</b>現在表示中のギフトを画像として出力します。</p><p><b>カウントリセット：</b>カウント・目標・斜線状態をリセットします。</p>
 <div class="actions"><button id="closeHelpBottom" class="primary">閉じる</button></div></div></div>
-<div id="startupModal" class="overlay"><div class="dialog"><h2>前回のカウントデータ</h2><p>前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。</p><div class="actions"><button id="restoreBtn" class="primary">前回の状態を復旧</button><button id="freshBtn" class="danger">新しく開始</button></div></div></div>
+<div id="startupModal" class="overlay"><div class="dialog"><h2 id="startupTitle">前回のカウントデータ</h2><p id="startupText">前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。</p><div class="actions" style="flex-direction:column"><button id="sharedBtn" class="primary" hidden>共有されたデータで開始</button><button id="restoreBtn" class="primary">前回の状態を復旧</button><button id="freshBtn" class="danger">新しく開始</button></div></div></div>
+<div id="shareModal" class="overlay"><div class="dialog"><h2>共有リンク</h2><p>このリンクを開いた人は、今の途中経過から続きを付けられます。リンクを作った後の変更は入らないので、交代する直前に作り直してください。</p><textarea id="shareUrl" readonly rows="4" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:7px;font:12px monospace;word-break:break-all;resize:vertical"></textarea><p id="shareNote" class="smallnote"></p><div class="actions" style="flex-wrap:wrap"><button id="copyShare" class="primary">コピー</button><button id="copyShareDiscord" class="primary">Discord用にコピー</button><button id="closeShare" class="subtle" style="flex-basis:100%">閉じる</button></div><p class="smallnote">「Discord用にコピー」は、長いURLを隠して「ギフト共有リンク」の文字だけを表示する形でコピーします。</p></div></div>
 <div id="nameModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ作成</h2><p>選択したギフトを登録するカテゴリ名を入力してください。</p><input id="categoryName" type="text" maxlength="40" placeholder="例：誕生日耐久"><div class="actions"><button id="cancelName" class="subtle">キャンセル</button><button id="confirmName" class="primary">作成する</button></div></div></div>
 <div id="customManagerModal" class="overlay"><div class="dialog"><h2>カスタムカテゴリ管理</h2><p>作成済みカテゴリの内容を編集したり、不要なカテゴリを削除できます。</p><div id="customManagerList"></div><div class="actions"><button id="closeCustomManager" class="subtle">閉じる</button></div></div></div>
 <div id="preview" class="overlay"><div id="previewInner"><button id="closePreview">×</button><button id="prevImg">◀</button><button id="nextImg">▶</button><div id="pageInfo"></div><img id="previewImg"></div></div>
@@ -147,8 +151,95 @@ async function makeCanvas(list){const W=1920,H=1080,pad=28,gap=16,n=list.length;
 const batchSize=12;for(let start=0;start<list.length;start+=batchSize){const end=Math.min(start+batchSize,list.length);let imgs=await Promise.all(list.slice(start,end).map(item=>loadImage(item.id)));for(let j=0;j<imgs.length;j++){const i=start+j,item=list[i],img=imgs[j],x=sx+(i%cols)*(size+gap),y=sy+Math.floor(i/cols)*(size+gap);if(img){const r=Math.min(size/img.width,size/img.height),w=img.width*r,h=img.height*r;ctx.drawImage(img,x+(size-w)/2,y+(size-h)/2,w,h)}else{ctx.fillStyle='#ddd';ctx.fillRect(x,y,size,size)}const count=Number(counts[String(item.id)])||0;if(operationMode==='count'){ctx.save();ctx.textAlign='right';ctx.textBaseline='top';ctx.font=`900 ${Math.max(28,Math.floor(size*.22))}px sans-serif`;ctx.lineWidth=Math.max(4,size*.025);ctx.strokeStyle='#fff';ctx.strokeText(String(count),x+size-5,y+5);ctx.fillStyle='#f00000';ctx.fillText(String(count),x+size-5,y+5);ctx.restore()}if(isDone(item)){ctx.strokeStyle='#d00000';ctx.lineWidth=Math.max(5,size*.04);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+size,y+size);ctx.stroke()}}imgs.fill(null);imgs=null;await new Promise(resolve=>setTimeout(resolve,0))}return canvas.toDataURL('image/jpeg',.92)}
 let exporting=false;$('exportBtn').onclick=async()=>{if(exporting)return;closeTools();const list=getFiltered();if(!list.length){alert('画像出力するギフトがありません');return}const pages=Math.min(Math.max(1,Number($('pageCount').value)||1),list.length);const perPage=Math.ceil(list.length/pages);previewImages=[];exporting=true;$('exportBtn').disabled=true;const originalLabel=$('exportBtn').textContent;$('exportBtn').textContent='画像生成中...';$('generationStatus').classList.add('visible');try{for(let i=0;i<list.length;i+=perPage)previewImages.push(await makeCanvas(list.slice(i,i+perPage)));previewIndex=0;showPreview();const previewImg=$('previewImg');if(previewImg.decode){try{await previewImg.decode()}catch(_){}}else if(!previewImg.complete||!previewImg.naturalWidth){await new Promise(resolve=>{previewImg.onload=resolve;previewImg.onerror=resolve})}}catch(e){console.error(e);alert('画像を生成できませんでした。ギフト画像の読み込み状態を確認してください。')}finally{$('generationStatus').classList.remove('visible');exporting=false;$('exportBtn').disabled=false;$('exportBtn').textContent=originalLabel}};
 function showPreview(){$('previewImg').src=previewImages[previewIndex];$('pageInfo').textContent=`${previewIndex+1} / ${previewImages.length}`;$('prevImg').style.display=previewIndex===0?'none':'block';$('nextImg').style.display=previewIndex===previewImages.length-1?'none':'block';$('preview').style.display='flex'}$('prevImg').onclick=()=>{if(previewIndex>0){previewIndex--;showPreview()}};$('nextImg').onclick=()=>{if(previewIndex<previewImages.length-1){previewIndex++;showPreview()}};$('closePreview').onclick=()=>$('preview').style.display='none';$('preview').onclick=e=>{if(e.target.id==='preview')$('preview').style.display='none'};
-function startFresh(){counts={};goals={};manualSlashes={};operationMode='count';saveProgress();setOperationModeUI();$('startupModal').style.display='none';render()}function setOperationModeUI(){$('slashModeBtn').classList.toggle('active',operationMode==='slash');$('countModeBtn').classList.toggle('active',operationMode==='count');$('modeHelp').textContent=operationMode==='slash'?'斜線モード：ギフトをタップすると赤い斜線の表示・非表示が切り替わります。':'カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。'}function restore(){try{const d=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');counts=d.counts||{};goals=d.goals||{};manualSlashes=d.manualSlashes||{};operationMode=d.operationMode==='slash'?'slash':'count'}catch(e){counts={};goals={};manualSlashes={};operationMode='count'}setOperationModeUI();$('startupModal').style.display='none';render()} 
-async function init(){try{const r=await fetch(DATA_URL);if(!r.ok)throw new Error('ギフトデータを取得できません');items=await r.json();renderTabs();const saved=localStorage.getItem(STATE_KEY);if(saved){$('startupModal').style.display='flex'}else{render()}}catch(e){$('statusText').textContent='ギフトデータを読み込めませんでした。ネット接続を確認してください。';$('grid').innerHTML='<div id="empty">ギフトデータの読み込みに失敗しました。</div>';console.error(e)}}document.addEventListener('dblclick',e=>{if(e.target.closest('button,.card,input,select'))e.preventDefault()},{passive:false});$('restoreBtn').onclick=restore;$('freshBtn').onclick=startFresh;setOperationModeUI();init();
+// ---- 共有リンク ----
+// 途中経過をURLの # 以降に入れて渡す。# 以降はサーバーへ送られないので、静的ホスティングのままで済む
+const SHARE_PREFIX='#s=';
+const MAX_NUM=999999;
+// 細工されたリンクで巨大なデータを展開させないため、受け付ける長さに上限を設ける
+const MAX_SHARE_LENGTH=20000;
+let pendingShare=null;
+function clampNum(v){const n=Math.floor(Number(v));return Number.isFinite(n)?Math.min(MAX_NUM,Math.max(0,n)):0}
+function toBase64Url(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function fromBase64Url(str){const s=atob(str.replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(s,c=>c.charCodeAt(0))}
+async function deflate(text){const stream=new Blob([text]).stream().pipeThrough(new CompressionStream('deflate-raw'));return new Uint8Array(await new Response(stream).arrayBuffer())}
+async function inflate(bytes){const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));return await new Response(stream).text()}
+function isNumericId(id){const n=Number(id);return Number.isInteger(n)&&n>0}
+// ギフトIDは "001" 形式の数字なので、数値IDを添字にした配列で持つ。
+// IDをキーにしたJSONだと、全ギフ耐久の終盤でDiscordの1メッセージ2000文字を超えるため
+function toIdArray(map){const arr=[];for(const [id,v] of Object.entries(map)){const n=clampNum(v);if(n>0&&isNumericId(id)&&getItem(id))arr[Number(id)]=n}return Array.from(arr,v=>v||0)}
+// 斜線はIDの一覧だと8割付けた時に約750文字になるため、1ギフト1ビットで持つ
+function toBitString(numbers){if(!numbers.length)return '';const bytes=new Uint8Array((Math.max(...numbers)>>3)+1);numbers.forEach(n=>{bytes[n>>3]|=1<<(n&7)});return toBase64Url(bytes)}
+function fromBitString(str){const out=[];if(typeof str!=='string'||!str)return out;fromBase64Url(str).forEach((byte,i)=>{for(let b=0;b<8;b++)if(byte&(1<<b))out.push(i*8+b)});return out}
+async function createShareUrl(){
+  const payload={
+    v:1,
+    m:operationMode==='slash'?'s':'c',
+    c:toIdArray(counts),
+    g:toIdArray(goals),
+    s:toBitString(Object.keys(manualSlashes).filter(id=>manualSlashes[id]&&isNumericId(id)&&getItem(id)).map(Number)),
+    k:customCategories.map(cat=>[cat.name,cat.giftIds.filter(isNumericId).map(Number)])
+  };
+  return location.origin+location.pathname+SHARE_PREFIX+toBase64Url(await deflate(JSON.stringify(payload)));
+}
+// 共有データは他人が作ったものなので、存在しないギフトや範囲外の数値は捨てる
+function parseSharePayload(p){
+  if(!p||p.v!==1)throw new Error('対応していない共有データです');
+  const idByNumber=new Map(items.filter(i=>isNumericId(i.id)).map(i=>[Number(i.id),String(i.id)]));
+  const fromArray=a=>{const out={};if(Array.isArray(a))a.forEach((v,n)=>{const id=idByNumber.get(n),c=clampNum(v);if(id&&c>0)out[id]=c});return out};
+  const toIds=a=>Array.isArray(a)?[...new Set(a.map(n=>idByNumber.get(Number(n))).filter(Boolean))]:[];
+  const slashes={};toIds(fromBitString(p.s)).forEach(id=>{slashes[id]=true});
+  const categories=(Array.isArray(p.k)?p.k:[]).map(c=>Array.isArray(c)?{name:String(c[0]??'').trim().slice(0,40),giftIds:toIds(c[1])}:null).filter(c=>c&&c.name&&c.giftIds.length);
+  return {operationMode:p.m==='s'?'slash':'count',counts:fromArray(p.c),goals:fromArray(p.g),manualSlashes:slashes,categories};
+}
+async function readShareFromHash(){
+  if(!location.hash.startsWith(SHARE_PREFIX))return null;
+  const encoded=location.hash.slice(SHARE_PREFIX.length);
+  if(!encoded||encoded.length>MAX_SHARE_LENGTH)throw new Error('共有データの長さが不正です');
+  return parseSharePayload(JSON.parse(await inflate(fromBase64Url(encoded))));
+}
+// 選択後に # を消さないと、再読み込みのたびに共有データの確認が出てしまう
+function clearShareHash(){if(location.hash)history.replaceState(null,'',location.pathname+location.search)}
+function showStartup(hasSaved){
+  $('restoreBtn').hidden=!hasSaved;
+  $('sharedBtn').hidden=!pendingShare;
+  $('startupTitle').textContent=pendingShare?'共有されたデータ':'前回のカウントデータ';
+  $('startupText').textContent=pendingShare
+    ?(hasSaved?'共有リンクから開きました。この端末にも前回のデータがあります。どれで始めるか選んでください。':'共有リンクから開きました。共有されたデータで続きから始めるか、新しく始めるか選んでください。')
+    :'前回のカウントデータが保存されています。続きから再開するか、新しく始めるか選んでください。';
+  $('startupModal').style.display='flex';
+}
+function startShared(){
+  const shared=pendingShare;pendingShare=null;clearShareHash();
+  counts=shared.counts;goals=shared.goals;manualSlashes=shared.manualSlashes;operationMode=shared.operationMode;customCategories=shared.categories;activeTab='全て';
+  saveProgress();setOperationModeUI();renderTabs();$('startupModal').style.display='none';render();
+}
+$('shareBtn').onclick=async()=>{
+  closeTools();
+  let url;
+  try{url=await createShareUrl()}catch(e){console.error(e);alert('このブラウザでは共有リンクを作成できません。ブラウザを最新版にしてお試しください。');return}
+  $('shareUrl').value=url;
+  $('copyShare').textContent='コピー';$('copyShareDiscord').textContent='Discord用にコピー';
+  $('shareNote').textContent=`リンクの長さ：${url.length.toLocaleString('ja-JP')} 文字`+(url.length>2000?'（Discordの通常の上限 2,000 文字を超えています）':'');
+  $('shareModal').style.display='flex';
+};
+function shareProgressLabel(){
+  const done=operationMode==='slash'
+    ?items.filter(i=>manualSlashes[String(i.id)]).length
+    :items.filter(i=>(Number(counts[String(i.id)])||0)>0).length;
+  return `ギフト共有リンク（${operationMode==='slash'?'斜線':'カウント済'} ${done}/${items.length}件）`;
+}
+async function copyShareText(text,button){
+  try{await navigator.clipboard.writeText(text);$('copyShare').textContent='コピー';$('copyShareDiscord').textContent='Discord用にコピー';button.textContent='コピーしました'}
+  catch(e){const box=$('shareUrl');box.focus();box.select();$('shareNote').textContent='自動でコピーできませんでした。選択されたリンクを手動でコピーしてください。'}
+}
+$('copyShare').onclick=()=>copyShareText($('shareUrl').value,$('copyShare'));
+// Discordのマスクリンク [表示文字](URL) にして、長いURLをチャット上で見せない
+// 表示文字に絵文字を入れるとDiscordでリンクにならず文字のまま表示されたため、絵文字は使わない
+$('copyShareDiscord').onclick=()=>copyShareText(`[${shareProgressLabel()}](${$('shareUrl').value})`,$('copyShareDiscord'));
+$('closeShare').onclick=()=>$('shareModal').style.display='none';
+$('shareModal').onclick=e=>{if(e.target.id==='shareModal')$('shareModal').style.display='none'};
+function startFresh(){pendingShare=null;clearShareHash();counts={};goals={};manualSlashes={};operationMode='count';saveProgress();setOperationModeUI();$('startupModal').style.display='none';render()}function setOperationModeUI(){$('slashModeBtn').classList.toggle('active',operationMode==='slash');$('countModeBtn').classList.toggle('active',operationMode==='count');$('modeHelp').textContent=operationMode==='slash'?'斜線モード：ギフトをタップすると赤い斜線の表示・非表示が切り替わります。':'カウントモード：ギフトをタップすると回数が増え、目標数に達すると斜線が表示されます。'}function restore(){pendingShare=null;clearShareHash();try{const d=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');counts=d.counts||{};goals=d.goals||{};manualSlashes=d.manualSlashes||{};operationMode=d.operationMode==='slash'?'slash':'count'}catch(e){counts={};goals={};manualSlashes={};operationMode='count'}setOperationModeUI();$('startupModal').style.display='none';render()} 
+async function init(){try{const r=await fetch(DATA_URL);if(!r.ok)throw new Error('ギフトデータを取得できません');items=await r.json();renderTabs();try{pendingShare=await readShareFromHash()}catch(e){console.error(e);clearShareHash();alert(typeof DecompressionStream==='undefined'?'このブラウザは共有リンクの読み込みに対応していません。ブラウザを最新版にしてお試しください。':'共有リンクを読み込めませんでした。リンクが途中で切れていないか確認してください。')}const saved=localStorage.getItem(STATE_KEY);if(pendingShare||saved){showStartup(!!saved)}else{render()}}catch(e){$('statusText').textContent='ギフトデータを読み込めませんでした。ネット接続を確認してください。';$('grid').innerHTML='<div id="empty">ギフトデータの読み込みに失敗しました。</div>';console.error(e)}}document.addEventListener('dblclick',e=>{if(e.target.closest('button,.card,input,select'))e.preventDefault()},{passive:false});$('restoreBtn').onclick=restore;$('sharedBtn').onclick=startShared;$('freshBtn').onclick=startFresh;setOperationModeUI();init();
 </script>
 </body>
 </html>
